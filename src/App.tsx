@@ -5,6 +5,7 @@ import { InspectionHud } from './ui/InspectionHud'
 import { DesenergizacaoHud } from './ui/DesenergizacaoHud'
 import { AterramentoHud } from './ui/AterramentoHud'
 import { MainMenu } from './ui/MainMenu'
+import { LandscapeFrame } from './ui/LandscapeFrame'
 import { Watermark } from './ui/Watermark'
 import { useSim } from './sim/store'
 import { useAudio } from './sim/audioStore'
@@ -73,7 +74,7 @@ export default function App() {
       {view === 'menu' ? (
         <MainMenu />
       ) : (
-        <>
+        <LandscapeFrame>
           <Suspense fallback={<Splash />}>
             <Stage />
           </Suspense>
@@ -89,7 +90,7 @@ export default function App() {
           ) : (
             <Hud />
           )}
-        </>
+        </LandscapeFrame>
       )}
     </div>
   )
