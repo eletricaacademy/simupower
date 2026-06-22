@@ -1,0 +1,34 @@
+node_modules
+dist
+dist-ssr
+*.local
+.DS_Store
+.vite
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+# cache de build TS
+*.tsbuildinfo
+
+# variáveis de ambiente
+.env
+.env.*
+!.env.example
+
+# artefatos locais / temporários
+.sim-shots/
+Thumbs.db
+
+# assets brutos pesados — descomente p/ excluir do versionamento (ver ROADMAP §5.4)
+# public/models/raw/
+
+# assets brutos pesados — só fonte p/ re-otimização (ficam locais)
+assets-raw/
