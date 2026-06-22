@@ -107,7 +107,7 @@ export function Hud() {
       {/* ---------- DESKTOP ---------- */}
       <div className="hidden md:flex absolute left-4 bottom-4 flex-col gap-3 pointer-events-auto">
         <GuidedPanel />
-        <div className="hud-glass rounded-[14px] p-3 w-[352px]">
+        <div className="checklist-box hud-glass rounded-[14px] p-3 w-[352px]">
           <div className="text-[10px] uppercase tracking-wider mb-2" style={{ color: color.textFaint }}>
             Procedimento
           </div>

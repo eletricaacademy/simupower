@@ -21,7 +21,7 @@ export function GuidedPanel() {
   const progressoTeste = isTeste && rodando ? tempo / duracao : 0
 
   return (
-    <div className="hud-glass rounded-[14px] p-4 w-[352px] max-w-[88vw]">
+    <div className="guided-panel hud-glass rounded-[14px] p-4 w-[352px] max-w-[88vw]">
       <div className="flex items-center justify-between mb-1.5">
         <span
           className="font-mono text-[11px] px-2 py-0.5 rounded-full"

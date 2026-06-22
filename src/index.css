@@ -87,6 +87,16 @@
       0 18px 50px -20px rgba(0, 0, 0, 0.8);
   }
 
+  /* Landscape curto (celular deitado): menos poluição, mais palco 3D visível.
+     Esconde a checklist (o passo já aparece no painel), estreita os painéis e
+     deixa o vidro mais translúcido pra enxergar o equipamento por trás. */
+  @media (orientation: landscape) and (max-height: 520px) {
+    .checklist-box { display: none !important; }
+    .guided-panel { width: 248px !important; padding: 12px !important; }
+    .instrument-panel { width: 280px !important; }
+    .hud-glass { background: rgba(18, 24, 33, 0.5) !important; }
+  }
+
   /* Painel sólido do readout do instrumento. */
   .instrument-panel {
     background: linear-gradient(180deg, #131922 0%, #0e131a 100%);
