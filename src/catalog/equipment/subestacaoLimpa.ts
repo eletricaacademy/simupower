@@ -9,7 +9,7 @@ export const subestacaoLimpa: Equipment = {
   id: 'subestacao-limpa',
   nome: 'Subestação',
   tipo: 'painel',
-  modelPath: '/models/subestacao-limpa.glb',
+  modelPath: 'models/subestacao-limpa.glb',
   escalaAlvo: 6.0, // ~1 unidade = 1 m
   cenario: 'subestacao-3d',
   anchors: [

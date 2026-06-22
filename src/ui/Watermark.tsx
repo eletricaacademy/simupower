@@ -10,7 +10,7 @@ export function Watermark() {
       aria-hidden
     >
       <img
-        src="/brand/logo-horizontal.png"
+        src="brand/logo-horizontal.png"
         alt=""
         style={{ width: '18vw', maxWidth: 240, opacity: 0.045 }}
       />

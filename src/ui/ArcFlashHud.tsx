@@ -43,7 +43,7 @@ export function ArcFlashHud() {
 
   // som de fundo da cabine MT (~15%) — só após a intro/vídeo
   useEffect(() => {
-    if (!intro) ambiente(true, '/sounds/cabine.mp3', 0.15)
+    if (!intro) ambiente(true, 'sounds/cabine.mp3', 0.15)
     return () => ambiente(false)
   }, [intro])
   useEffect(() => () => pararVoz(), [])

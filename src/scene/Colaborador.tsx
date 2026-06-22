@@ -12,7 +12,7 @@ const POS: [number, number, number] = [0.7, 0, 1.9] // à frente do painel (+Z),
 const ROT_Y = Math.PI // de frente para o painel (-Z)
 
 export function Colaborador() {
-  const { scene } = useGLTF('/models/colaborador.glb')
+  const { scene } = useGLTF('models/colaborador.glb')
   const modelo = useMemo(() => {
     const clone = scene.clone(true)
     clone.traverse((o) => {
@@ -36,4 +36,4 @@ export function Colaborador() {
   )
 }
 
-useGLTF.preload('/models/colaborador.glb')
+useGLTF.preload('models/colaborador.glb')

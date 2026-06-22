@@ -10,7 +10,7 @@ export const painelMT: Equipment = {
   id: 'painel-mt-cabine',
   nome: 'Painel de Média Tensão',
   tipo: 'painel',
-  modelPath: '/models/painel-mt.glb',
+  modelPath: 'models/painel-mt.glb',
   escalaAlvo: 3.6,
   cenario: 'subestacao',
   anchors: [

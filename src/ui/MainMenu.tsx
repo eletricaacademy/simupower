@@ -150,7 +150,7 @@ export function MainMenu() {
         <header className="flex items-center justify-between mb-12">
           <div className="flex items-center gap-3">
             <img
-              src="/brand/logo-horizontal.png"
+              src="brand/logo-horizontal.png"
               alt="SimuPower"
               className="h-12 w-auto"
               style={{ maxWidth: '60vw' }}

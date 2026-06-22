@@ -10,7 +10,7 @@ export const subestacao: Equipment = {
   id: 'subestacao-completa',
   nome: 'Subestação',
   tipo: 'painel',
-  modelPath: '/models/subestacao.glb',
+  modelPath: 'models/subestacao.glb',
   escalaAlvo: 6.4, // ~1 unidade = 1 m (walk-in)
   cenario: 'subestacao-3d',
   // vista de abertura calibrada (aérea 3/4)

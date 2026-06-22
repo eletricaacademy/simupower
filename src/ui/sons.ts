@@ -32,11 +32,11 @@ export function setMaster(volume: number, m: boolean) {
 
 /* --------------------- sons de arquivo (one-shot) ---------------------- */
 const ARQUIVOS = {
-  disjuntor: '/sounds/disjuntor.mp3', // abertura/fechamento do disjuntor MT (mesmo)
-  mola: '/sounds/mola.mp3', // carregamento da mola do disjuntor
-  fechadura: '/sounds/fechadura.mp3', // cadeado/LOTO
-  catraca: '/sounds/catraca.mp3', // chave catraca — aterramento temporário
-  palmas: '/sounds/palmas.mp3', // comemoração ao concluir
+  disjuntor: 'sounds/disjuntor.mp3', // abertura/fechamento do disjuntor MT (mesmo)
+  mola: 'sounds/mola.mp3', // carregamento da mola do disjuntor
+  fechadura: 'sounds/fechadura.mp3', // cadeado/LOTO
+  catraca: 'sounds/catraca.mp3', // chave catraca — aterramento temporário
+  palmas: 'sounds/palmas.mp3', // comemoração ao concluir
 } as const
 
 let molaAtual: HTMLAudioElement | null = null
@@ -100,7 +100,7 @@ export function pararVoz() {
 let amb: HTMLAudioElement | null = null
 let fadeTimer: ReturnType<typeof setInterval> | null = null
 let ambOn = false
-let ambTrack = '/sounds/subestacao.mp3'
+let ambTrack = 'sounds/subestacao.mp3'
 let ambElTrack = ''
 let ambBase = 0.5 // fração do volume mestre para o ambiente
 const DUCK = 0.1 // fração do ambiente/efeitos enquanto a voz fala (10%)
@@ -110,9 +110,9 @@ const ef = () => (vozAtiva ? DUCK : 1)
 
 /**
  * Liga/desliga um som ambiente em loop. Por padrão o zumbido da subestação;
- * o motor usa '/sounds/oficina.mp3' com base menor.
+ * o motor usa 'sounds/oficina.mp3' com base menor.
  */
-export function ambiente(on: boolean, src = '/sounds/subestacao.mp3', base = 0.2) {
+export function ambiente(on: boolean, src = 'sounds/subestacao.mp3', base = 0.2) {
   ambOn = on
   if (on) {
     ambTrack = src

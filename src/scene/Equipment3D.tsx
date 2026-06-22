@@ -247,4 +247,4 @@ export function Equipment3D({
 }
 
 // pré-carrega o asset padrão
-useGLTF.preload('/models/electric_motor.glb')
+useGLTF.preload('models/electric_motor.glb')

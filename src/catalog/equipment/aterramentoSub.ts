@@ -8,7 +8,7 @@ export const aterramentoSub: Equipment = {
   id: 'aterramento-subestacao',
   nome: 'Malha de Aterramento',
   tipo: 'painel',
-  modelPath: '/models/aterramento.glb',
+  modelPath: 'models/aterramento.glb',
   escalaAlvo: 8.0,
   cenario: 'subestacao-3d',
   anchors: [],

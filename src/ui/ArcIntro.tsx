@@ -70,7 +70,7 @@ export function ArcIntro({ onClose, onCancel }: { onClose: () => void; onCancel:
           </h2>
           <div className="rounded-[12px] overflow-hidden mb-4" style={{ border: `1px solid ${color.hairline}`, background: '#000' }}>
             <video
-              src="/videos/arco-intro.mp4"
+              src="videos/arco-intro.mp4"
               controls
               autoPlay
               playsInline

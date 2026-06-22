@@ -12,7 +12,7 @@ export const motor: Equipment = {
   id: 'motor-inducao-bt',
   nome: 'Motor de Indução Trifásico',
   tipo: 'motor',
-  modelPath: '/models/electric_motor.glb',
+  modelPath: 'models/electric_motor.glb',
   // proporcional ao megômetro/bancada (antes 2 — ficava grande demais).
   escalaAlvo: 1.2,
   anchors: [

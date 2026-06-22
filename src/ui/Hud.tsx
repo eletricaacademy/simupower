@@ -29,7 +29,7 @@ export function Hud() {
 
   // som de oficina ao fundo (só preenche o ambiente), ~10%
   useEffect(() => {
-    ambiente(true, '/sounds/oficina.mp3', 0.1)
+    ambiente(true, 'sounds/oficina.mp3', 0.1)
     return () => ambiente(false)
   }, [])
 

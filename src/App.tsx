@@ -103,7 +103,7 @@ function Splash() {
     >
       <div className="text-center">
         <img
-          src="/brand/logo-horizontal.png"
+          src="brand/logo-horizontal.png"
           alt="SimuPower"
           className="h-12 w-auto mx-auto mb-3"
           style={{ maxWidth: '70vw' }}
