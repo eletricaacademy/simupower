@@ -1,11 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
-import { TopBar } from './TopBar'
 import { GuidedPanel } from './GuidedPanel'
 import { Instrument } from './Instrument'
 import { Checklist } from './Checklist'
 import { InstructorPanel } from './InstructorPanel'
-import { ViewControls } from './ViewControls'
 import { SoundControl } from './SoundControl'
+import { HudTopBar } from './HudTopBar'
 import { Creditos } from './Creditos'
 import { ambiente, som, somArquivo } from './sons'
 import { useSim } from '../sim/store'
@@ -20,7 +19,6 @@ export function Hud() {
   const [aba, setAba] = useState<'procedimento' | 'instrumento'>('procedimento')
   const [instrutorAberto, setInstrutorAberto] = useState(false)
   const [eduAberto, setEduAberto] = useState(false)
-  const setView = useSim((s) => s.setView)
   const cumpridos = useSim((s) => s.cumpridos)
   const fase = useSim((s) => s.fase)
   const ensaio = useSim((s) => s.ensaio)
@@ -54,48 +52,7 @@ export function Hud() {
 
   return (
     <div className="pointer-events-none absolute inset-0 select-none">
-      {/* botão voltar ao menu (canto sup. esquerdo) */}
-      <button
-        onClick={() => setView('menu')}
-        aria-label="Voltar ao menu principal"
-        className="absolute hud-glass rounded-[12px] px-3 py-2 text-[12px] pointer-events-auto flex items-center gap-1.5"
-        style={{
-          top: 'max(12px, env(safe-area-inset-top))',
-          left: 'max(12px, env(safe-area-inset-left))',
-          color: color.textMuted,
-        }}
-      >
-        <span aria-hidden>‹</span> Menu
-      </button>
-
-      {/* topo */}
-      <div
-        className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 pointer-events-auto"
-        style={{ top: 'max(12px, env(safe-area-inset-top))' }}
-      >
-        <TopBar />
-        <button
-          onClick={() => setInstrutorAberto((v) => !v)}
-          aria-pressed={instrutorAberto}
-          aria-label="Modo instrutor"
-          className="hud-glass rounded-[12px] px-3 py-2 text-[12px] pointer-events-auto"
-          style={{ color: instrutorAberto ? color.accent : color.textMuted }}
-        >
-          ⚙
-        </button>
-      </div>
-
-      {/* barra de vistas de câmera (lateral direita) */}
-      <div
-        className="absolute pointer-events-auto"
-        style={{ top: 'max(12px, env(safe-area-inset-top))', right: 'max(12px, env(safe-area-inset-right))' }}
-      >
-        <SoundControl />
-      </div>
-
-      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-auto">
-        <ViewControls />
-      </div>
+      <HudTopBar onConfig={() => setInstrutorAberto((v) => !v)} configAberto={instrutorAberto} right={<SoundControl />} />
 
       {/* painel do instrutor (flutuante, canto sup. direito) */}
       {instrutorAberto && (

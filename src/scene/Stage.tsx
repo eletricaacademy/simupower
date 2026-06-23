@@ -182,7 +182,7 @@ export function Stage() {
         enableDamping={cfg.damping}
         dampingFactor={0.08}
         minDistance={ehEnv ? 0.6 : ehArc ? 2.5 : 1.4}
-        maxDistance={ehEnv ? 28 : ehArc ? 9 : 8}
+        maxDistance={ehAter ? 55 : ehEnv ? 28 : ehArc ? 9 : 8}
         maxPolarAngle={Math.PI / 2.05}
         target={defaultTarget}
       />
@@ -275,6 +275,7 @@ function EnvScene() {
   const passoIndex = useSim((s) => s.passoIndex)
   const mostrarGrade = useInsp((s) => s.mostrarGrade)
   const mostrarParedes = useInsp((s) => s.mostrarParedes)
+  const mostrarPortico = useInsp((s) => s.mostrarPortico)
   const pickMode = useSim((s) => s.pickMode)
   const setPeca = useSim((s) => s.setPeca)
   const passo = ensaio.steps[passoIndex]
@@ -287,6 +288,7 @@ function EnvScene() {
         highlightAnchorId={passo?.focoAnchorId}
         ocultarTela={!mostrarGrade}
         ocultarParedes={!mostrarParedes}
+        ocultarPortico={ehAter && !mostrarPortico}
         envIntensity={ehAter ? 0.7 : 0.35}
         pickMode={pickMode}
         onPick={(i) => {

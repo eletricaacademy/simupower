@@ -12,10 +12,10 @@ const BOTOES: { v: Vista; rotulo: string; icon: string }[] = [
   { v: 'topo', rotulo: 'Topo', icon: '⬓' },
 ]
 
-export function ViewControls() {
+export function ViewControls({ compact = false }: { compact?: boolean }) {
   const pedir = useView((s) => s.pedir)
   return (
-    <div className="hud-glass rounded-[12px] p-1 flex flex-col gap-1">
+    <div className={`hud-glass rounded-[12px] p-1 flex gap-1 ${compact ? 'flex-row' : 'flex-col'}`}>
       {BOTOES.map((b) => (
         <button
           key={b.v}
@@ -28,7 +28,7 @@ export function ViewControls() {
           <span aria-hidden style={{ fontSize: 14, width: 16, textAlign: 'center', color: color.accentCool }}>
             {b.icon}
           </span>
-          <span className="hidden sm:inline">{b.rotulo}</span>
+          {!compact && <span className="hidden sm:inline">{b.rotulo}</span>}
         </button>
       ))}
     </div>

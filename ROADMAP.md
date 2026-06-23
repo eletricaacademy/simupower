@@ -107,6 +107,25 @@ Roteamento por `modo` em `App.tsx`; cena por `cenario` em `scene/Stage.tsx` (ban
 - **Sugestão p/ agilizar (TODO opcional):** (1) `npm i -D playwright` + script `preview.mjs` reutilizável; (2) `server: { port: 5173, strictPort: true }` no `vite.config.ts`; (3) deep-link por querystring (`?ensaio=motor`) no `App.tsx` p/ pular o menu em testes.
 - Pasta `.sim-shots/` (scripts CDP + screenshots) é **descartável e tem caminhos absolutos desta máquina** — não usar no PC novo; pode apagar.
 
+## 5c. Sessão 2026-06-23 — aterramento (UX/cena) + layout global
+
+**Fluxo de medição (NBR 15749, não NBR 5419):** método trocado p/ **NBR 15749** em todo o aterramento (catálogo/engine/HUD/menu); ≤10 Ω agora é "recomendação da concessionária", não limite de norma. Passos reestruturados (5): Segurança → **Posicionar terrômetro** → Cravar estaca C → **Medir movendo P** → Resultado. A cena ACOMPANHA os passos (elementos aparecem por `cumpridos`): terrômetro+tapete+eletrodo+cabo E ao posicionar; estaca C ao cravar; estaca **P MÓVEL** (entre E e C conforme o slider) na medição.
+- **Medição:** painel do terrômetro só aparece na etapa 4 (`mostrarPainel`); slider só após **"▶ Iniciar medição"** (`medicaoIniciada`); registro MANUAL (mín. **3 pontos** p/ habilitar Calcular, com tutorial); ao **Calcular** desenha a **curva traçada** (`resultado.curva`) + **zona de patamar** (faixa verde no gráfico). `analisarPatamar()` dá a variação % e se está no platô.
+- **Laudo:** modal `ResumoLaudo` ao "Emitir resultado" com R a 62% + veredito + variação + **parecer** redigido + norma (NBR 15749/IEEE 81) + recomendação ≤10 Ω. Botões: Fechar / **Nova medição** (reinicia) / Voltar ao menu. `reiniciar()` reseta useAter+useSim e religa a câmera guiada.
+- **Terrômetro 3D:** tamanho **2×** (`COMPRIMENTO_M=0.2`); **VISOR VIRTUAL REMOVIDO** (usa o LCD do próprio modelo; leitura fica no painel do HUD). Eletrodos C/P **mais afastados** (`DIST_FATOR=1.9`). Pórtico = postes de concreto = material **`DefaultMaterial`** (RX_PORTICO em Equipment3D).
+- **Submenu:** clicar "Resistência de Aterramento" no MainMenu abre escolha **Terrômetro de haste (estaca)** [esta sim] vs **tipo alicate** [Em breve].
+- **Cenas por etapa (câmera):** vistas calibradas por Pablo e **gravadas no código** (`Step.vista` em `tests/aterramento.ts` — at-terrometro/at-estaca-c/at-medir/at-laudo + overview no at-seguranca); câmera guiada LIGADA por padrão (`setTour(true)` no mount do HUD); `maxDistance` do aterramento = **55** (ver paisagem).
+- **Paisagem (`scene/Outdoor.tsx`, leve):** **brita** granito (CanvasTexture cinza) num pátio **8,5×7** sob a subestação; **edificações de fundo** (caixas) com **3 fachadas procedurais** tileáveis (predio=janelas / galpao=chapa / bloco=painéis) variadas por prédio; árvores+postes distantes (só médio/alto). Tudo `meshLambertMaterial`, sem sombra, `dispose` no unmount. FORA da área de trabalho (frente-direita).
+
+**Layout GLOBAL (protótipo no aterramento, aplicado a todos):** componente compartilhado **`ui/HudTopBar.tsx`** = barra superior única (‹ Menu + **logo SimuPower** + título + controles à direita: `ViewControls compact` + som + ⚙). Aplicado em motor/arco/inspeção/desenergização/aterramento. **Logo agora aparece nas sims** (antes só na marca d'água). `ViewControls` ganhou prop `compact` (horizontal). Aterramento: cartão guiado COMPACTO com **dots de progresso clicáveis** (substituem a caixa "Procedimento"); **funções de calibração REMOVIDAS** (IdentificarPonto + CenaCalibrar apagados, ~160 linhas); toggles Grade/Pórtico removidos do aterramento (componente ToggleBar apagado).
+
+**Pendências/recomendações:**
+1. **`public/sounds/campo.mp3`** — áudio de campo aberto (já ligado a 30% + idle 2 min no AterramentoHud); falta o arquivo (Pablo envia).
+2. **Replicar o layout completo** nas outras 4 sims: a barra superior + logo já foram; falta **encolher os cards de baixo** (caixa "Procedimento" grande, GuidedPanel) como no aterramento (dots de progresso). Cada HUD tem layout próprio — fazer um a um.
+3. **Remover a calibração do `InstructorPanel`** (motor/arco ainda têm "Identificar ponto"/garras) — coerente com o pedido de apagar calibração.
+4. **Bugs reportados (reiniciar + animação do motor)** NÃO reproduziram em teste fresh (funcionam); provável **HMR inconsistente** após muitas edições → resolver com hard-refresh. Se recorrer numa aba limpa, investigar.
+5. **Commit + deploy** quando Pablo aprovar (fluxo local, sob demanda — Pablo controla quando publica).
+
 ## 6. Comandos
 ```
 npm install      # PC novo: instalar deps (node_modules NÃO deve ir no zip — tem binários win-x64: @img/sharp, lightningcss)

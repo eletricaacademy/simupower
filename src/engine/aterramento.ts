@@ -38,7 +38,7 @@ export interface VerdaTerra {
   cor: 'pass' | 'marginal' | 'fail'
 }
 
-/** Veredito segundo prática usual (NBR 5419 ≤ 10 Ω para SPDA). */
+/** Veredito: ≤ 10 Ω = recomendação usual da concessionária (medição NBR 15749). */
 export function avaliar(r: number): VerdaTerra {
   if (r <= 10) return { veredito: 'Adequado', cor: 'pass' }
   if (r <= 25) return { veredito: 'Atenção', cor: 'marginal' }

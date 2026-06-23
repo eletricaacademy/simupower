@@ -40,6 +40,10 @@ const RX_TELA = /fenc|lattice|tela|grade|alambrad|malha|mesh|grid|cage|rede|vaza
 /** Materiais de parede/alvenaria (no modelo da subestação = "Color M00"). */
 const RX_PAREDE = /color m00|parede|wall|alvenaria|concret|masonry|plaster|reboco|gesso/i
 
+/** Materiais do pórtico/postes de concreto (aterramento). No modelo do pátio
+ *  os postes em L usam "DefaultMaterial" (9 instâncias). Calibrável por clique. */
+const RX_PORTICO = /portico|p[oó]rtico|gantry|default ?material/i
+
 /**
  * Equipment3D — Carrega o GLB do catálogo, centraliza, normaliza a escala
  * (maior dimensão → escalaAlvo), assenta no chão (y=0) e ativa sombras.
@@ -50,6 +54,7 @@ export function Equipment3D({
   highlightAnchorId,
   ocultarTela = false,
   ocultarParedes = false,
+  ocultarPortico = false,
   envIntensity = 0.9,
   pickMode = false,
   onPick,
@@ -60,6 +65,8 @@ export function Equipment3D({
   ocultarTela?: boolean
   /** esconde as paredes (lajes grandes e finas, verticais) do recinto */
   ocultarParedes?: boolean
+  /** esconde o pórtico/estrutura metálica (aterramento) */
+  ocultarPortico?: boolean
   /** intensidade do reflexo do ambiente nos materiais (brilho) */
   envIntensity?: number
   /** modo identificar peça: clique numa malha reporta sua coord no modelo */
@@ -135,9 +142,11 @@ export function Equipment3D({
 
     // Detecta PAREDES pelo MATERIAL (no modelo da subestação = "Color M00").
     const meshesParede: THREE.Mesh[] = []
+    const meshesPortico: THREE.Mesh[] = []
     for (const mh of todas) {
       const mats = Array.isArray(mh.material) ? mh.material : [mh.material]
       const nomes = mats.map((mm) => mm?.name || '')
+      if (nomes.some((n) => RX_PORTICO.test(n))) meshesPortico.push(mh)
       if (nomes.some((n) => RX_TELA.test(n))) continue // é tela, não parede
       if (nomes.some((n) => RX_PAREDE.test(n))) meshesParede.push(mh)
     }
@@ -146,10 +155,12 @@ export function Equipment3D({
       _texturas?: Set<THREE.Texture>
       _tela?: THREE.Mesh[]
       _paredes?: THREE.Mesh[]
+      _portico?: THREE.Mesh[]
     }
     ud._texturas = texturasProprias
     ud._tela = meshesTela
     ud._paredes = meshesParede
+    ud._portico = meshesPortico
     return root
   }, [scene, texCapPx, envIntensity])
 
@@ -164,6 +175,12 @@ export function Equipment3D({
     const paredes = (modelo.userData as { _paredes?: THREE.Mesh[] })._paredes ?? []
     for (const m of paredes) m.visible = !ocultarParedes
   }, [modelo, ocultarParedes])
+
+  // mostra/oculta o pórtico/estrutura metálica
+  useEffect(() => {
+    const portico = (modelo.userData as { _portico?: THREE.Mesh[] })._portico ?? []
+    for (const m of portico) m.visible = !ocultarPortico
+  }, [modelo, ocultarPortico])
 
   // Normaliza posição/escala uma vez que o modelo muda.
   const transform = useMemo(() => {

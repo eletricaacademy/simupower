@@ -66,7 +66,7 @@ const MODULOS: Modulo[] = [
     titulo: 'Resistência de Aterramento',
     equipamento: 'Malha / Eletrodo',
     instrumento: 'Terrômetro',
-    norma: 'NBR 5419 · IEEE 81',
+    norma: 'NBR 15749 · IEEE 81',
     descricao: 'Medição de resistência de aterramento por queda de potencial (método dos 62%).',
     disponivel: true,
     par: PAR_ATERRAMENTO,
@@ -101,11 +101,24 @@ export function MainMenu() {
     }
   }
 
+  const [subAter, setSubAter] = useState(false)
+
   function abrir(m: Modulo) {
     if (!m.disponivel || !m.par) return
     carregarPar(m.par.equipamentoId, m.par.ensaioId)
     setView('sim')
   }
+
+  // ao clicar em Aterramento, abre um submenu (método de medição) em vez de
+  // entrar direto na simulação.
+  function aoAbrirCard(m: Modulo) {
+    if (m.id === 'aterramento') {
+      setSubAter(true)
+      return
+    }
+    abrir(m)
+  }
+  const aterMod = MODULOS.find((m) => m.id === 'aterramento')
 
   return (
     <div
@@ -132,6 +145,79 @@ export function MainMenu() {
           >
             ×
           </button>
+        </div>
+      )}
+
+      {/* submenu do Aterramento: escolher o método de medição */}
+      {subAter && (
+        <div
+          className="fixed inset-0 z-[60] grid place-items-center p-4"
+          style={{ background: 'rgba(7,10,14,0.82)', backdropFilter: 'blur(4px)' }}
+          onClick={() => setSubAter(false)}
+        >
+          <div
+            className="hud-glass rounded-[16px] p-6 w-[480px] max-w-[92vw]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="font-mono text-[11px] tracking-[0.2em] uppercase mb-1" style={{ color: color.accent }}>
+              Resistência de Aterramento
+            </div>
+            <h2 className="font-display font-bold text-[20px] mb-1" style={{ color: color.text }}>
+              Escolha o método de medição
+            </h2>
+            <p className="text-[13px] mb-5" style={{ color: color.textMuted }}>
+              Dois tipos de terrômetro — comece pelo de haste (queda de potencial).
+            </p>
+
+            {/* opção 1: terrômetro de haste (disponível) */}
+            <button
+              onClick={() => {
+                setSubAter(false)
+                if (aterMod) abrir(aterMod)
+              }}
+              className="w-full text-left rounded-[12px] p-4 mb-3 transition-all"
+              style={{ background: '#0c1117', border: `1px solid ${color.accent}` }}
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-display font-semibold text-[15px]" style={{ color: color.text }}>
+                  Terrômetro de haste (estaca)
+                </span>
+                <span className="font-mono text-[10px] px-2 py-0.5 rounded-full" style={{ color: color.status.pass, border: `1px solid ${color.status.pass}55` }}>
+                  Disponível
+                </span>
+              </div>
+              <div className="text-[12px] mt-1" style={{ color: color.textMuted }}>
+                Método da queda de potencial (62%) — estacas C e P cravadas no solo.
+              </div>
+            </button>
+
+            {/* opção 2: terrômetro tipo alicate (em breve) */}
+            <button
+              disabled
+              className="w-full text-left rounded-[12px] p-4 mb-4"
+              style={{ background: 'rgba(18,24,33,0.4)', border: `1px solid ${color.hairline}`, opacity: 0.6, cursor: 'default' }}
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-display font-semibold text-[15px]" style={{ color: color.textMuted }}>
+                  Terrômetro tipo alicate
+                </span>
+                <span className="font-mono text-[10px] px-2 py-0.5 rounded-full" style={{ color: color.textFaint, border: `1px solid ${color.hairline}` }}>
+                  Em breve
+                </span>
+              </div>
+              <div className="text-[12px] mt-1" style={{ color: color.textFaint }}>
+                Medição por alicate (sem cravar estacas) — em desenvolvimento.
+              </div>
+            </button>
+
+            <button
+              onClick={() => setSubAter(false)}
+              className="text-[12px]"
+              style={{ color: color.textMuted }}
+            >
+              ‹ Voltar
+            </button>
+          </div>
         </div>
       )}
 
@@ -206,7 +292,7 @@ export function MainMenu() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             {MODULOS.map((m) => (
-              <Card key={m.id} m={m} onOpen={() => abrir(m)} />
+              <Card key={m.id} m={m} onOpen={() => aoAbrirCard(m)} />
             ))}
           </div>
         </section>

@@ -4,7 +4,7 @@ import { useInsp } from '../sim/inspStore'
 import { avaliarInspecao, type StatusItem } from '../engine/inspection'
 import { Checklist } from './Checklist'
 import { QualityPicker } from './QualityPicker'
-import { ViewControls } from './ViewControls'
+import { HudTopBar } from './HudTopBar'
 import { Creditos } from './Creditos'
 import { useDraggable } from './useDraggable'
 import { ambiente, somVoz, pararVoz } from './sons'
@@ -29,7 +29,6 @@ export function InspectionHud() {
   const [configAberto, setConfigAberto] = useState(false)
   const [falando, setFalando] = useState(false)
   const [pronto, setPronto] = useState(false)
-  const setView = useSim((s) => s.setView)
   const tourAtivo = useSim((s) => s.tourAtivo)
   const passoIndex = useSim((s) => s.passoIndex)
   const ensaio = useSim((s) => s.ensaio)
@@ -69,53 +68,19 @@ export function InspectionHud() {
 
   return (
     <div className="pointer-events-none absolute inset-0 select-none">
-      <button
-        onClick={() => setView('menu')}
-        aria-label="Voltar ao menu principal"
-        className="absolute hud-glass rounded-[12px] px-3 py-2 text-[12px] pointer-events-auto flex items-center gap-1.5"
-        style={{
-          top: 'max(12px, env(safe-area-inset-top))',
-          left: 'max(12px, env(safe-area-inset-left))',
-          color: color.textMuted,
-        }}
-      >
-        <span aria-hidden>‹</span> Menu
-      </button>
+      <HudTopBar onConfig={() => setConfigAberto((v) => !v)} configAberto={configAberto} right={<SoundControl />} />
 
-      <div
-        className="absolute pointer-events-auto"
-        style={{ top: 56, left: 'max(12px, env(safe-area-inset-left))' }}
-      >
+      {/* avatar do apresentador (narração) */}
+      <div className="absolute pointer-events-auto" style={{ top: 60, left: 'max(12px, env(safe-area-inset-left))' }}>
         <Apresentador falando={falando} onReplay={narrar} />
       </div>
 
+      {/* toggles grade/paredes (inspeção) — abaixo da barra superior */}
       <div
-        className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-auto"
-        style={{ top: 'max(12px, env(safe-area-inset-top))' }}
+        className="absolute left-1/2 -translate-x-1/2 pointer-events-auto"
+        style={{ top: 'calc(max(10px, env(safe-area-inset-top)) + 48px)' }}
       >
-        <div className="flex items-center gap-2">
-          <InspTopBar />
-          <button
-            onClick={() => setConfigAberto((v) => !v)}
-            aria-label="Configurações"
-            className="hud-glass rounded-[12px] px-3 py-2 text-[12px]"
-            style={{ color: configAberto ? color.accent : color.textMuted }}
-          >
-            ⚙
-          </button>
-        </div>
         <ToggleBar />
-      </div>
-
-      <div
-        className="absolute pointer-events-auto"
-        style={{ top: 'max(12px, env(safe-area-inset-top))', right: 'max(12px, env(safe-area-inset-right))' }}
-      >
-        <SoundControl />
-      </div>
-
-      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-auto">
-        <ViewControls />
       </div>
 
       {configAberto && (
@@ -200,37 +165,6 @@ function useResultado() {
   return avaliarInspecao(arr)
 }
 
-function InspTopBar() {
-  const equipamento = useSim((s) => s.equipamento)
-  const ensaio = useSim((s) => s.ensaio)
-  const r = useResultado()
-  const estado =
-    r.pendentes > 0
-      ? { txt: `${r.conformes + r.naoConformes}/${r.total} ITENS`, cor: color.textMuted }
-      : { txt: r.veredito.toUpperCase(), cor: COR[r.cor] }
-
-  return (
-    <div className="hud-glass rounded-[12px] px-4 py-2 flex items-center gap-4 max-w-[94vw]">
-      <div className="flex items-center gap-2">
-        <div className="leading-tight">
-          <div className="font-display font-semibold text-[13px]" style={{ color: color.text }}>
-            {equipamento.nome}
-          </div>
-          <div className="text-[10px]" style={{ color: color.textFaint }}>
-            {ensaio.nome} · {ensaio.norma}
-          </div>
-        </div>
-      </div>
-      <div className="h-7 w-px" style={{ background: color.hairline }} />
-      <div className="flex items-center gap-1.5">
-        <span className="inline-block w-2 h-2 rounded-full" style={{ background: estado.cor, boxShadow: `0 0 8px ${estado.cor}` }} />
-        <span className="font-mono text-[11px]" style={{ color: estado.cor }}>
-          {estado.txt}
-        </span>
-      </div>
-    </div>
-  )
-}
 
 /** Cartão inicial: explorar livre e iniciar a visita guiada. */
 function IntroCard() {
