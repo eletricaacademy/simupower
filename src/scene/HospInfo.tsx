@@ -113,7 +113,7 @@ function Bola({ label }: { label: string }) {
 
 const HOTSPOTS: { pos: [number, number, number]; titulo: string; texto: string }[] = [
   {
-    pos: [6.0, 2.2, 4.55],
+    pos: [6.0, 2.95, 4.55], // ACIMA do painel p/ não atrapalhar a cena
     titulo: 'Quadro de distribuição',
     texto: 'Proteção por DR ≤ 30 mA, disjuntores identificados e barramento de equipotencialização (BEP). Base a 1,60 m do piso.',
   },

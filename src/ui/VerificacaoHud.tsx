@@ -95,6 +95,8 @@ export function VerificacaoHud() {
             <CondicaoToggle />
             <div className="my-3 h-px" style={{ background: color.hairline }} />
             <IdentificarPeca />
+            <div className="my-3 h-px" style={{ background: color.hairline }} />
+            <CapturarCena />
           </div>
         </div>
       )}
@@ -110,6 +112,7 @@ export function VerificacaoHud() {
       </div>
 
       {!pronto && <IntroVerif onClose={() => setPronto(true)} />}
+      <RelatorioVerif />
 
       <div className="hidden md:block">
         <Creditos />
@@ -162,11 +165,14 @@ function EnsaioPanel() {
   const iniciarMedir = useVerif((s) => s.iniciarMedicao)
   const proximo = useVerif((s) => s.proximoEnsaio)
   const anterior = useVerif((s) => s.anteriorEnsaio)
+  const abrirRelatorio = useVerif((s) => s.abrirRelatorio)
+  const registros = useVerif((s) => s.registros)
   const pedirVista = useView((s) => s.pedir)
   const ensaio = ENSAIOS_VERIFICACAO[ensaioIndex]
   const total = ENSAIOS_VERIFICACAO.length
+  const feitos = ENSAIOS_VERIFICACAO.filter((e) => Object.keys(registros).some((k) => k.startsWith(e.id + '@'))).length
+  const completo = feitos === total
   const func = FLUKE_FUNCOES.find((f) => f.id === ensaio.funcao)
-  const alvoTomada = ensaio.alvo === 'tomada'
 
   // ao medir: foca a câmera na área do ensaio (tomada ativa / Fluke) e mede
   function iniciar() {
@@ -213,30 +219,39 @@ function EnsaioPanel() {
         <div className="font-mono" style={{ color: color.textFaint }}>{ensaio.norma}</div>
       </div>
 
-      {/* seletor de alvo (tomadas) p/ ensaios de tomada */}
-      {alvoTomada && (
-        <div className="mb-3">
-          <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ color: color.textFaint }}>
-            Ponto de ensaio
-          </div>
-          <div className="flex gap-1.5 flex-wrap">
-            {TOMADAS_BR.map((t, i) => (
-              <button
-                key={t.id}
-                onClick={() => setAlvo(t.id)}
-                className="text-[11px] px-2.5 py-1 rounded-[8px] transition-colors"
-                style={{
-                  background: alvo === t.id ? color.accent + '22' : '#0c1117',
-                  color: alvo === t.id ? color.accent : color.textMuted,
-                  border: `1px solid ${alvo === t.id ? color.accent + '66' : color.hairline}`,
-                }}
-              >
-                Tomada {i + 1}
-              </button>
-            ))}
-          </div>
+      {/* seletor de ponto de ensaio: tomadas + quadro (move o Fluke p/ o alvo) */}
+      <div className="mb-3">
+        <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ color: color.textFaint }}>
+          Ponto de ensaio
         </div>
-      )}
+        <div className="flex gap-1.5 flex-wrap">
+          {TOMADAS_BR.map((t, i) => (
+            <button
+              key={t.id}
+              onClick={() => setAlvo(t.id)}
+              className="text-[11px] px-2.5 py-1 rounded-[8px] transition-colors"
+              style={{
+                background: alvo === t.id ? color.accent + '22' : '#0c1117',
+                color: alvo === t.id ? color.accent : color.textMuted,
+                border: `1px solid ${alvo === t.id ? color.accent + '66' : color.hairline}`,
+              }}
+            >
+              Tomada {i + 1}
+            </button>
+          ))}
+          <button
+            onClick={() => setAlvo('quadro')}
+            className="text-[11px] px-2.5 py-1 rounded-[8px] transition-colors"
+            style={{
+              background: alvo === 'quadro' ? color.accent + '22' : '#0c1117',
+              color: alvo === 'quadro' ? color.accent : color.textMuted,
+              border: `1px solid ${alvo === 'quadro' ? color.accent + '66' : color.hairline}`,
+            }}
+          >
+            ▦ Quadro
+          </button>
+        </div>
+      </div>
 
       {/* medir + navegação */}
       <div className="flex gap-2 items-center">
@@ -255,6 +270,19 @@ function EnsaioPanel() {
           ›
         </button>
       </div>
+
+      {/* concluir → laudo final */}
+      <button
+        onClick={abrirRelatorio}
+        className="w-full mt-2 py-2 rounded-[10px] text-[12.5px] font-medium flex items-center justify-center gap-2 transition-colors"
+        style={{
+          background: completo ? color.status.pass + '22' : '#0c1117',
+          color: completo ? color.status.pass : color.textMuted,
+          border: `1px solid ${completo ? color.status.pass + '66' : color.hairline}`,
+        }}
+      >
+        📋 Concluir verificação <span className="font-mono text-[11px] opacity-80">{feitos}/{total}</span>
+      </button>
     </div>
   )
 }
@@ -343,6 +371,38 @@ function CondicaoToggle() {
   )
 }
 
+/** Capturar cena: grava a POSE atual da câmera (posição + alvo) p/ definir vistas. */
+function CapturarCena() {
+  const pedirCaptura = useSim((s) => s.pedirCaptura)
+  const cenaPose = useSim((s) => s.cenaPose)
+  return (
+    <div>
+      <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ color: color.textFaint }}>
+        Capturar cena (pose da câmera)
+      </div>
+      <button
+        onClick={pedirCaptura}
+        className="w-full text-[12px] py-1.5 rounded-[8px]"
+        style={{ background: '#0c1117', color: color.text, border: `1px solid ${color.hairline}` }}
+      >
+        🎥 Capturar posição da câmera
+      </button>
+      {cenaPose && (
+        <div
+          className="rounded-[8px] px-2.5 py-1.5 mt-1.5 font-mono text-[11px] break-all"
+          style={{ background: '#0c1117', color: color.accentCool, border: `1px solid ${color.hairline}` }}
+        >
+          {cenaPose}
+        </div>
+      )}
+      <p className="text-[10px] leading-snug mt-1.5" style={{ color: color.textFaint }}>
+        Enquadre a cena na câmera e capture — a pose (posição + alvo) é copiada; me
+        envie que eu gravo como vista inicial.
+      </p>
+    </div>
+  )
+}
+
 /** Identificar ponto: liga o modo, clique acumula coords numa lista. */
 function IdentificarPeca() {
   const pickMode = useSim((s) => s.pickMode)
@@ -385,6 +445,143 @@ function IdentificarPeca() {
           </div>
         </>
       )}
+    </div>
+  )
+}
+
+/** Nome amigável do alvo do ensaio. */
+function nomeAlvo(a: string): string {
+  if (a === 'quadro') return 'Quadro de distribuição'
+  if (a === 'instalacao') return 'Instalação'
+  if (a === 'condutor-protecao') return 'Condutor de proteção (PE)'
+  const m = a.match(/tomada-br-(\d)/)
+  return m ? `Tomada ${m[1]}` : a
+}
+
+/**
+ * RelatorioVerif — popup de CONCLUSÃO dos ensaios da §7: laudo profissional com
+ * cada ensaio, leitura, critério e veredito, e o parecer final (aprovado /
+ * não conforme / em andamento). Documento claro sobre o HUD escuro.
+ */
+function RelatorioVerif() {
+  const aberto = useVerif((s) => s.relatorioAberto)
+  const fechar = useVerif((s) => s.fecharRelatorio)
+  const registros = useVerif((s) => s.registros)
+  const reset = useVerif((s) => s.reset)
+  if (!aberto) return null
+
+  const linhas = ENSAIOS_VERIFICACAO.map((ensaio) => ({
+    ensaio,
+    pontos: Object.entries(registros)
+      .filter(([k]) => k.startsWith(ensaio.id + '@'))
+      .map(([k, r]) => ({ alvo: k.split('@')[1], r })),
+  }))
+  const total = ENSAIOS_VERIFICACAO.length
+  const feitos = linhas.filter((l) => l.pontos.length > 0).length
+  const algumReprovado = Object.values(registros).some((r) => !r.aprovado)
+  const status = algumReprovado ? 'reprovado' : feitos === total ? 'aprovado' : 'andamento'
+
+  const parecer =
+    status === 'aprovado'
+      ? { txt: 'INSTALAÇÃO APROVADA', sub: 'Todos os ensaios atenderam aos critérios da NBR 5410 — Seção 7.', bg: '#e7f6ec', fg: '#1e7e44', bar: '#27ae60', ico: '✓' }
+      : status === 'reprovado'
+        ? { txt: 'NÃO CONFORME', sub: 'Há ensaios fora do critério — corrigir e reensaiar antes da energização.', bg: '#fdeceb', fg: '#b3271e', bar: '#e74c3c', ico: '✕' }
+        : { txt: 'VERIFICAÇÃO EM ANDAMENTO', sub: `${feitos} de ${total} ensaios concluídos. Conclua os demais para o parecer final.`, bg: '#fef6e6', fg: '#8a6100', bar: '#f0a500', ico: '◔' }
+
+  const data = new Date().toLocaleDateString('pt-BR')
+
+  return (
+    <div
+      className="absolute inset-0 z-[70] grid place-items-center p-4 pointer-events-auto"
+      style={{ background: 'rgba(7,10,14,0.85)', backdropFilter: 'blur(4px)' }}
+      onClick={fechar}
+    >
+      <div
+        className="rounded-[16px] w-[660px] max-w-[94vw] max-h-[90vh] overflow-hidden flex flex-col"
+        style={{ background: '#f7f9fb', boxShadow: '0 30px 80px -24px #000', fontFamily: 'Inter, system-ui, sans-serif' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* cabeçalho */}
+        <div style={{ background: '#13243b', color: '#fff', padding: '18px 24px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ fontSize: 11, letterSpacing: 2, color: '#7fb0ff', fontWeight: 700 }}>LAUDO DE VERIFICAÇÃO FINAL</div>
+            <div style={{ fontSize: 20, fontWeight: 800, marginTop: 2 }}>NBR 5410 — Seção 7</div>
+            <div style={{ fontSize: 13, color: '#aebfd4' }}>Verificação de instalação · Ambiente hospitalar</div>
+          </div>
+          <button onClick={fechar} aria-label="Fechar laudo" style={{ color: '#aebfd4', fontSize: 22, lineHeight: 1 }}>×</button>
+        </div>
+
+        {/* metadados */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 24px', padding: '10px 24px', fontSize: 12, color: '#5b6b7c', background: '#eef2f6', borderBottom: '1px solid #dde4ec' }}>
+          <span><b style={{ color: '#1d2733' }}>Instrumento:</b> Fluke 1662</span>
+          <span><b style={{ color: '#1d2733' }}>Método:</b> Ensaios §7.3 (verificação final)</span>
+          <span><b style={{ color: '#1d2733' }}>Data:</b> {data}</span>
+        </div>
+
+        {/* parecer */}
+        <div style={{ background: parecer.bg, borderLeft: `5px solid ${parecer.bar}`, padding: '14px 24px', display: 'flex', alignItems: 'center', gap: 14 }}>
+          <span style={{ color: parecer.fg, fontSize: 26, fontWeight: 800 }}>{parecer.ico}</span>
+          <div>
+            <div style={{ color: parecer.fg, fontWeight: 800, fontSize: 17 }}>{parecer.txt}</div>
+            <div style={{ color: '#41505f', fontSize: 12.5 }}>{parecer.sub}</div>
+          </div>
+        </div>
+
+        {/* tabela de ensaios */}
+        <div className="hud-scroll" style={{ overflowY: 'auto', padding: '4px 24px 8px' }}>
+          {linhas.map(({ ensaio, pontos }) => {
+            const pend = pontos.length === 0
+            const ruim = pontos.some((p) => !p.r.aprovado)
+            const cor = pend ? '#9aa3ad' : ruim ? '#b3271e' : '#1e7e44'
+            return (
+              <div key={ensaio.id} style={{ borderBottom: '1px solid #e6eaef', padding: '11px 0', display: 'flex', gap: 11 }}>
+                <span style={{ color: cor, fontWeight: 800, fontSize: 16, width: 16, textAlign: 'center' }}>{pend ? '○' : ruim ? '✕' : '✓'}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'baseline' }}>
+                    <span style={{ fontWeight: 700, fontSize: 14, color: '#1d2733' }}>{ensaio.nome}</span>
+                    {!pend && <span style={{ fontWeight: 800, fontSize: 11, color: cor, letterSpacing: 0.5, whiteSpace: 'nowrap' }}>{ruim ? 'NÃO CONFORME' : 'CONFORME'}</span>}
+                  </div>
+                  <div style={{ fontSize: 11.5, color: '#6b7785', marginTop: 1 }}>{ensaio.norma}</div>
+                  {pend ? (
+                    <div style={{ fontSize: 12, color: '#9aa3ad', marginTop: 3, fontStyle: 'italic' }}>Não ensaiado.</div>
+                  ) : (
+                    pontos.map((p, i) => (
+                      <div key={i} style={{ fontSize: 12, color: '#41505f', marginTop: 3, display: 'flex', gap: 6 }}>
+                        <span style={{ color: '#1d2733', fontWeight: 700, whiteSpace: 'nowrap' }}>{p.r.display} {p.r.unidade}</span>
+                        <span style={{ color: '#8a96a3' }}>·</span>
+                        <span><b style={{ color: '#41505f' }}>{nomeAlvo(p.alvo)}</b> — {p.r.veredito}</span>
+                      </div>
+                    ))
+                  )}
+                  <div style={{ fontSize: 11, color: '#8a96a3', marginTop: 3 }}>Critério: {ensaio.criterio}</div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* rodapé */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '12px 24px', borderTop: '1px solid #dde4ec', background: '#eef2f6' }}>
+          <span style={{ fontSize: 11, color: '#8a96a3' }}>Documento de treinamento — SimuPower · não substitui laudo de profissional habilitado.</span>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              onClick={() => {
+                reset()
+                fechar()
+              }}
+              style={{ fontSize: 12.5, padding: '8px 14px', borderRadius: 9, background: '#fff', color: '#41505f', border: '1px solid #cdd6df', fontWeight: 600 }}
+            >
+              ↺ Nova verificação
+            </button>
+            <button
+              onClick={fechar}
+              style={{ fontSize: 12.5, padding: '8px 18px', borderRadius: 9, background: '#13243b', color: '#fff', fontWeight: 700 }}
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

@@ -22,8 +22,12 @@ interface VerifState {
   condicao: CondicaoInstalacao
   /** Resultados por ensaio+alvo já concluídos (p/ o checklist/laudo). */
   registros: Record<string, LeituraEnsaio>
+  /** Popup do laudo final (conclusão dos ensaios) aberto. */
+  relatorioAberto: boolean
 
   setEnsaio: (i: number) => void
+  abrirRelatorio: () => void
+  fecharRelatorio: () => void
   setAlvo: (a: string) => void
   setCondicao: (c: CondicaoInstalacao) => void
   iniciarMedicao: () => void
@@ -44,6 +48,10 @@ export const useVerif = create<VerifState>((set, get) => ({
   resultado: null,
   condicao: 'ok',
   registros: {},
+  relatorioAberto: false,
+
+  abrirRelatorio: () => set({ relatorioAberto: true }),
+  fecharRelatorio: () => set({ relatorioAberto: false }),
 
   setEnsaio: (i) => {
     const idx = Math.max(0, Math.min(i, ENSAIOS_VERIFICACAO.length - 1))
@@ -79,5 +87,5 @@ export const useVerif = create<VerifState>((set, get) => ({
   proximoEnsaio: () => get().setEnsaio(get().ensaioIndex + 1),
   anteriorEnsaio: () => get().setEnsaio(get().ensaioIndex - 1),
 
-  reset: () => set({ ensaioIndex: 0, alvo: 'tomada-br-1', fase: 'idle', display: '--', resultado: null, registros: {} }),
+  reset: () => set({ ensaioIndex: 0, alvo: 'tomada-br-1', fase: 'idle', display: '--', resultado: null, registros: {}, relatorioAberto: false }),
 }))

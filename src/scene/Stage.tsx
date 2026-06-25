@@ -29,6 +29,7 @@ import { Tomada } from './Tomada'
 import { TomadasBR } from './TomadaBR'
 import { Fluke1662 } from './Fluke1662'
 import { ParedeDestaque, InsightsBoard, InfoHotspots } from './HospInfo'
+import { DR } from './DR'
 import { Outdoor } from './Outdoor'
 import { ViewCommands } from './ViewCommands'
 import { useSim } from '../sim/store'
@@ -70,11 +71,19 @@ export function Stage() {
   // vista de foco na tomada ativa (verificação) — usada pelo botão/início do ensaio
   const alvoVerif = useVerif((s) => s.alvo)
   const focoView = useMemo(() => {
+    // QUADRO: enquadra o Fluke (em frente aos barramentos) + área de ensaio.
+    if (alvoVerif === 'quadro') {
+      return {
+        pos: [4.15, 2.0, 4.2] as [number, number, number],
+        target: [5.62, 1.92, 4.46] as [number, number, number],
+      }
+    }
     const [sx, sy, sz] = posSoqueteBR(alvoVerif)
-    // aproxima do equipamento (Fluke à frente da tomada): close-up 3/4
+    // Pose capturada pelo Pablo (tomada-br-1): pos [4.37,1.18,3.07] alvo
+    // [6.21,0.99,3.08] → offsets relativos ao soquete (segue a tomada ativa).
     return {
-      pos: [sx - 0.8, sy - 0.05, sz - 0.52] as [number, number, number],
-      target: [sx - 0.24, sy - 0.2, sz] as [number, number, number],
+      pos: [sx - 1.839, sy - 0.02, sz - 0.03] as [number, number, number],
+      target: [sx + 0.001, sy - 0.21, sz - 0.02] as [number, number, number],
     }
   }, [alvoVerif])
 
@@ -241,6 +250,7 @@ export function Stage() {
       <InitialPose />
       <ActivityDriver fpsCap={cfg.fpsCap} />
       <AutoDegrade maxDpr={cfg.dprMax} />
+      <CapturaCena />
 
       {cfg.postprocessing && (
         <EffectComposer enableNormalPass={false} multisampling={cfg.antialias ? 2 : 0}>
@@ -345,6 +355,7 @@ function HospScene() {
       <HospWallPatch />
       <HandleCover />
       <QuadroEletrico />
+      <DR />
       <Tomada />
       <TomadasBR />
       <Fluke1662 />
@@ -485,6 +496,31 @@ function TickDriver() {
  * enquanto o ensaio roda (curva ao vivo) e um quadro pontual a cada mudança
  * discreta (passo, interação). Em 'always' é inócuo.
  */
+/**
+ * CapturaCena — quando o instrutor pede "Capturar cena", grava a POSE atual da
+ * câmera (posição + alvo dos controles) como texto, pronto p/ definir vistas.
+ */
+function CapturaCena() {
+  const tick = useSim((s) => s.capturaTick)
+  const camera = useThree((s) => s.camera)
+  const controls = useThree((s) => s.controls) as { target: THREE.Vector3 } | null
+  const setCenaPose = useSim((s) => s.setCenaPose)
+  const montou = useRef(false)
+  useEffect(() => {
+    if (!montou.current) {
+      montou.current = true
+      return // ignora a montagem inicial (tick = 0)
+    }
+    const p = camera.position
+    const t = controls?.target ?? new THREE.Vector3()
+    const f = (v: THREE.Vector3) => `${v.x.toFixed(2)}, ${v.y.toFixed(2)}, ${v.z.toFixed(2)}`
+    const texto = `pos: [${f(p)}]  alvo: [${f(t)}]`
+    setCenaPose(texto)
+    navigator.clipboard?.writeText(texto)
+  }, [tick, camera, controls, setCenaPose])
+  return null
+}
+
 function ActivityDriver({ fpsCap }: { fpsCap: number }) {
   const invalidate = useThree((s) => s.invalidate)
   const fase = useSim((s) => s.fase)

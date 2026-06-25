@@ -43,8 +43,10 @@ export const FLUKE_FUNCOES: FlukeFuncaoInfo[] = [
  * pelo Pablo). Usados quando o procedimento passar das tomadas para o quadro.
  */
 export const QUADRO_PONTOS = {
-  barramentoFase: [6.22, 2.41, 4.23] as [number, number, number],
-  barramentoTerra: [6.22, 2.36, 4.33] as [number, number, number],
+  barramentoTerra: [6.22, 2.34, 4.34] as [number, number, number], // terra (verde)
+  barramentoFase: [6.22, 2.08, 4.56] as [number, number, number], // fase (vermelho) — testes gerais
+  pontoDR: [6.22, 1.82, 4.39] as [number, number, number], // DR — testes de DR (rcd): vermelho vai aqui
+  barramentoNeutro: [6.22, 2.3, 4.77] as [number, number, number], // neutro (azul) — +2cm à direita (z 4.75→4.77)
 }
 
 // ─── Ensaios da NBR 5410 §7 ──────────────────────────────────────────────────

@@ -59,6 +59,10 @@ interface SimState {
   peca: string
   /** histórico de pontos identificados (calibração — vários cliques) */
   pickLog: string[]
+  /** contador p/ disparar a captura da POSE da câmera (posição + alvo) */
+  capturaTick: number
+  /** última pose de câmera capturada (texto pronto p/ colar como vista) */
+  cenaPose: string
   /** id do passo aguardando confirmação "Preparado? Sim/Não" (manobras) */
   confirmando: string | null
 
@@ -92,6 +96,10 @@ interface SimState {
   setPeca: (s: string) => void
   addPickLog: (s: string) => void
   clearPickLog: () => void
+  /** dispara a captura da pose da câmera (posição + alvo) */
+  pedirCaptura: () => void
+  /** grava o texto da pose capturada (chamado de dentro do Canvas) */
+  setCenaPose: (s: string) => void
   setConfirmando: (id: string | null) => void
   reset: () => void
 }
@@ -130,6 +138,8 @@ export const useSim = create<SimState>((set, get) => ({
   pickMode: false,
   peca: '',
   pickLog: [],
+  capturaTick: 0,
+  cenaPose: '',
   confirmando: null,
 
   interagiu: false,
@@ -252,6 +262,8 @@ export const useSim = create<SimState>((set, get) => ({
   setPickMode: (on) => set({ pickMode: on }),
   setPeca: (s) => set({ peca: s }),
   addPickLog: (s) => set((st) => ({ pickLog: [...st.pickLog, s] })),
+  pedirCaptura: () => set((st) => ({ capturaTick: st.capturaTick + 1 })),
+  setCenaPose: (s) => set({ cenaPose: s }),
   clearPickLog: () => set({ pickLog: [] }),
   setConfirmando: (id) => set({ confirmando: id }),
   setQualidadePref: (p) => {

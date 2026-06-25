@@ -93,11 +93,13 @@ function OutletGeom() {
         <meshStandardMaterial color="#f1efe9" roughness={0.55} metalness={0} />
       </mesh>
 
-      {/* 3 furos (pinos) escuros, rasos, no fundo do recesso (visíveis de frente) */}
+      {/* 3 furos (pinos) escuros, rasos, no fundo do recesso (visíveis de frente).
+          Ficam ~1mm À FRENTE do disco do fundo p/ evitar z-fighting (coplanar
+          sumia os furos em certos ângulos). renderOrder garante prioridade. */}
       {furos.map(([x, y], i) => (
-        <mesh key={i} position={[x, y, fundoZ - 0.0015]} rotation={[Math.PI / 2, 0, 0]}>
+        <mesh key={i} position={[x, y, fundoZ + 0.0006]} rotation={[Math.PI / 2, 0, 0]} renderOrder={2}>
           <cylinderGeometry args={[R_FURO, R_FURO, 0.004, 20]} />
-          <meshStandardMaterial color="#15151a" roughness={0.75} metalness={0.05} />
+          <meshStandardMaterial color="#15151a" roughness={0.75} metalness={0.05} depthWrite={false} polygonOffset polygonOffsetFactor={-2} polygonOffsetUnits={-2} />
         </mesh>
       ))}
     </group>
@@ -125,11 +127,8 @@ const BACK = D / 2 // recuo p/ o fundo da placa encostar na parede
 /** Parâmetros de montagem das tomadas BR (reusados pelo Fluke p/ alinhar). */
 export const TOMADA_BR = { wallX: WALL_X, y: Y, frenteX: WALL_X - D } // frenteX ≈ face do soquete
 
-export const TOMADAS_BR: { id: string; z: number }[] = [
-  { id: 'tomada-br-1', z: 3.1 },
-  { id: 'tomada-br-2', z: 2.9 },
-  { id: 'tomada-br-3', z: 2.7 },
-]
+// Apenas a tomada 1 (tomada 2 e 3 removidas dos testes a pedido do Pablo).
+export const TOMADAS_BR: { id: string; z: number }[] = [{ id: 'tomada-br-1', z: 3.1 }]
 
 /** Posição-mundo do soquete (frente) de uma tomada BR pelo id. */
 export function posSoqueteBR(id: string): [number, number, number] {

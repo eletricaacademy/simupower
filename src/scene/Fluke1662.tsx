@@ -3,8 +3,12 @@ import { useGLTF, Html } from '@react-three/drei'
 import * as THREE from 'three'
 import { asset } from '../lib/asset'
 import { useVerif } from '../sim/verifStore'
-import { ENSAIOS_VERIFICACAO, FLUKE_FUNCOES } from '../catalog/verificacaoTestes'
+import { ENSAIOS_VERIFICACAO, FLUKE_FUNCOES, QUADRO_PONTOS } from '../catalog/verificacaoTestes'
 import { posFurosBR, posSoqueteBR } from './TomadaBR'
+
+// Modo QUADRO: Fluke posicionado em frente aos barramentos, com 2 cabos
+// (fase=vermelho, terra=verde) até os pontos de barramento do Pablo.
+const FLUKE_QUADRO_POS: [number, number, number] = [5.58, 1.65, 4.5] // baixado 25cm
 
 /**
  * Visor projetado sobre o LCD do modelo. A superfície do LCD é INCLINADA (~10,6°:
@@ -63,6 +67,37 @@ function Cabo({ a, b, cor, sag = 0.05 }: { a: THREE.Vector3; b: THREE.Vector3; c
   )
 }
 
+/**
+ * Garra jacaré (clipe de prova) na ponta do cabo. `pos` = ponto do barramento
+ * (as mandíbulas mordem ali, +x); a bota isolada (cor do cabo) fica p/ -x, onde
+ * o cabo conecta.
+ */
+function GarraJacare({ pos, cor }: { pos: THREE.Vector3; cor: string }) {
+  return (
+    <group position={[pos.x, pos.y, pos.z]}>
+      {/* mandíbulas em V mordendo o barramento */}
+      <mesh position={[-0.013, 0.0072, 0]} rotation={[0, 0, -0.14]} castShadow>
+        <boxGeometry args={[0.044, 0.0058, 0.013]} />
+        <meshStandardMaterial color="#9a9aa0" roughness={0.3} metalness={0.9} />
+      </mesh>
+      <mesh position={[-0.013, -0.0072, 0]} rotation={[0, 0, 0.14]} castShadow>
+        <boxGeometry args={[0.044, 0.0058, 0.013]} />
+        <meshStandardMaterial color="#9a9aa0" roughness={0.3} metalness={0.9} />
+      </mesh>
+      {/* corpo/mola metálica */}
+      <mesh position={[-0.04, 0, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
+        <cylinderGeometry args={[0.0088, 0.0088, 0.026, 12]} />
+        <meshStandardMaterial color="#c2c2c8" roughness={0.32} metalness={0.85} />
+      </mesh>
+      {/* bota isolada (cor do cabo) — conexão do cabo */}
+      <mesh position={[-0.062, 0, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
+        <cylinderGeometry args={[0.014, 0.0102, 0.029, 12]} />
+        <meshStandardMaterial color={cor} roughness={0.5} metalness={0.05} />
+      </mesh>
+    </group>
+  )
+}
+
 export function Fluke1662() {
   const alvo = useVerif((s) => s.alvo)
   const { scene } = useGLTF(asset('models/fluke-1662.glb'))
@@ -99,30 +134,59 @@ export function Fluke1662() {
   const ensaio = ENSAIOS_VERIFICACAO[ensaioIndex]
   const func = FLUKE_FUNCOES.find((f) => f.id === ensaio.funcao)
 
-  const soquete = posSoqueteBR(alvo)
-  const flukePos = useMemo<[number, number, number]>(
-    () => [soquete[0] - DIST_FRENTE, ALTURA, soquete[2]],
-    [soquete[0], soquete[2]],
-  )
+  const ehQuadro = alvo === 'quadro'
+  const flukePos = useMemo<[number, number, number]>(() => {
+    if (ehQuadro) return FLUKE_QUADRO_POS
+    const s = posSoqueteBR(alvo)
+    return [s[0] - DIST_FRENTE, ALTURA, s[2]]
+  }, [alvo, ehQuadro])
 
-  // 3 bornes no TOPO do medidor (levemente à frente), na ordem do manual B-G-R.
-  // Cada borne alinhado com seu furo p/ os cabos não se cruzarem.
+  // CABOS de medição: TOMADA = 3 (B-G-R nos furos, fiéis ao manual); QUADRO = 2
+  // (fase=vermelho / terra=verde nos barramentos). Bornes saem do TOPO do medidor.
   const topoY = flukePos[1] + modelo.halfY - 0.01
-  const bornes = useMemo(() => {
-    const x = flukePos[0] - 0.05 // um pouco à frente (lado do operador)
-    return {
-      azul: new THREE.Vector3(x, topoY, flukePos[2] - 0.055), // B (neutro)
-      verde: new THREE.Vector3(x, topoY, flukePos[2]), // G (terra)
-      vermelho: new THREE.Vector3(x, topoY, flukePos[2] + 0.055), // R (fase)
+  const { cabos, tips, garras } = useMemo(() => {
+    const xb = flukePos[0] - 0.05 // bornes um pouco à frente (lado do operador)
+    if (ehQuadro) {
+      // garras gripam na FRENTE dos componentes (x à frente da placa de fundo).
+      // VERMELHO (fase): nos 2 testes de DR (rcd) vai no DR; senão no barramento de fase.
+      const ehDR = ensaio.id === 'rcd-tempo' || ensaio.id === 'rcd-rampa'
+      const pf = ehDR ? QUADRO_PONTOS.pontoDR : QUADRO_PONTOS.barramentoFase
+      const pt = QUADRO_PONTOS.barramentoTerra
+      const pn = QUADRO_PONTOS.barramentoNeutro
+      const bFase = new THREE.Vector3(ehDR ? 6.09 : 6.14, pf[1], pf[2])
+      const bTerra = new THREE.Vector3(6.165, pt[1], pt[2])
+      const bNeutro = new THREE.Vector3(6.14, pn[1], pn[2])
+      // cabo termina na BOTA da garra (recuada ~6,2cm, lado da sala)
+      const boot = (v: THREE.Vector3) => new THREE.Vector3(v.x - 0.062, v.y, v.z)
+      return {
+        cabos: [
+          { a: new THREE.Vector3(xb, topoY, flukePos[2]), b: boot(bFase), cor: '#cc1414' }, // fase (vermelho)
+          { a: new THREE.Vector3(xb, topoY, flukePos[2] - 0.05), b: boot(bTerra), cor: '#1f9d3a' }, // terra (verde)
+          { a: new THREE.Vector3(xb, topoY, flukePos[2] + 0.05), b: boot(bNeutro), cor: '#2f6fd0' }, // neutro (azul)
+        ],
+        tips: [] as THREE.Vector3[],
+        garras: [
+          { pos: bFase, cor: '#cc1414' },
+          { pos: bTerra, cor: '#1f9d3a' },
+          { pos: bNeutro, cor: '#2f6fd0' },
+        ],
+      }
     }
-  }, [flukePos, topoY])
-
-  // 3 furos da tomada ativa (frente do soquete)
-  const furos = useMemo(() => {
     const f = posFurosBR(alvo)
     const v = (a: [number, number, number]) => new THREE.Vector3(a[0] - 0.004, a[1], a[2])
-    return { fase: v(f.fase), neutro: v(f.neutro), terra: v(f.terra) }
-  }, [alvo])
+    const fase = v(f.fase)
+    const neutro = v(f.neutro)
+    const terra = v(f.terra)
+    return {
+      cabos: [
+        { a: new THREE.Vector3(xb, topoY, flukePos[2] - 0.055), b: neutro, cor: '#2f6fd0' }, // B neutro
+        { a: new THREE.Vector3(xb, topoY, flukePos[2]), b: terra, cor: '#1f9d3a' }, // G terra
+        { a: new THREE.Vector3(xb, topoY, flukePos[2] + 0.055), b: fase, cor: '#cc1414' }, // R fase
+      ],
+      tips: [fase, neutro, terra],
+      garras: [] as { pos: THREE.Vector3; cor: string }[],
+    }
+  }, [alvo, ehQuadro, flukePos, topoY, ensaio.id])
 
   // centro do LCD: RELATIVO ao Fluke (segue o objeto). Inclinação via LCD_QUAT.
   const lcdPos: [number, number, number] = [
@@ -145,7 +209,7 @@ export function Fluke1662() {
         <div
           style={{
             width: 230,
-            height: 160,
+            height: 184,
             background: '#cdd6b0',
             borderRadius: 8,
             padding: '8px 12px',
@@ -173,17 +237,22 @@ export function Fluke1662() {
       </Html>
       </group>
 
-      {/* cabos (fiéis ao manual): azul=neutro(N), verde=terra(PE), vermelho=fase(L) */}
-      <Cabo a={bornes.azul} b={furos.neutro} cor="#2f6fd0" />
-      <Cabo a={bornes.verde} b={furos.terra} cor="#1f9d3a" />
-      <Cabo a={bornes.vermelho} b={furos.fase} cor="#cc1414" />
+      {/* cabos de medição (tomada = 3 B-G-R; quadro = 2 fase/terra) */}
+      {cabos.map((c, i) => (
+        <Cabo key={i} a={c.a} b={c.b} cor={c.cor} />
+      ))}
 
-      {/* pontas/plugues nos furos */}
-      {([furos.fase, furos.neutro, furos.terra] as const).map((p, i) => (
+      {/* pontas de prova nos furos (tomada) */}
+      {tips.map((p, i) => (
         <mesh key={i} position={[p.x + 0.006, p.y, p.z]} rotation={[0, 0, Math.PI / 2]}>
           <cylinderGeometry args={[0.0045, 0.0045, 0.018, 12]} />
           <meshStandardMaterial color="#d8d6cf" roughness={0.5} metalness={0.2} />
         </mesh>
+      ))}
+
+      {/* garras jacaré nos barramentos (quadro) */}
+      {garras.map((g, i) => (
+        <GarraJacare key={i} pos={g.pos} cor={g.cor} />
       ))}
     </group>
   )
