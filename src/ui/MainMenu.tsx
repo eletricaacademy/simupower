@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type FormEvent } from 'react'
 import { useSim } from '../sim/store'
 import {
   PAR_PADRAO,
@@ -19,8 +19,13 @@ interface Modulo {
   norma: string
   descricao: string
   disponivel: boolean
+  /** quando true, o módulo não aparece no menu (mantido no catálogo). */
+  oculto?: boolean
   par?: { equipamentoId: string; ensaioId: string }
 }
+
+/** Senha para liberar o acesso às ferramentas. */
+const SENHA_ACESSO = '3020'
 
 /** Catálogo de módulos exibidos no menu (orientado a dados). */
 const MODULOS: Modulo[] = [
@@ -97,6 +102,7 @@ const MODULOS: Modulo[] = [
     norma: 'IEC 62271',
     descricao: 'Tempos de operação e resistência de contatos.',
     disponivel: false,
+    oculto: true,
   },
 ]
 
@@ -119,6 +125,31 @@ export function MainMenu() {
     }
   }
 
+  // bloqueio por senha — libera as ferramentas só após a senha correta.
+  const [liberado, setLiberado] = useState(() => {
+    try {
+      return sessionStorage.getItem('calibra:liberado') === '1'
+    } catch {
+      return false
+    }
+  })
+  const [senha, setSenha] = useState('')
+  const [erroSenha, setErroSenha] = useState(false)
+  function tentarLiberar(e: FormEvent) {
+    e.preventDefault()
+    if (senha.trim() === SENHA_ACESSO) {
+      setLiberado(true)
+      setErroSenha(false)
+      try {
+        sessionStorage.setItem('calibra:liberado', '1')
+      } catch {
+        /* ignore */
+      }
+    } else {
+      setErroSenha(true)
+    }
+  }
+
   const [subAter, setSubAter] = useState(false)
 
   function abrir(m: Modulo) {
@@ -137,6 +168,7 @@ export function MainMenu() {
     abrir(m)
   }
   const aterMod = MODULOS.find((m) => m.id === 'aterramento')
+  const visiveis = MODULOS.filter((m) => !m.oculto)
 
   return (
     <div
@@ -145,6 +177,60 @@ export function MainMenu() {
         background: `radial-gradient(1200px 600px at 70% -10%, #14203022 0%, transparent 60%), radial-gradient(900px 500px at 10% 110%, #1a160622 0%, transparent 55%), ${color.viewport}`,
       }}
     >
+      {/* gate de senha — bloqueia as ferramentas até a senha correta */}
+      {!liberado && (
+        <div
+          className="fixed inset-0 z-[80] grid place-items-center p-4"
+          style={{ background: 'rgba(7,10,14,0.92)', backdropFilter: 'blur(6px)' }}
+        >
+          <form
+            onSubmit={tentarLiberar}
+            className="hud-glass rounded-[16px] p-6 w-[420px] max-w-[92vw] text-center"
+          >
+            <div className="text-[34px] mb-2" aria-hidden>🔒</div>
+            <div
+              className="font-mono text-[11px] tracking-[0.2em] uppercase mb-2"
+              style={{ color: color.accent }}
+            >
+              Acesso restrito
+            </div>
+            <h2 className="font-display font-bold text-[20px] mb-3" style={{ color: color.text }}>
+              Digite a senha para liberar as ferramentas
+            </h2>
+            <input
+              type="password"
+              inputMode="numeric"
+              autoFocus
+              value={senha}
+              onChange={(e) => {
+                setSenha(e.target.value)
+                if (erroSenha) setErroSenha(false)
+              }}
+              placeholder="Senha de acesso"
+              aria-label="Senha de acesso"
+              className="w-full text-center font-mono text-[16px] tracking-[0.3em] rounded-[10px] px-4 py-3 mb-3 outline-none"
+              style={{
+                background: '#0c1117',
+                color: color.text,
+                border: `1px solid ${erroSenha ? color.status.fail : color.hairline}`,
+              }}
+            />
+            {erroSenha && (
+              <div className="text-[12px] mb-3" style={{ color: color.status.fail }}>
+                Senha incorreta. Tente novamente.
+              </div>
+            )}
+            <button
+              type="submit"
+              className="w-full font-display font-semibold text-[14px] px-5 py-2.5 rounded-[10px] transition-all"
+              style={{ background: color.accent, color: '#0B0F14' }}
+            >
+              Liberar acesso
+            </button>
+          </form>
+        </div>
+      )}
+
       {/* dica de som ao entrar */}
       {dicaSom && (
         <div
@@ -304,12 +390,12 @@ export function MainMenu() {
               Ensaios
             </h2>
             <span className="font-mono text-[11px]" style={{ color: color.textFaint }}>
-              {MODULOS.filter((m) => m.disponivel).length} disponível · {MODULOS.length} no catálogo
+              {visiveis.filter((m) => m.disponivel).length} disponível · {visiveis.length} no catálogo
             </span>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            {MODULOS.map((m) => (
+            {visiveis.map((m) => (
               <Card key={m.id} m={m} onOpen={() => aoAbrirCard(m)} />
             ))}
           </div>
