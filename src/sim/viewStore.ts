@@ -5,7 +5,7 @@
  */
 import { create } from 'zustand'
 
-export type Vista = 'reset' | 'topo' | 'frontal' | 'lateral'
+export type Vista = 'reset' | 'topo' | 'frontal' | 'lateral' | 'quadro' | 'foco'
 
 interface ViewState {
   comando: Vista | null

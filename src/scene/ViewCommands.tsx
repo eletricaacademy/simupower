@@ -15,11 +15,14 @@ export function ViewCommands({
   defaultTarget,
   half,
   height,
+  extraViews,
 }: {
   defaultPos: [number, number, number]
   defaultTarget: [number, number, number]
   half: number
   height: number
+  /** vistas fixas adicionais (pose pos+target já calibrada), por comando. */
+  extraViews?: Partial<Record<string, { pos: [number, number, number]; target: [number, number, number] }>>
 }) {
   const camera = useThree((s) => s.camera)
   const controls = useThree((s) => s.controls) as { target: THREE.Vector3; update: () => void } | null
@@ -45,6 +48,29 @@ export function ViewCommands({
       v.z = THREE.MathUtils.clamp(v.z, -half + m, half - m)
       v.y = THREE.MathUtils.clamp(v.y, 0.7, height - 0.4)
       return v
+    }
+
+    // vista fixa calibrada (ex.: 'quadro') — usa pose pronta, sem clamp.
+    const extra = extraViews?.[comando]
+    if (extra) {
+      anim.current = {
+        fromP: camera.position.clone(),
+        toP: new THREE.Vector3(...extra.pos),
+        fromT: controls.target.clone(),
+        toT: new THREE.Vector3(...extra.target),
+        t: 0,
+      }
+      marcarInteragiu()
+      limpar()
+      let rafX = 0
+      const tickX = () => {
+        if (anim.current) {
+          invalidate()
+          rafX = requestAnimationFrame(tickX)
+        }
+      }
+      rafX = requestAnimationFrame(tickX)
+      return () => cancelAnimationFrame(rafX)
     }
 
     const alvo = new THREE.Vector3(...defaultTarget)

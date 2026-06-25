@@ -57,6 +57,8 @@ interface SimState {
   pickMode: boolean
   /** última coord identificada (texto pronto p/ colar) */
   peca: string
+  /** histórico de pontos identificados (calibração — vários cliques) */
+  pickLog: string[]
   /** id do passo aguardando confirmação "Preparado? Sim/Não" (manobras) */
   confirmando: string | null
 
@@ -88,6 +90,8 @@ interface SimState {
   setTour: (on: boolean) => void
   setPickMode: (on: boolean) => void
   setPeca: (s: string) => void
+  addPickLog: (s: string) => void
+  clearPickLog: () => void
   setConfirmando: (id: string | null) => void
   reset: () => void
 }
@@ -125,6 +129,7 @@ export const useSim = create<SimState>((set, get) => ({
   tourAtivo: false,
   pickMode: false,
   peca: '',
+  pickLog: [],
   confirmando: null,
 
   interagiu: false,
@@ -152,6 +157,7 @@ export const useSim = create<SimState>((set, get) => ({
       interagiu: false,
       pickMode: false,
       peca: '',
+      pickLog: [],
       confirmando: null,
     })
   },
@@ -245,6 +251,8 @@ export const useSim = create<SimState>((set, get) => ({
   setTour: (on) => set({ tourAtivo: on }),
   setPickMode: (on) => set({ pickMode: on }),
   setPeca: (s) => set({ peca: s }),
+  addPickLog: (s) => set((st) => ({ pickLog: [...st.pickLog, s] })),
+  clearPickLog: () => set({ pickLog: [] }),
   setConfirmando: (id) => set({ confirmando: id }),
   setQualidadePref: (p) => {
     salvarPref(p)

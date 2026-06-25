@@ -36,7 +36,7 @@ export interface DadosNominais {
 }
 
 /** Cenário 3D onde o equipamento é apresentado. */
-export type Cenario = 'bancada-lab' | 'subestacao' | 'subestacao-3d'
+export type Cenario = 'bancada-lab' | 'subestacao' | 'subestacao-3d' | 'hospital'
 
 export interface Equipment {
   id: string
@@ -97,10 +97,22 @@ export interface Step {
 }
 
 /** Identificador de função pura registrada em engine/registry. */
-export type EngineRef = 'insulation' | 'arcflash' | 'inspecao' | 'desenergizacao' | 'aterramento'
+export type EngineRef =
+  | 'insulation'
+  | 'arcflash'
+  | 'inspecao'
+  | 'desenergizacao'
+  | 'aterramento'
+  | 'verificacao'
 
 /** Modo de simulação — define qual HUD/fluxo a app usa. */
-export type ModoSim = 'guiado-megger' | 'arcflash' | 'inspecao' | 'desenergizacao' | 'aterramento'
+export type ModoSim =
+  | 'guiado-megger'
+  | 'arcflash'
+  | 'inspecao'
+  | 'desenergizacao'
+  | 'aterramento'
+  | 'verificacao'
 
 /** Ação 3D de um passo de desenergização/reenergização. */
 export type AcaoDes =

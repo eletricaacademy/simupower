@@ -24,10 +24,17 @@ import { Colaborador } from './Colaborador'
 import { DesElements } from './DesElements'
 import { MotorElements } from './MotorElements'
 import { Terrometro3D } from './Terrometro'
+import { QuadroEletrico } from './QuadroEletrico'
+import { Tomada } from './Tomada'
+import { TomadasBR } from './TomadaBR'
+import { Fluke1662 } from './Fluke1662'
+import { ParedeDestaque, InsightsBoard, InfoHotspots } from './HospInfo'
 import { Outdoor } from './Outdoor'
 import { ViewCommands } from './ViewCommands'
 import { useSim } from '../sim/store'
 import { useInsp } from '../sim/inspStore'
+import { useVerif } from '../sim/verifStore'
+import { posSoqueteBR } from './TomadaBR'
 import { usePose } from '../sim/poseStore'
 import { color } from '../design/tokens'
 import { resolverQualidade, type QualidadeConfig } from './quality'
@@ -42,6 +49,13 @@ const SUN_POS: [number, number, number] = [14, 20, 9]
  *  modelo (que tem geometria enterrada: postes/hastes abaixo da superfície). */
 const ATER_GROUND_Y = 0.8
 
+/** Vista calibrada do quadro elétrico (verificação NBR 5410): de frente, do lado
+ *  da sala, enquadrando a porta aberta + internos. Usada pelo botão "Quadro". */
+const QUADRO_VIEW = {
+  pos: [3.4, 2.15, 4.55] as [number, number, number],
+  target: [6.15, 2.05, 4.55] as [number, number, number],
+}
+
 /**
  * Stage — o palco. Adapta o custo gráfico ao dispositivo via preset de
  * qualidade (Bloom, DPR, sombras e frameloop). Em aparelhos fracos, roda
@@ -53,27 +67,48 @@ export function Stage() {
   const pref = useSim((s) => s.qualidadePref)
   const cenario = useSim((s) => s.equipamento.cenario ?? 'bancada-lab')
   const modo = useSim((s) => s.ensaio.modo)
+  // vista de foco na tomada ativa (verificação) — usada pelo botão/início do ensaio
+  const alvoVerif = useVerif((s) => s.alvo)
+  const focoView = useMemo(() => {
+    const [sx, sy, sz] = posSoqueteBR(alvoVerif)
+    // aproxima do equipamento (Fluke à frente da tomada): close-up 3/4
+    return {
+      pos: [sx - 0.8, sy - 0.05, sz - 0.52] as [number, number, number],
+      target: [sx - 0.24, sy - 0.2, sz] as [number, number, number],
+    }
+  }, [alvoVerif])
 
   const cfg = useMemo(() => resolverQualidade(pref), [pref])
   const detail = cfg.tier !== 'baixo'
 
   const ehArc = cenario === 'subestacao' // sala branca + painel (arco)
   const ehEnv = cenario === 'subestacao-3d' // modelo walk-in (inspeção)
+  const ehHosp = cenario === 'hospital' // instalação hospitalar walk-in (NBR 5410 §7)
   const ehAter = ehEnv && modo === 'aterramento' // pátio externo a céu aberto
+  const walkIn = ehEnv || ehHosp // modelo é o próprio ambiente (câmera livre, não confina)
 
-  // abertura: inspeção = vista aérea 3/4 (ajustável por captura); demais = dentro
-  const camPos: [number, number, number] = ehEnv ? [5.5, 5, 6.5] : ehArc ? [4.5, 2.8, 6.5] : [2.8, 2.0, 3.2]
-  const focusBaseY = ehArc || ehEnv ? 0 : BENCH_TOP_Y
-  const defaultTarget: [number, number, number] = ehEnv
-    ? [0, 1.0, -0.5]
-    : ehArc
-      ? [0, 1.3, 0.4]
-      : [0, BENCH_TOP_Y + 0.35, 0]
-  const bg = ehAter ? '#bcdcff' : ehEnv ? '#1b2026' : ehArc ? TEMA_SUB.bg : TEMA_BT.bg
-  // limites de confinamento da câmera (AABB)
-  const halfX = ehEnv ? 3.0 : ehArc ? ROOM.size / 2 : LAB_ROOM.size / 2
-  const halfZ = ehEnv ? 2.6 : ehArc ? ROOM.size / 2 : LAB_ROOM.size / 2
-  const roomH = ehEnv ? 4.4 : ehArc ? ROOM.height : LAB_ROOM.height
+  // abertura: inspeção = vista aérea 3/4; hospital = dentro, à altura dos olhos;
+  // demais = dentro da sala (ajustável por captura).
+  const camPos: [number, number, number] = ehHosp
+    ? [4.5, 2.0, 9.5]
+    : ehEnv
+      ? [5.5, 5, 6.5]
+      : ehArc
+        ? [4.5, 2.8, 6.5]
+        : [2.8, 2.0, 3.2]
+  const focusBaseY = ehArc || walkIn ? 0 : BENCH_TOP_Y
+  const defaultTarget: [number, number, number] = ehHosp
+    ? [0, 1.3, 0]
+    : ehEnv
+      ? [0, 1.0, -0.5]
+      : ehArc
+        ? [0, 1.3, 0.4]
+        : [0, BENCH_TOP_Y + 0.35, 0]
+  const bg = ehAter ? '#bcdcff' : ehHosp ? '#dfe6ec' : ehEnv ? '#1b2026' : ehArc ? TEMA_SUB.bg : TEMA_BT.bg
+  // limites de confinamento/enquadramento da câmera (AABB)
+  const halfX = ehHosp ? 8 : ehEnv ? 3.0 : ehArc ? ROOM.size / 2 : LAB_ROOM.size / 2
+  const halfZ = ehHosp ? 10 : ehEnv ? 2.6 : ehArc ? ROOM.size / 2 : LAB_ROOM.size / 2
+  const roomH = ehHosp ? 3.3 : ehEnv ? 4.4 : ehArc ? ROOM.height : LAB_ROOM.height
 
   return (
     <>
@@ -94,7 +129,7 @@ export function Stage() {
       onCreated={({ gl }) => {
         // reduz exposição na subestação branca (estava estourando); externo
         // ensolarado pede um pouco mais de brilho.
-        gl.toneMappingExposure = ehAter ? 0.92 : ehEnv ? 0.78 : 1.0
+        gl.toneMappingExposure = ehAter ? 0.92 : ehHosp ? 0.84 : ehEnv ? 0.78 : 1.0
       }}
       camera={{ position: camPos, fov: 42, near: 0.1, far: 100 }}
       onPointerDown={marcarInteragiu}
@@ -104,25 +139,28 @@ export function Stage() {
       <color attach="background" args={[bg]} />
 
       {/* iluminação */}
-      <ambientLight intensity={ehAter ? 0.55 : ehArc ? 0.8 : ehEnv ? 0.4 : 0.45} />
+      <ambientLight intensity={ehAter ? 0.55 : ehHosp ? 0.42 : ehArc ? 0.8 : ehEnv ? 0.4 : 0.45} />
       <hemisphereLight
         args={
           ehAter
             ? ['#cfe7ff', '#5f7f43', 0.95] // céu azul / reflexo da grama
-            : ehArc
-              ? ['#f2f4f7', '#c8cacd', 0.7]
-              : ehEnv
-                ? ['#cfd6df', '#33383f', 0.3]
-                : ['#aeb9c9', '#2a2f37', 0.6]
+            : ehHosp
+              ? ['#e6edf4', '#8b929b', 0.55] // interior hospitalar (menos brilho, + contraste)
+              : ehArc
+                ? ['#f2f4f7', '#c8cacd', 0.7]
+                : ehEnv
+                  ? ['#cfd6df', '#33383f', 0.3]
+                  : ['#aeb9c9', '#2a2f37', 0.6]
         }
       />
       <directionalLight
         position={ehAter ? SUN_POS : [4, 7, 3]}
-        intensity={ehAter ? 1.9 : ehArc ? 1.0 : ehEnv ? 0.55 : 1.2}
+        intensity={ehAter ? 1.9 : ehHosp ? 1.25 : ehArc ? 1.0 : ehEnv ? 0.55 : 1.2}
         color={ehAter ? '#fff3df' : '#ffffff'}
         // sombra real do sol SÓ no nível 'alto' (GPU dedicada); médio/baixo usam
         // o blob estático do Outdoor — evita o passe de shadow map por quadro.
-        castShadow={cfg.shadows && (!ehEnv || (ehAter && cfg.tier === 'alto'))}
+        // Walk-ins indoor (inspeção/hospital) não projetam sombra direcional.
+        castShadow={cfg.shadows && (!walkIn || (ehAter && cfg.tier === 'alto'))}
         shadow-mapSize={[cfg.shadowMapSize, cfg.shadowMapSize]}
         shadow-bias={-0.0002}
       >
@@ -135,7 +173,7 @@ export function Stage() {
       {!ehEnv && <directionalLight position={[-5, 3, -2]} intensity={0.35} color="#9fb4d0" />}
       {ehAter && <Outdoor sun={SUN_POS} tier={cfg.tier} groundY={ATER_GROUND_Y} />}
 
-      {ehEnv ? null : ehArc ? (
+      {walkIn ? null : ehArc ? (
         <Substation detail={detail} />
       ) : (
         <>
@@ -148,6 +186,8 @@ export function Stage() {
       <Suspense fallback={null}>
         {ehEnv ? (
           <EnvScene />
+        ) : ehHosp ? (
+          <HospScene />
         ) : ehArc ? (
           <SubScene />
         ) : (
@@ -162,7 +202,7 @@ export function Stage() {
         </Environment>
       </Suspense>
 
-      {cfg.contactShadows && !ehEnv && (
+      {cfg.contactShadows && !walkIn && (
         <ContactShadows
           position={[0, (ehArc ? 0 : BENCH_TOP_Y) + 0.02, 0]}
           opacity={ehArc ? 0.5 : 0.45}
@@ -181,16 +221,22 @@ export function Stage() {
         panSpeed={1}
         enableDamping={cfg.damping}
         dampingFactor={0.08}
-        minDistance={ehEnv ? 0.6 : ehArc ? 2.5 : 1.4}
-        maxDistance={ehAter ? 55 : ehEnv ? 28 : ehArc ? 9 : 8}
+        minDistance={walkIn ? 0.6 : ehArc ? 2.5 : 1.4}
+        maxDistance={ehAter ? 55 : ehHosp ? 35 : ehEnv ? 28 : ehArc ? 9 : 8}
         maxPolarAngle={Math.PI / 2.05}
         target={defaultTarget}
       />
 
       <CameraRig cfg={cfg} reduced={reduced} baseY={focusBaseY} defaultTarget={defaultTarget} tourMode={ehEnv} />
-      {/* inspeção (walk-in): câmera livre p/ sair da subestação; demais salas confinam */}
-      {!ehEnv && <ConfineToRoom halfX={halfX} halfZ={halfZ} height={roomH} />}
-      <ViewCommands defaultPos={camPos} defaultTarget={defaultTarget} half={Math.min(halfX, halfZ)} height={roomH} />
+      {/* walk-in (inspeção/hospital): câmera livre p/ percorrer; demais salas confinam */}
+      {!walkIn && <ConfineToRoom halfX={halfX} halfZ={halfZ} height={roomH} />}
+      <ViewCommands
+        defaultPos={camPos}
+        defaultTarget={defaultTarget}
+        half={Math.min(halfX, halfZ)}
+        height={roomH}
+        extraViews={ehHosp ? { quadro: QUADRO_VIEW, foco: focoView } : undefined}
+      />
       <PoseCapturer />
       <InitialPose />
       <ActivityDriver fpsCap={cfg.fpsCap} />
@@ -265,6 +311,83 @@ function SubScene() {
       <ArcPlate />
       <Colaborador />
     </>
+  )
+}
+
+/**
+ * Cena walk-in do hospital (NBR 5410 §7): o próprio modelo É o ambiente. Por
+ * enquanto só apresenta o modelo, com o modo "identificar peça" disponível para
+ * calibrar os pontos de verificação depois. O fluxo de ensaios vem a seguir.
+ */
+function HospScene() {
+  const equipamento = useSim((s) => s.equipamento)
+  const ensaio = useSim((s) => s.ensaio)
+  const passoIndex = useSim((s) => s.passoIndex)
+  const pickMode = useSim((s) => s.pickMode)
+  const setPeca = useSim((s) => s.setPeca)
+  const addPickLog = useSim((s) => s.addPickLog)
+  const passo = ensaio.steps[passoIndex]
+  return (
+    <>
+      <Equipment3D
+        equipment={equipamento}
+        highlightAnchorId={passo?.focoAnchorId}
+        envIntensity={0.7}
+        pickMode={pickMode}
+        onPick={(i) => {
+          const c = `${i.raw[0].toFixed(2)}, ${i.raw[1].toFixed(2)}, ${i.raw[2].toFixed(2)}`
+          setPeca(`${c}  [${i.mat}]`)
+          addPickLog(c)
+          navigator.clipboard?.writeText(c)
+        }}
+      />
+      <ParedeDestaque />
+      <HospWallPatch />
+      <HandleCover />
+      <QuadroEletrico />
+      <Tomada />
+      <TomadasBR />
+      <Fluke1662 />
+      <InsightsBoard />
+      <InfoHotspots />
+    </>
+  )
+}
+
+/**
+ * Cobertura do puxador — o puxador (porta da parede +x) faz parte da malha
+ * fundida do modelo (`_(Loose_Entity)`, material compartilhado), então não dá
+ * p/ escondê-lo por nome/material nem editar a geometria do GLB com segurança
+ * (otimização quantizou/rotacionou o modelo). Cobrimos com um painel fino na
+ * cor da parede sobre o puxador. Pontos do Pablo: x≈6.03, y 1.39–2.07, z≈2.37
+ * (raycast: puxador x 6.01→6.08, face da porta ~6.08). Painel à frente dele.
+ */
+function HandleCover() {
+  return (
+    <mesh position={[6.05, 1.73, 2.37]} castShadow receiveShadow>
+      {/* args = [x espessura, y altura, z largura] */}
+      <boxGeometry args={[0.16, 0.86, 0.3]} />
+      <meshStandardMaterial color="#e7e7e7" roughness={0.5} metalness={0} envMapIntensity={0.7} />
+    </mesh>
+  )
+}
+
+/**
+ * Tampão de parede — fecha o vão de porta na parede +x (plano x≈6.25) para
+ * receber objetos. Retângulo dos 4 cantos do vão (cliques do Pablo):
+ * z 4.58–7.06 (larg. ~2,48 m) × y 0–4,05 m. Caixa fina na cor da parede;
+ * leve sobre-medida para tapar as juntas sem deixar fresta.
+ */
+function HospWallPatch() {
+  // Material casado com a parede do modelo (lido do GLB): #e7e7e7, rough 0.5,
+  // metal 0; face interna da parede em x≈6.22 → centro recuado p/ +x (espessura
+  // 0.16 → face interna em 6.22). envMapIntensity igual ao do Equipment3D (0.7).
+  return (
+    <mesh position={[6.3, 2.0, 5.82]} castShadow receiveShadow>
+      {/* args = [x espessura, y altura, z largura] */}
+      <boxGeometry args={[0.16, 4.14, 2.56]} />
+      <meshStandardMaterial color="#e7e7e7" roughness={0.5} metalness={0} envMapIntensity={0.7} />
+    </mesh>
   )
 }
 

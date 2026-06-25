@@ -4,6 +4,7 @@ import { ArcFlashHud } from './ui/ArcFlashHud'
 import { InspectionHud } from './ui/InspectionHud'
 import { DesenergizacaoHud } from './ui/DesenergizacaoHud'
 import { AterramentoHud } from './ui/AterramentoHud'
+import { VerificacaoHud } from './ui/VerificacaoHud'
 import { MainMenu } from './ui/MainMenu'
 import { LandscapeFrame } from './ui/LandscapeFrame'
 import { Watermark } from './ui/Watermark'
@@ -87,6 +88,8 @@ export default function App() {
             <DesenergizacaoHud />
           ) : modo === 'aterramento' ? (
             <AterramentoHud />
+          ) : modo === 'verificacao' ? (
+            <VerificacaoHud />
           ) : (
             <Hud />
           )}

@@ -10,11 +10,13 @@ import { painelMT } from './equipment/painel'
 import { subestacao } from './equipment/subestacao'
 import { subestacaoLimpa } from './equipment/subestacaoLimpa'
 import { aterramentoSub } from './equipment/aterramentoSub'
+import { hospital } from './equipment/hospital'
 import { insulationProcedure } from './tests/insulation'
 import { arcflashProcedure } from './tests/arcflash'
 import { inspecaoProcedure } from './tests/inspecao'
 import { desenergizacaoProcedure } from './tests/desenergizacao'
 import { aterramentoProcedure } from './tests/aterramento'
+import { verificacaoProcedure } from './tests/verificacao'
 
 export const EQUIPAMENTOS: Record<string, Equipment> = {
   [motor.id]: motor,
@@ -22,6 +24,7 @@ export const EQUIPAMENTOS: Record<string, Equipment> = {
   [subestacao.id]: subestacao,
   [subestacaoLimpa.id]: subestacaoLimpa,
   [aterramentoSub.id]: aterramentoSub,
+  [hospital.id]: hospital,
 }
 
 export const ENSAIOS: Record<string, TestProcedure> = {
@@ -30,6 +33,7 @@ export const ENSAIOS: Record<string, TestProcedure> = {
   [inspecaoProcedure.id]: inspecaoProcedure,
   [desenergizacaoProcedure.id]: desenergizacaoProcedure,
   [aterramentoProcedure.id]: aterramentoProcedure,
+  [verificacaoProcedure.id]: verificacaoProcedure,
 }
 
 /** Par padrão (módulo de isolamento em motor). */
@@ -60,6 +64,12 @@ export const PAR_DESENERG = {
 export const PAR_ATERRAMENTO = {
   equipamentoId: aterramentoSub.id,
   ensaioId: aterramentoProcedure.id,
+} as const
+
+/** Par do módulo de verificação NBR 5410 §7 (instalação hospitalar walk-in). */
+export const PAR_VERIFICACAO = {
+  equipamentoId: hospital.id,
+  ensaioId: verificacaoProcedure.id,
 } as const
 
 export function getEquipamento(id: string): Equipment {

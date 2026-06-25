@@ -29,3 +29,6 @@ Thumbs.db
 
 # modelos crus pesados — ficam FORA de public/ e não vão para o repo
 assets-raw/
+
+# temporários de modelos
+.tmp_*.glb

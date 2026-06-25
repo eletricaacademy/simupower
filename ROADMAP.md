@@ -8,7 +8,7 @@ Estado: **build limpo** (`npm run build`), **45 testes** passam (`npm test`).
 
 ---
 
-## 1. Módulos (5 — todos disponíveis no menu)
+## 1. Módulos (6 — todos disponíveis no menu)
 
 | # | Módulo | modo | Equipamento | Engine | HUD |
 |---|--------|------|-------------|--------|-----|
@@ -17,8 +17,9 @@ Estado: **build limpo** (`npm run build`), **45 testes** passam (`npm test`).
 | 3 | **Inspeção de Subestação** | `inspecao` | subestacao.glb (walk-in) | `inspecao` | `InspectionHud.tsx` |
 | 4 | **Procedimento de Desenergização** | `desenergizacao` | subestacao-limpa.glb | `desenergizacao` | `DesenergizacaoHud.tsx` |
 | 5 | **Resistência de Aterramento** | `aterramento` | aterramento.glb (pátio) | `aterramento` | `AterramentoHud.tsx` |
+| 6 | **Verificação de Instalações (NBR 5410 §7)** | `verificacao` | hospital.glb (walk-in, sala cirúrgica) | `verificacao` (sem registry; só casca) | `VerificacaoHud.tsx` |
 
-Roteamento por `modo` em `App.tsx`; cena por `cenario` em `scene/Stage.tsx` (bancada-lab / subestacao [arco] / subestacao-3d [walk-in env]).
+Roteamento por `modo` em `App.tsx`; cena por `cenario` em `scene/Stage.tsx` (bancada-lab / subestacao [arco] / subestacao-3d [walk-in env] / **hospital** [walk-in]).
 
 ### Detalhes por módulo
 
@@ -125,6 +126,32 @@ Roteamento por `modo` em `App.tsx`; cena por `cenario` em `scene/Stage.tsx` (ban
 3. **Remover a calibração do `InstructorPanel`** (motor/arco ainda têm "Identificar ponto"/garras) — coerente com o pedido de apagar calibração.
 4. **Bugs reportados (reiniciar + animação do motor)** NÃO reproduziram em teste fresh (funcionam); provável **HMR inconsistente** após muitas edições → resolver com hard-refresh. Se recorrer numa aba limpa, investigar.
 5. **Commit + deploy** quando Pablo aprovar (fluxo local, sob demanda — Pablo controla quando publica).
+
+## 5d. Sessão 2026-06-23/24 — NOVO módulo 6: Verificação NBR 5410 §7 (hospital)
+
+> **Tudo LOCAL, não commitado** (fluxo sob demanda). Build/typecheck limpos (`tsc --noEmit` exit 0). Detalhe fino na memória `verificacao-5410-hospital.md`.
+
+**6ª sim criada — Verificação de Instalações de BT (NBR 5410, Seção 7)**, cenário **walk-in de hospital** (GLB = **sala cirúrgica** completa: foco cirúrgico, mesa, monitores, anestesia + uma figura embutida). Pablo pediu **só o ambiente por enquanto** — o **fluxo de ensaios (§7: inspeção visual + continuidade/isolamento/DR/aterramento…) será definido depois**. Por isso `tests/verificacao.ts` tem **`steps: []`** de propósito e o HUD é casca mínima.
+
+**Arquivos novos:** `catalog/equipment/hospital.ts` (cenario `'hospital'`, escalaAlvo **19.1** ≈1u:1m, anchors:[]), `catalog/tests/verificacao.ts` (modo `'verificacao'`, engineRef `'verificacao'` sem registry), `ui/VerificacaoHud.tsx` (HudTopBar+SoundControl+QualityPicker+IdentificarPeca + card "🚧 ambiente carregado"), `scene/QuadroEletrico.tsx`, `scene/Tomada.tsx`, `scene/TomadaBR.tsx`. **Editados:** `catalog/types.ts` (Cenario/EngineRef/ModoSim += hospital/verificacao), `catalog/index.ts` (PAR_VERIFICACAO), `App.tsx` (modo→VerificacaoHud), `MainMenu.tsx` (card, agora 6), `scene/Stage.tsx` (`ehHosp`/`walkIn`, iluminação interna, HospScene), `sim/store.ts` (+pickLog/addPickLog/clearPickLog), `sim/viewStore.ts` (Vista += 'quadro'), `scene/ViewCommands.tsx` (prop `extraViews` = poses fixas).
+
+**Assets (em `public/models/`):** `hospital.glb` (1,02MB otimizado), `quadro-eletrico.glb` (**ORIGINAL 4,96MB sem otimizar** — ver alerta abaixo), `tomada.glb` (6KB, sem otimizar). Brutos em `assets-raw/models/`.
+
+**Edições na cena do hospital (parede +x em x≈6,22):**
+- **Vão de porta fechado** (`HospWallPatch` em Stage): tampão box na cor da parede lida do GLB (#e7e7e7, rough 0.5), em z 4,54–7,10, y 0–4,07. Pablo deu os 4 cantos.
+- **Puxador removido** (`HandleCover`): o puxador era da malha fundida `_(Loose_Entity)` (material compartilhado) → não dá p/ esconder por nome; cobri com painel #e7e7e7 sobre x6.05/y1.73/z2.37.
+- **Brilho ↓ / contraste ↑** no hospital: exposure 0.84, ambient 0.42, hemi 0.55, directional 1.25.
+- **Quadro elétrico** (`QuadroEletrico`): armário metálico (porta aberta c/ disjuntores). Fundo na parede (**ROT_Y=-π/2** — a porta fica na face +z, fundo na -z; as ±x são laterais), **base a 1,6 m** do piso. Vista calibrada **"▦ Quadro"** (botão no HudTopBar → `QUADRO_VIEW pos[3.4,2.15,4.55]/target[6.15,2.05,4.55]`).
+- **Tomadas:** 1 tomada-objeto (`Tomada`, GLB escalado p/ placa 4×2 real **ALTURA_REAL=0.114**) em z=3,30 + **3 tomadas PROCEDURAIS** (`TomadaBR`/`TomadasBR`, NBR 14136 em geometria pura) em z 3,10/2,90/2,70, 20cm de espaçamento, x=6,22, y=1,20, fundo na parede. Array `TOMADAS_BR` com ids (tomada-br-1/2/3) **prontos p/ a futura animação do multímetro testando cada uma**. Formato corrigido p/ NBR 14136 real: recesso redondo Ø45,7mm com chanfro/funil + 3 furos compactos (2P a 19mm + terra 3mm abaixo).
+
+**ALERTA asset pipeline:** `gltf-transform optimize --compress quantize` **transforma/rotaciona o modelo** (frame raw ≠ render) E quebra o `_(Loose_Entity)` em sopa-de-triângulos não-soldável; o `quadro-eletrico` só simplifica com `simplify --lock-border false` (piso ~354k verts) e o resultado FICOU FEIO nos internos → **Pablo pediu o original sem otimizar**. Para remover geometria de verdade nesse modelo NÃO confiar no mapeamento raw↔render. Decoder Draco/meshopt: o projeto evita de propósito (carrega nativo).
+
+**Próximos passos do módulo 6:**
+1. **DEFINIR O FLUXO DE TESTES da Seção 7** (com Pablo, em detalhe): quais ensaios, ordem, o que cada um mede/valida, travas. Hoje `steps:[]`.
+2. **Animação do multímetro** testando cada tomada (`TOMADAS_BR` já tem ids/posições) e o quadro.
+3. Presets de vista frontal/lateral/topo dos `ViewControls` ficam FORA do prédio em walk-in (mostram a casca) — criar presets internos próprios quando montar o fluxo (a vista "Quadro" já é um exemplo via `extraViews`).
+4. Possível enriquecer a cena (Pablo manda mais objetos).
+5. `quadro-eletrico.glb` é o asset mais pesado (5MB sem otimizar) — reotimizar SÓ se achar um caminho que não quebre os internos (ou re-exportar do Blender mais leve).
 
 ## 6. Comandos
 ```

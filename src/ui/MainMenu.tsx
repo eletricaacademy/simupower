@@ -1,6 +1,13 @@
 import { useState } from 'react'
 import { useSim } from '../sim/store'
-import { PAR_PADRAO, PAR_ARCO, PAR_INSPECAO, PAR_DESENERG, PAR_ATERRAMENTO } from '../catalog'
+import {
+  PAR_PADRAO,
+  PAR_ARCO,
+  PAR_INSPECAO,
+  PAR_DESENERG,
+  PAR_ATERRAMENTO,
+  PAR_VERIFICACAO,
+} from '../catalog'
 import { asset } from '../lib/asset'
 import { color } from '../design/tokens'
 
@@ -70,6 +77,17 @@ const MODULOS: Modulo[] = [
     descricao: 'Medição de resistência de aterramento por queda de potencial (método dos 62%).',
     disponivel: true,
     par: PAR_ATERRAMENTO,
+  },
+  {
+    id: 'verificacao-5410',
+    titulo: 'Verificação de Instalações (NBR 5410)',
+    equipamento: 'Instalação Hospitalar (walk-in)',
+    instrumento: 'Inspeção visual + ensaios — Seção 7',
+    norma: 'NBR 5410 · Seção 7',
+    descricao:
+      'Verificação final de instalação elétrica de baixa tensão em ambiente hospitalar — inspeção visual e ensaios da Seção 7.',
+    disponivel: true,
+    par: PAR_VERIFICACAO,
   },
   {
     id: 'disjuntor',
