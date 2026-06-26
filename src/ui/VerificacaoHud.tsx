@@ -7,6 +7,7 @@ import { medirEnsaio } from '../engine/verificacao'
 import { TOMADAS_BR } from '../scene/TomadaBR'
 import { QualityPicker } from './QualityPicker'
 import { HudTopBar } from './HudTopBar'
+import { MobileSheet } from './MobileSheet'
 import { Creditos } from './Creditos'
 import { useDraggable } from './useDraggable'
 import { SoundControl } from './SoundControl'
@@ -101,10 +102,14 @@ export function VerificacaoHud() {
         </div>
       )}
 
-      {/* painel guiado dos ensaios (esquerda) */}
-      <div className="absolute left-4 bottom-4 pointer-events-auto" style={{ maxWidth: 'min(92vw, 380px)' }}>
+      {/* painel guiado dos ensaios — DESKTOP (esquerda) */}
+      <div className="hidden md:block absolute left-4 bottom-4 pointer-events-auto" style={{ maxWidth: 'min(92vw, 380px)' }}>
         <EnsaioPanel />
       </div>
+      {/* MOBILE: dock inferior com minimizar + opções */}
+      <MobileSheet onReiniciar={() => useVerif.getState().reset()}>
+        <EnsaioPanel />
+      </MobileSheet>
 
       {/* visor do Fluke 1662 (direita) */}
       <div className="hidden md:block absolute right-4 bottom-4 pointer-events-auto">

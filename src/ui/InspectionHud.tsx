@@ -5,12 +5,14 @@ import { avaliarInspecao, type StatusItem } from '../engine/inspection'
 import { Checklist } from './Checklist'
 import { QualityPicker } from './QualityPicker'
 import { HudTopBar } from './HudTopBar'
+import { MobileSheet } from './MobileSheet'
 import { Creditos } from './Creditos'
 import { useDraggable } from './useDraggable'
 import { ambiente, somVoz, pararVoz } from './sons'
 import { SoundControl } from './SoundControl'
 import { Apresentador } from './Apresentador'
 import { BemVindo } from './BemVindo'
+import { Detalhes } from './Detalhes'
 import { color } from '../design/tokens'
 
 const COR: Record<'pass' | 'marginal' | 'fail', string> = {
@@ -119,22 +121,24 @@ export function InspectionHud() {
       </div>
 
       {/* MOBILE */}
-      <div
-        className="md:hidden absolute inset-x-0 bottom-0 pointer-events-auto"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      <MobileSheet
+        onReiniciar={() => {
+          resetInsp()
+          useSim.getState().reset()
+        }}
+        tabs={
+          <>
+            <Tab ativo={aba === 'procedimento'} onClick={() => setAba('procedimento')}>
+              Roteiro
+            </Tab>
+            <Tab ativo={aba === 'resultado'} onClick={() => setAba('resultado')}>
+              Conformidade
+            </Tab>
+          </>
+        }
       >
-        <div className="flex gap-1.5 px-3 mb-2">
-          <Tab ativo={aba === 'procedimento'} onClick={() => setAba('procedimento')}>
-            Roteiro
-          </Tab>
-          <Tab ativo={aba === 'resultado'} onClick={() => setAba('resultado')}>
-            Conformidade
-          </Tab>
-        </div>
-        <div className="px-3 pb-3 flex justify-center">
-          {aba === 'procedimento' ? tourAtivo ? <InspGuidedPanel /> : <IntroCard /> : <InspResult />}
-        </div>
-      </div>
+        {aba === 'procedimento' ? tourAtivo ? <InspGuidedPanel /> : <IntroCard /> : <InspResult />}
+      </MobileSheet>
 
       {!pronto && <BemVindo onClose={() => setPronto(true)} />}
 
@@ -257,16 +261,7 @@ function InspGuidedPanel() {
         {passo.descricao}
       </p>
 
-      {passo.detalhes && passo.detalhes.length > 0 && (
-        <ul className="mb-3 space-y-1">
-          {passo.detalhes.map((d, i) => (
-            <li key={i} className="flex gap-1.5 text-[12px] leading-snug" style={{ color: color.textMuted }}>
-              <span aria-hidden style={{ color: color.accentCool }}>›</span>
-              <span>{d}</span>
-            </li>
-          ))}
-        </ul>
-      )}
+      <Detalhes itens={passo.detalhes} className="mb-3" />
 
       {isCheck ? (
         <div className="flex gap-2">

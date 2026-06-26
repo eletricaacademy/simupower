@@ -7,6 +7,7 @@ import { AterramentoHud } from './ui/AterramentoHud'
 import { VerificacaoHud } from './ui/VerificacaoHud'
 import { MainMenu } from './ui/MainMenu'
 import { LandscapeFrame } from './ui/LandscapeFrame'
+import { AvisoMobile } from './ui/AvisoMobile'
 import { Watermark } from './ui/Watermark'
 import { useSim } from './sim/store'
 import { useAudio } from './sim/audioStore'
@@ -93,6 +94,7 @@ export default function App() {
           ) : (
             <Hud />
           )}
+          <AvisoMobile />
         </LandscapeFrame>
       )}
     </div>

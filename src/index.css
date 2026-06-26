@@ -97,6 +97,65 @@
     .hud-glass { background: rgba(18, 24, 33, 0.5) !important; }
   }
 
+  /* ------------------------------------------------------------------ */
+  /* Tier "telefone" (layout mobile, < md=768px): o card do dock inferior   */
+  /* vira um bottom-sheet enxuto — largura cheia, tipografia/padding meno-   */
+  /* res e teto de altura baixo (com rolagem), liberando o palco 3D atrás.   */
+  /* Escopo: .hud-dock-body (só o card, nunca as abas/topo). Desktop (≥768)  */
+  /* nunca entra aqui. Casado com o useIsPhone (mesmo limite).               */
+  /* ------------------------------------------------------------------ */
+  @media (max-width: 767px) {
+    .hud-dock-body {
+      max-height: 46vh;
+      overflow-y: auto;
+      padding-left: 8px !important;
+      padding-right: 8px !important;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+    }
+    .hud-dock-body::-webkit-scrollbar {
+      width: 5px;
+    }
+    .hud-dock-body::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+    }
+    /* card ocupa a largura (bottom-sheet) e com padding menor.
+       Não atinge as abas, que ficam fora do .hud-dock-body. */
+    .hud-dock-body .hud-glass,
+    .hud-dock-body .instrument-panel {
+      width: 100% !important;
+      max-width: 100% !important;
+      padding: 12px !important;
+    }
+    /* tipografia compacta: título e descrição do passo */
+    .hud-dock-body h2 {
+      font-size: 15px !important;
+      line-height: 1.2 !important;
+      margin-bottom: 2px !important;
+    }
+    .hud-dock-body p {
+      font-size: 12px !important;
+      line-height: 1.4 !important;
+    }
+  }
+
+  /* Disclosure "Ver detalhes" (Detalhes.tsx) — some o triângulo nativo e usa
+     um caret próprio que gira ao abrir. */
+  .hud-details > summary {
+    list-style: none;
+  }
+  .hud-details > summary::-webkit-details-marker {
+    display: none;
+  }
+  .hud-details-caret {
+    display: inline-block;
+    transition: transform 0.15s ease;
+  }
+  .hud-details[open] .hud-details-caret {
+    transform: rotate(90deg);
+  }
+
   /* Painel sólido do readout do instrumento. */
   .instrument-panel {
     background: linear-gradient(180deg, #131922 0%, #0e131a 100%);

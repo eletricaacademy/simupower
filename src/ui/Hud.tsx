@@ -5,6 +5,7 @@ import { Checklist } from './Checklist'
 import { InstructorPanel } from './InstructorPanel'
 import { SoundControl } from './SoundControl'
 import { HudTopBar } from './HudTopBar'
+import { MobileSheet } from './MobileSheet'
 import { Creditos } from './Creditos'
 import { ambiente, som, somArquivo } from './sons'
 import { useSim } from '../sim/store'
@@ -77,22 +78,21 @@ export function Hud() {
       </div>
 
       {/* ---------- MOBILE ---------- */}
-      <div
-        className="md:hidden absolute inset-x-0 bottom-0 pointer-events-auto"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      <MobileSheet
+        onReiniciar={() => useSim.getState().reset()}
+        tabs={
+          <>
+            <Tab ativo={aba === 'procedimento'} onClick={() => setAba('procedimento')}>
+              Procedimento
+            </Tab>
+            <Tab ativo={aba === 'instrumento'} onClick={() => setAba('instrumento')}>
+              Instrumento
+            </Tab>
+          </>
+        }
       >
-        <div className="flex gap-1.5 px-3 mb-2">
-          <Tab ativo={aba === 'procedimento'} onClick={() => setAba('procedimento')}>
-            Procedimento
-          </Tab>
-          <Tab ativo={aba === 'instrumento'} onClick={() => setAba('instrumento')}>
-            Instrumento
-          </Tab>
-        </div>
-        <div className="px-3 pb-3 flex justify-center">
-          {aba === 'procedimento' ? <GuidedPanel /> : <Instrument />}
-        </div>
-      </div>
+        {aba === 'procedimento' ? <GuidedPanel /> : <Instrument />}
+      </MobileSheet>
 
       {eduAberto && <EnsaioInfo onClose={() => setEduAberto(false)} />}
 

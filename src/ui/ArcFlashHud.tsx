@@ -7,6 +7,7 @@ import { QualityPicker } from './QualityPicker'
 import { ArcLabel } from './ArcLabel'
 import { SoundControl } from './SoundControl'
 import { HudTopBar } from './HudTopBar'
+import { MobileSheet } from './MobileSheet'
 import { Creditos } from './Creditos'
 import { useDraggable } from './useDraggable'
 import { ArcIntro } from './ArcIntro'
@@ -94,22 +95,24 @@ export function ArcFlashHud() {
       </div>
 
       {/* MOBILE */}
-      <div
-        className="md:hidden absolute inset-x-0 bottom-0 pointer-events-auto"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      <MobileSheet
+        onReiniciar={() => {
+          resetArc()
+          useSim.getState().reset()
+        }}
+        tabs={
+          <>
+            <Tab ativo={aba === 'procedimento'} onClick={() => setAba('procedimento')}>
+              Procedimento
+            </Tab>
+            <Tab ativo={aba === 'resultado'} onClick={() => setAba('resultado')}>
+              Resultado
+            </Tab>
+          </>
+        }
       >
-        <div className="flex gap-1.5 px-3 mb-2">
-          <Tab ativo={aba === 'procedimento'} onClick={() => setAba('procedimento')}>
-            Procedimento
-          </Tab>
-          <Tab ativo={aba === 'resultado'} onClick={() => setAba('resultado')}>
-            Resultado
-          </Tab>
-        </div>
-        <div className="px-3 pb-3 flex justify-center">
-          {aba === 'procedimento' ? <ArcGuidedPanel /> : <ArcResult onVerEtiqueta={() => setLabelAberto(true)} />}
-        </div>
-      </div>
+        {aba === 'procedimento' ? <ArcGuidedPanel /> : <ArcResult onVerEtiqueta={() => setLabelAberto(true)} />}
+      </MobileSheet>
 
       <div className="hidden md:block">
         <Creditos />
@@ -392,11 +395,36 @@ function Metric({ rotulo, valor }: { rotulo: string; valor: string }) {
 }
 
 /** Modal com a etiqueta de arco preenchida (visualização ampliada). */
+/**
+ * Escala a etiqueta de arco (largura fixa de 660px) para caber na largura da
+ * tela. Usa `zoom` (não `transform`) para encolher também a CAIXA de layout —
+ * assim no celular ela fica contida, sem rolagem lateral. No desktop fica no
+ * tamanho de referência (limite 0.92).
+ */
+function useEscalaEtiqueta(base = 660, margem = 40, max = 0.92) {
+  const calc = () =>
+    typeof window !== 'undefined' ? Math.min(max, (window.innerWidth - margem) / base) : max
+  const [escala, setEscala] = useState(calc)
+  useEffect(() => {
+    const on = () => setEscala(calc())
+    on()
+    window.addEventListener('resize', on)
+    window.addEventListener('orientationchange', on)
+    return () => {
+      window.removeEventListener('resize', on)
+      window.removeEventListener('orientationchange', on)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+  return escala
+}
+
 function LabelModal({ onClose }: { onClose: () => void }) {
   const r = useArc((s) => s.resultado)
   const voc = useArc((s) => s.voc)
   const distancia = useArc((s) => s.distancia)
   const nome = useSim((s) => s.equipamento.nome)
+  const escala = useEscalaEtiqueta()
   if (!r) return null
 
   return (
@@ -405,7 +433,7 @@ function LabelModal({ onClose }: { onClose: () => void }) {
       style={{ background: 'rgba(7,10,14,0.78)', backdropFilter: 'blur(4px)' }}
       onClick={onClose}
     >
-      <div onClick={(e) => e.stopPropagation()} className="relative">
+      <div onClick={(e) => e.stopPropagation()} className="relative" style={{ zoom: escala }}>
         <button
           onClick={onClose}
           aria-label="Fechar"
@@ -414,9 +442,7 @@ function LabelModal({ onClose }: { onClose: () => void }) {
         >
           ×
         </button>
-        <div style={{ transform: 'scale(0.92)', transformOrigin: 'center' }}>
-          <ArcLabel resultado={r} voc={voc} distancia={distancia} nomeEquip={nome} />
-        </div>
+        <ArcLabel resultado={r} voc={voc} distancia={distancia} nomeEquip={nome} />
       </div>
     </div>
   )

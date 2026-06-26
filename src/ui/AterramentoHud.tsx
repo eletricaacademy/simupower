@@ -9,6 +9,8 @@ import { SoundControl } from './SoundControl'
 import { HudTopBar } from './HudTopBar'
 import { Creditos } from './Creditos'
 import { useDraggable } from './useDraggable'
+import { MobileSheet } from './MobileSheet'
+import { Detalhes } from './Detalhes'
 import { color } from '../design/tokens'
 
 const CORV: Record<'pass' | 'marginal' | 'fail', string> = {
@@ -124,23 +126,25 @@ export function AterramentoHud() {
       )}
 
       {/* MOBILE */}
-      <div className="md:hidden absolute inset-x-0 bottom-0 pointer-events-auto" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        <div className="flex gap-1.5 px-3 mb-2">
-          <Tab ativo={aba === 'procedimento'} onClick={() => setAba('procedimento')}>Procedimento</Tab>
-          <Tab ativo={aba === 'medicao'} onClick={() => setAba('medicao')}>Medição</Tab>
-        </div>
-        <div className="px-3 pb-3 flex justify-center">
-          {aba === 'procedimento' ? (
-            <GuidedCard />
-          ) : mostrarPainel ? (
-            <Terrometro />
-          ) : (
-            <div className="hud-glass rounded-[14px] p-4 w-[330px] max-w-[90vw] text-[12px] text-center" style={{ color: color.textFaint }}>
-              O terrômetro fica disponível na etapa “Medir movendo a estaca P”.
-            </div>
-          )}
-        </div>
-      </div>
+      <MobileSheet
+        onReiniciar={reiniciar}
+        tabs={
+          <>
+            <Tab ativo={aba === 'procedimento'} onClick={() => setAba('procedimento')}>Procedimento</Tab>
+            <Tab ativo={aba === 'medicao'} onClick={() => setAba('medicao')}>Medição</Tab>
+          </>
+        }
+      >
+        {aba === 'procedimento' ? (
+          <GuidedCard />
+        ) : mostrarPainel ? (
+          <Terrometro />
+        ) : (
+          <div className="hud-glass rounded-[14px] p-4 w-[330px] max-w-[90vw] text-[12px] text-center" style={{ color: color.textFaint }}>
+            O terrômetro fica disponível na etapa “Medir movendo a estaca P”.
+          </div>
+        )}
+      </MobileSheet>
 
       <div className="hidden md:block">
         <Creditos />
@@ -287,16 +291,7 @@ function GuidedCard() {
       </div>
       <h2 className="font-display font-semibold text-[15px] mb-1" style={{ color: color.text }}>{passo.titulo}</h2>
       <p className="text-[12px] leading-snug mb-2" style={{ color: color.textMuted }}>{passo.descricao}</p>
-      {passo.detalhes && passo.detalhes.length > 0 && (
-        <ul className="mb-2.5 space-y-0.5">
-          {passo.detalhes.map((d, i) => (
-            <li key={i} className="flex gap-1.5 text-[11px] leading-snug" style={{ color: color.textMuted }}>
-              <span aria-hidden style={{ color: color.accentCool }}>›</span>
-              <span>{d}</span>
-            </li>
-          ))}
-        </ul>
-      )}
+      <Detalhes itens={passo.detalhes} className="mb-2.5" />
       {jaCumprido && passo.feito && (
         <div className="rounded-[10px] px-3 py-2 mb-3 text-[12.5px] flex gap-1.5" style={{ background: color.status.pass + '14', border: `1px solid ${color.status.pass}55`, color: color.text }}>
           <span aria-hidden style={{ color: color.status.pass }}>✓</span>

@@ -6,9 +6,11 @@ import { QualityPicker } from './QualityPicker'
 import { HudTopBar } from './HudTopBar'
 import { Creditos } from './Creditos'
 import { useDraggable } from './useDraggable'
+import { MobileSheet } from './MobileSheet'
 import { SoundControl } from './SoundControl'
 import { Apresentador } from './Apresentador'
 import { BemVindo } from './BemVindo'
+import { Detalhes } from './Detalhes'
 import { som, somArquivo, somVoz, pararVoz, ambiente, type SomTipo } from './sons'
 import type { AcaoDes } from '../catalog/types'
 import { color } from '../design/tokens'
@@ -183,13 +185,17 @@ export function DesenergizacaoHud() {
       </div>
 
       {/* MOBILE */}
-      <div className="md:hidden absolute inset-x-0 bottom-0 pointer-events-auto" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        <div className="flex gap-1.5 px-3 mb-2">
-          <Tab ativo={aba === 'procedimento'} onClick={() => setAba('procedimento')}>Procedimento</Tab>
-          <Tab ativo={aba === 'estado'} onClick={() => setAba('estado')}>Estado</Tab>
-        </div>
-        <div className="px-3 pb-3 flex justify-center">{aba === 'procedimento' ? <DesGuidedPanel /> : <DesEstado />}</div>
-      </div>
+      <MobileSheet
+        onReiniciar={() => useSim.getState().reset()}
+        tabs={
+          <>
+            <Tab ativo={aba === 'procedimento'} onClick={() => setAba('procedimento')}>Procedimento</Tab>
+            <Tab ativo={aba === 'estado'} onClick={() => setAba('estado')}>Estado</Tab>
+          </>
+        }
+      >
+        {aba === 'procedimento' ? <DesGuidedPanel /> : <DesEstado />}
+      </MobileSheet>
 
       {dialogo && <DetalheDialog onClose={() => setDialogo(false)} />}
       <Banner />
@@ -444,16 +450,7 @@ function DesGuidedPanel() {
       <h2 className="font-display font-semibold text-[18px] mb-1" style={{ color: color.text }}>{passo.titulo}</h2>
       <p className="text-[13px] leading-snug mb-2" style={{ color: color.textMuted }}>{passo.descricao}</p>
 
-      {passo.detalhes && passo.detalhes.length > 0 && (
-        <ul className="mb-3 space-y-1">
-          {passo.detalhes.map((d, i) => (
-            <li key={i} className="flex gap-1.5 text-[12px] leading-snug" style={{ color: color.textMuted }}>
-              <span aria-hidden style={{ color: color.accentCool }}>›</span>
-              <span>{d}</span>
-            </li>
-          ))}
-        </ul>
-      )}
+      <Detalhes itens={passo.detalhes} className="mb-3" />
 
       {/* resultado da ação (o que aconteceu) */}
       {jaCumprido && passo.feito && (
