@@ -10,7 +10,6 @@ import { Creditos } from './Creditos'
 import { useDraggable } from './useDraggable'
 import { ambiente, somVoz, pararVoz } from './sons'
 import { SoundControl } from './SoundControl'
-import { Apresentador } from './Apresentador'
 import { BemVindo } from './BemVindo'
 import { Detalhes } from './Detalhes'
 import { color } from '../design/tokens'
@@ -29,7 +28,6 @@ const COR: Record<'pass' | 'marginal' | 'fail', string> = {
 export function InspectionHud() {
   const [aba, setAba] = useState<'procedimento' | 'resultado'>('procedimento')
   const [configAberto, setConfigAberto] = useState(false)
-  const [falando, setFalando] = useState(false)
   const [pronto, setPronto] = useState(false)
   const tourAtivo = useSim((s) => s.tourAtivo)
   const passoIndex = useSim((s) => s.passoIndex)
@@ -48,19 +46,10 @@ export function InspectionHud() {
     }
   }, [])
 
-  // locução: narra cada ponto durante o tour guiado (avatar "fala")
+  // locução: narra cada ponto durante o tour guiado
   function narrar() {
     const id = ensaio.steps[passoIndex]?.id
-    if (!id) return
-    const a = somVoz(id)
-    if (!a) {
-      setFalando(false)
-      return
-    }
-    setFalando(true)
-    const fim = () => setFalando(false)
-    a.addEventListener('ended', fim)
-    a.addEventListener('error', fim)
+    if (id) somVoz(id)
   }
   useEffect(() => {
     if (tourAtivo) narrar()
@@ -71,11 +60,6 @@ export function InspectionHud() {
   return (
     <div className="pointer-events-none absolute inset-0 select-none">
       <HudTopBar onConfig={() => setConfigAberto((v) => !v)} configAberto={configAberto} right={<SoundControl />} />
-
-      {/* avatar do apresentador (narração) */}
-      <div className="absolute pointer-events-auto" style={{ top: 60, left: 'max(12px, env(safe-area-inset-left))' }}>
-        <Apresentador falando={falando} onReplay={narrar} />
-      </div>
 
       {/* toggles grade/paredes (inspeção) — abaixo da barra superior */}
       <div

@@ -8,7 +8,6 @@ import { Creditos } from './Creditos'
 import { useDraggable } from './useDraggable'
 import { MobileSheet } from './MobileSheet'
 import { SoundControl } from './SoundControl'
-import { Apresentador } from './Apresentador'
 import { BemVindo } from './BemVindo'
 import { Detalhes } from './Detalhes'
 import { som, somArquivo, somVoz, pararVoz, ambiente, type SomTipo } from './sons'
@@ -48,7 +47,6 @@ export function DesenergizacaoHud() {
   const [aba, setAba] = useState<'procedimento' | 'estado'>('procedimento')
   const [configAberto, setConfigAberto] = useState(false)
   const [dialogo, setDialogo] = useState(true)
-  const [falando, setFalando] = useState(false)
   const [pronto, setPronto] = useState(false) // false → pop-up de boas-vindas
   const [comemoracao, setComemoracao] = useState<'des' | 'reen' | null>(null)
   const setView = useSim((s) => s.setView)
@@ -76,19 +74,10 @@ export function DesenergizacaoHud() {
     setConfirmando(null)
   }, [passoIndex, setConfirmando])
 
-  // locução: narra a etapa atual ao chegar; avatar "fala" enquanto toca
+  // locução: narra a etapa atual ao chegar
   function narrar() {
     const id = ensaio.steps[passoIndex]?.id
-    if (!id) return
-    const a = somVoz(id)
-    if (!a) {
-      setFalando(false)
-      return
-    }
-    setFalando(true)
-    const fim = () => setFalando(false)
-    a.addEventListener('ended', fim)
-    a.addEventListener('error', fim)
+    if (id) somVoz(id)
   }
   useEffect(() => {
     if (pronto) narrar()
@@ -142,11 +131,6 @@ export function DesenergizacaoHud() {
           </>
         }
       />
-
-      {/* avatar do apresentador (narração) */}
-      <div className="absolute pointer-events-auto" style={{ top: 60, left: 'max(12px, env(safe-area-inset-left))' }}>
-        <Apresentador falando={falando} onReplay={narrar} />
-      </div>
 
       {/* toggles grade/paredes — abaixo da barra superior */}
       <div

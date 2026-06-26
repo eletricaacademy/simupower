@@ -270,7 +270,7 @@ export function MainMenu() {
               Escolha o método de medição
             </h2>
             <p className="text-[13px] mb-5" style={{ color: color.textMuted }}>
-              Dois tipos de terrômetro — comece pelo de haste (queda de potencial).
+              Medição por queda de potencial com terrômetro de haste (estaca).
             </p>
 
             {/* opção 1: terrômetro de haste (disponível) */}
@@ -292,25 +292,6 @@ export function MainMenu() {
               </div>
               <div className="text-[12px] mt-1" style={{ color: color.textMuted }}>
                 Método da queda de potencial (62%) — estacas C e P cravadas no solo.
-              </div>
-            </button>
-
-            {/* opção 2: terrômetro tipo alicate (em breve) */}
-            <button
-              disabled
-              className="w-full text-left rounded-[12px] p-4 mb-4"
-              style={{ background: 'rgba(18,24,33,0.4)', border: `1px solid ${color.hairline}`, opacity: 0.6, cursor: 'default' }}
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-display font-semibold text-[15px]" style={{ color: color.textMuted }}>
-                  Terrômetro tipo alicate
-                </span>
-                <span className="font-mono text-[10px] px-2 py-0.5 rounded-full" style={{ color: color.textFaint, border: `1px solid ${color.hairline}` }}>
-                  Em breve
-                </span>
-              </div>
-              <div className="text-[12px] mt-1" style={{ color: color.textFaint }}>
-                Medição por alicate (sem cravar estacas) — em desenvolvimento.
               </div>
             </button>
 
