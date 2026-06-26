@@ -11,6 +11,7 @@ import { AvisoMobile } from './ui/AvisoMobile'
 import { Watermark } from './ui/Watermark'
 import { useSim } from './sim/store'
 import { useAudio } from './sim/audioStore'
+import { pararTudo } from './ui/sons'
 import { asset } from './lib/asset'
 import { color } from './design/tokens'
 
@@ -33,6 +34,12 @@ export default function App() {
     mq.addEventListener('change', apply)
     return () => mq.removeEventListener('change', apply)
   }, [setReducedMotion])
+
+  // ao voltar ao menu, garante que NADA do áudio da simulação fique tocando
+  // (ambiente/locução/efeitos) — rede de segurança além do cleanup de cada HUD.
+  useEffect(() => {
+    if (view === 'menu') pararTudo()
+  }, [view])
 
   // auto-silêncio por inatividade: muta após 3 min sem interação; ao voltar a
   // interagir, reativa (somente se o mudo foi automático, não manual).

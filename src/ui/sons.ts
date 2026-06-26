@@ -9,6 +9,17 @@ let ctx: AudioContext | null = null
 let master = 0.7 // volume mestre (0..1)
 let mudo = false
 
+/**
+ * Regra de níveis (frações do volume mestre):
+ *  - LOCUTOR (voz) é prioritário e claro → VOZ_BASE alto.
+ *  - SOM DE FUNDO (ambiente) e EFEITOS abaixam (ducking) p/ DUCK enquanto a voz
+ *    fala, para não competir com o locutor.
+ *  - Cada faixa de ambiente tem sua própria base (ambBase), pois umas são mais
+ *    presentes que outras (ex.: campo aberto > oficina).
+ * Tudo é multiplicado pelo `master` (slider) e zerado quando `mudo`.
+ */
+const VOZ_BASE = 0.95
+
 function ac(): AudioContext | null {
   if (typeof window === 'undefined') return null
   try {
@@ -23,12 +34,52 @@ function ac(): AudioContext | null {
   }
 }
 
+/**
+ * Roteamento por GainNode — CRÍTICO p/ iOS: o Safari do iPhone IGNORA
+ * `HTMLAudioElement.volume` (volume só pelos botões físicos). Então todo áudio
+ * de arquivo (ambiente, locução, efeitos) passa por um GainNode da Web Audio,
+ * cujo ganho o iOS respeita. Assim volume, ducking e mudo funcionam no celular.
+ * Cada elemento só pode ter UM MediaElementSource — cacheamos por elemento.
+ */
+const ganhos = new WeakMap<HTMLAudioElement, GainNode>()
+
+function ganho(el: HTMLAudioElement): GainNode | null {
+  const c = ac()
+  if (!c) return null
+  const existente = ganhos.get(el)
+  if (existente) return existente
+  try {
+    const src = c.createMediaElementSource(el)
+    const g = c.createGain()
+    src.connect(g).connect(c.destination)
+    ganhos.set(el, g)
+    return g
+  } catch {
+    return null // Web Audio indisponível ou elemento já roteado
+  }
+}
+
+/** Define o volume efetivo de um elemento via GainNode (iOS) com fallback p/ .volume. */
+function setGanho(el: HTMLAudioElement, v: number, ramp = 0.08) {
+  const vol = Math.max(0, Math.min(1, v))
+  const g = ganho(el)
+  if (g && ctx) {
+    g.gain.cancelScheduledValues(ctx.currentTime)
+    g.gain.setTargetAtTime(vol, ctx.currentTime, Math.max(0.005, ramp))
+  } else {
+    el.volume = vol // desktop sem AudioContext / Web Audio indisponível
+  }
+}
+
 const ativo = () => !mudo && master > 0
 
-/** Atualiza volume mestre / mudo e reaplica no som ambiente em andamento. */
+/** Atualiza volume mestre / mudo e reaplica AO VIVO no ambiente e na locução em
+ *  andamento (antes só o ambiente respondia, e a voz só na próxima narração). */
 export function setMaster(volume: number, m: boolean) {
   master = Math.max(0, Math.min(1, volume))
   mudo = m
+  if (vozAtual) setGanho(vozAtual, mudo ? 0 : master * VOZ_BASE)
+  efeitos.forEach((a) => setGanho(a, mudo ? 0 : master * 0.9 * ef()))
   aplicarAmbiente()
 }
 
@@ -42,21 +93,43 @@ const ARQUIVOS = {
 } as const
 
 let molaAtual: HTMLAudioElement | null = null
+// efeitos de arquivo em andamento (ex.: palmas/disjuntor) — rastreados para
+// poder silenciá-los ao sair da simulação (antes ficavam tocando soltos).
+const efeitos = new Set<HTMLAudioElement>()
 
 /** Toca um efeito a partir de arquivo. `mola` pode ser interrompido com pararMola(). */
 export function somArquivo(qual: keyof typeof ARQUIVOS) {
   if (!ativo() || typeof Audio === 'undefined') return
   const a = new Audio(asset(ARQUIVOS[qual]))
-  a.volume = Math.min(1, master * 0.9 * ef())
-  a.play().catch(() => {})
+  a.volume = 1
+  efeitos.add(a)
+  setGanho(a, master * 0.9 * ef(), 0.01)
+  const limpar = () => efeitos.delete(a)
+  a.addEventListener('ended', limpar)
+  a.addEventListener('error', limpar)
+  a.play().catch(limpar)
   if (qual === 'mola') molaAtual = a
 }
 
 export function pararMola() {
   if (molaAtual) {
     molaAtual.pause()
+    efeitos.delete(molaAtual)
     molaAtual = null
   }
+}
+
+/** Para todos os efeitos de arquivo em andamento. */
+function pararEfeitos() {
+  efeitos.forEach((a) => {
+    try {
+      a.pause()
+    } catch {
+      /* ignore */
+    }
+  })
+  efeitos.clear()
+  molaAtual = null
 }
 
 /* ----------------------------- locução (voz) ---------------------------- */
@@ -71,9 +144,10 @@ export function somVoz(id: string): HTMLAudioElement | null {
   pararVoz()
   if (mudo || typeof Audio === 'undefined') return null
   const a = new Audio(asset(`sounds/voz/${id}.mp3`))
-  a.volume = Math.min(1, Math.max(0.3, master))
+  a.volume = 1
   vozAtual = a
   vozAtiva = true
+  setGanho(a, master * VOZ_BASE, 0.02)
   aplicarAmbiente() // duck
   const fim = () => {
     if (vozAtual === a) {
@@ -100,12 +174,11 @@ export function pararVoz() {
 
 /* ------------------------- som ambiente (loop) ------------------------- */
 let amb: HTMLAudioElement | null = null
-let fadeTimer: ReturnType<typeof setInterval> | null = null
 let ambOn = false
 let ambTrack = 'sounds/subestacao.mp3'
 let ambElTrack = ''
 let ambBase = 0.5 // fração do volume mestre para o ambiente
-const DUCK = 0.1 // fração do ambiente/efeitos enquanto a voz fala (10%)
+const DUCK = 0.15 // fração do ambiente/efeitos enquanto a voz fala (15%)
 
 /** fator aplicado aos efeitos enquanto o locutor fala. */
 const ef = () => (vozAtiva ? DUCK : 1)
@@ -123,35 +196,41 @@ export function ambiente(on: boolean, src = 'sounds/subestacao.mp3', base = 0.2)
   aplicarAmbiente()
 }
 
-/** Reaplica o estado do ambiente (chamado por ambiente() e setMaster()). */
+/** Reaplica o estado do ambiente (chamado por ambiente() e setMaster()).
+ *  O nível é controlado pelo GainNode (iOS respeita) com rampa suave. */
 function aplicarAmbiente() {
   if (typeof Audio === 'undefined') return
   if (!amb || ambElTrack !== ambTrack) {
     if (amb) amb.pause()
     amb = new Audio(asset(ambTrack))
     amb.loop = true
-    amb.volume = 0
+    amb.volume = 1 // ganho controla o nível
     ambElTrack = ambTrack
   }
   const tocar = ambOn && ativo()
   const alvo = tocar ? master * ambBase * (vozAtiva ? DUCK : 1) : 0
-  if (tocar) amb.play().catch(() => {})
-  if (fadeTimer) {
-    clearInterval(fadeTimer)
-    fadeTimer = null
+  if (tocar) {
+    amb.play().catch(() => {})
+    setGanho(amb, alvo, 0.12) // rampa suave (fade in/duck)
+  } else {
+    setGanho(amb, 0, 0.05)
+    amb.pause()
   }
-  const a = amb
-  fadeTimer = setInterval(() => {
-    const passo = 0.04
-    if (Math.abs(a.volume - alvo) <= passo) {
-      a.volume = alvo
-      if (alvo === 0) a.pause()
-      if (fadeTimer) clearInterval(fadeTimer)
-      fadeTimer = null
-    } else {
-      a.volume = Math.max(0, Math.min(1, a.volume + (alvo > a.volume ? passo : -passo)))
-    }
-  }, 50)
+}
+
+/**
+ * pararTudo — silencia IMEDIATAMENTE todo o áudio da simulação: ambiente (sem
+ * fade), locução e efeitos de arquivo. Chamado ao sair de uma simulação (volta
+ * ao menu) para nada vazar tocando. Não zera o volume/mudo do usuário.
+ */
+export function pararTudo() {
+  ambOn = false
+  if (amb) {
+    setGanho(amb, 0, 0.02)
+    amb.pause()
+  }
+  pararVoz()
+  pararEfeitos()
 }
 
 function tom(freq: number, t0: number, dur: number, tipo: OscillatorType, vol: number) {
