@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useState, useEffect, type FormEvent } from 'react'
 import { useSim } from '../sim/store'
 import {
   PAR_PADRAO,
@@ -24,8 +24,38 @@ interface Modulo {
   par?: { equipamentoId: string; ensaioId: string }
 }
 
-/** Senha para liberar o acesso às ferramentas. */
-const SENHA_ACESSO = '3020'
+/** Senha de acesso total (permanente). */
+const SENHA_TOTAL = '3020'
+/** Senha promocional: libera o simulador até o prazo abaixo (48h). */
+const SENHA_TRIAL = '10'
+/** Prazo final do acesso promocional (senha 10). Epoch ms — 2026-06-29 16:16:56 UTC (~13:17 Brasília). */
+const TRIAL_EXPIRA = 1782749816000
+const LS_FULL = 'calibra:full'
+const LS_TRIAL = 'calibra:trial'
+
+type Acesso = { liberado: boolean; promo: boolean }
+
+/** Estado de acesso inicial: total permanente, promocional dentro do prazo, ou bloqueado. */
+function lerAcesso(): Acesso {
+  try {
+    if (localStorage.getItem(LS_FULL) === '1') return { liberado: true, promo: false }
+    if (localStorage.getItem(LS_TRIAL) === '1' && Date.now() < TRIAL_EXPIRA) {
+      return { liberado: true, promo: true }
+    }
+  } catch {
+    /* ignore */
+  }
+  return { liberado: false, promo: false }
+}
+
+/** Formata o tempo restante como "47h 59min 12s". */
+function fmtRestante(ms: number): string {
+  const tot = Math.max(0, Math.floor(ms / 1000))
+  const h = Math.floor(tot / 3600)
+  const m = Math.floor((tot % 3600) / 60)
+  const s = tot % 60
+  return `${h}h ${String(m).padStart(2, '0')}min ${String(s).padStart(2, '0')}s`
+}
 
 /** Catálogo de módulos exibidos no menu (orientado a dados). */
 const MODULOS: Modulo[] = [
@@ -126,28 +156,62 @@ export function MainMenu() {
   }
 
   // bloqueio por senha — libera as ferramentas só após a senha correta.
-  const [liberado, setLiberado] = useState(() => {
-    try {
-      return sessionStorage.getItem('calibra:liberado') === '1'
-    } catch {
-      return false
-    }
-  })
+  const [acesso, setAcesso] = useState<Acesso>(() => lerAcesso())
+  const liberado = acesso.liberado
   const [senha, setSenha] = useState('')
   const [erroSenha, setErroSenha] = useState(false)
-  function tentarLiberar(e: FormEvent) {
-    e.preventDefault()
-    if (senha.trim() === SENHA_ACESSO) {
-      setLiberado(true)
-      setErroSenha(false)
+  const [msgErro, setMsgErro] = useState('Senha incorreta. Tente novamente.')
+
+  // relógio de segundo em segundo — só roda enquanto o acesso é promocional (senha 10).
+  const [agora, setAgora] = useState(() => Date.now())
+  useEffect(() => {
+    if (!acesso.promo) return
+    const id = setInterval(() => setAgora(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [acesso.promo])
+  // ao atingir o prazo de 48h, re-bloqueia o acesso promocional automaticamente.
+  useEffect(() => {
+    if (acesso.liberado && acesso.promo && agora >= TRIAL_EXPIRA) {
       try {
-        sessionStorage.setItem('calibra:liberado', '1')
+        localStorage.removeItem(LS_TRIAL)
       } catch {
         /* ignore */
       }
-    } else {
-      setErroSenha(true)
+      setAcesso({ liberado: false, promo: false })
     }
+  }, [agora, acesso])
+
+  function tentarLiberar(e: FormEvent) {
+    e.preventDefault()
+    const s = senha.trim()
+    if (s === SENHA_TOTAL) {
+      try {
+        localStorage.setItem(LS_FULL, '1')
+      } catch {
+        /* ignore */
+      }
+      setAcesso({ liberado: true, promo: false })
+      setErroSenha(false)
+      return
+    }
+    if (s === SENHA_TRIAL) {
+      if (Date.now() < TRIAL_EXPIRA) {
+        try {
+          localStorage.setItem(LS_TRIAL, '1')
+        } catch {
+          /* ignore */
+        }
+        setAgora(Date.now())
+        setAcesso({ liberado: true, promo: true })
+        setErroSenha(false)
+      } else {
+        setMsgErro('O acesso promocional de 48h expirou.')
+        setErroSenha(true)
+      }
+      return
+    }
+    setMsgErro('Senha incorreta. Tente novamente.')
+    setErroSenha(true)
   }
 
   const [subAter, setSubAter] = useState(false)
@@ -217,7 +281,7 @@ export function MainMenu() {
             />
             {erroSenha && (
               <div className="text-[12px] mb-3" style={{ color: color.status.fail }}>
-                Senha incorreta. Tente novamente.
+                {msgErro}
               </div>
             )}
             <button
@@ -249,6 +313,20 @@ export function MainMenu() {
           >
             ×
           </button>
+        </div>
+      )}
+
+      {/* aviso de acesso promocional (senha 10) com contagem regressiva de 48h */}
+      {liberado && acesso.promo && (
+        <div
+          className="fixed left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 hud-glass rounded-[12px] px-4 py-2.5"
+          style={{ bottom: 'max(14px, env(safe-area-inset-bottom))', maxWidth: '92vw', border: `1px solid ${color.accent}55` }}
+        >
+          <span aria-hidden className="text-[16px]">⏳</span>
+          <span className="text-[13px] leading-snug" style={{ color: color.text }}>
+            Simulador liberado por <b>48h</b> — expira em{' '}
+            <b className="font-mono" style={{ color: color.accent }}>{fmtRestante(TRIAL_EXPIRA - agora)}</b>
+          </span>
         </div>
       )}
 
