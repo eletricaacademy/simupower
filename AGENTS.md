@@ -182,8 +182,9 @@ a branch antes de editar; não sobrescrever trabalho de outro agente.
   Preservar `public/CNAME` e `public/.nojekyll`. `dist/` contém um Git próprio;
   seu HEAD local pode estar atrasado. Sempre buscar a referência remota antes
   de publicar, usar seu commit como pai e enviar sem force push.
-- Build enviado em `39d460b` (fonte `a09f05e`). Conferir a propagação pelo arquivo
-  `assets/index-CwcKcfv3.js`; um HTTP 200 sozinho não confirma a versão nova.
+- Build publicado em `39d460b` (fonte `a09f05e`). Propagação confirmada em
+  09/09/2026: HTML de produção referencia `assets/index-CwcKcfv3.js`.
+  Nas próximas publicações, um HTTP 200 sozinho não confirma a versão nova.
   Não publicar `.sim-shots/`, PDFs normativos ou modelos brutos.
 - Ideias propostas, ainda não autorizadas para implementação: diagnóstico de
   falhas ocultas no SPDA, comparação visual de leituras e próxima simulação de
