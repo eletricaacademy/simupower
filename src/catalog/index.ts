@@ -11,12 +11,14 @@ import { subestacao } from './equipment/subestacao'
 import { subestacaoLimpa } from './equipment/subestacaoLimpa'
 import { aterramentoSub } from './equipment/aterramentoSub'
 import { hospital } from './equipment/hospital'
+import { spdaPredio } from './equipment/spdaPredio'
 import { insulationProcedure } from './tests/insulation'
 import { arcflashProcedure } from './tests/arcflash'
 import { inspecaoProcedure } from './tests/inspecao'
 import { desenergizacaoProcedure } from './tests/desenergizacao'
 import { aterramentoProcedure } from './tests/aterramento'
 import { verificacaoProcedure } from './tests/verificacao'
+import { spdaProcedure } from './tests/spda'
 
 export const EQUIPAMENTOS: Record<string, Equipment> = {
   [motor.id]: motor,
@@ -25,6 +27,7 @@ export const EQUIPAMENTOS: Record<string, Equipment> = {
   [subestacaoLimpa.id]: subestacaoLimpa,
   [aterramentoSub.id]: aterramentoSub,
   [hospital.id]: hospital,
+  [spdaPredio.id]: spdaPredio,
 }
 
 export const ENSAIOS: Record<string, TestProcedure> = {
@@ -34,6 +37,7 @@ export const ENSAIOS: Record<string, TestProcedure> = {
   [desenergizacaoProcedure.id]: desenergizacaoProcedure,
   [aterramentoProcedure.id]: aterramentoProcedure,
   [verificacaoProcedure.id]: verificacaoProcedure,
+  [spdaProcedure.id]: spdaProcedure,
 }
 
 /** Par padrão (módulo de isolamento em motor). */
@@ -70,6 +74,12 @@ export const PAR_ATERRAMENTO = {
 export const PAR_VERIFICACAO = {
   equipamentoId: hospital.id,
   ensaioId: verificacaoProcedure.id,
+} as const
+
+/** Par do módulo de continuidade do SPDA (prédio com para-raios). */
+export const PAR_SPDA = {
+  equipamentoId: spdaPredio.id,
+  ensaioId: spdaProcedure.id,
 } as const
 
 export function getEquipamento(id: string): Equipment {

@@ -24,6 +24,7 @@ import { Colaborador } from './Colaborador'
 import { DesElements } from './DesElements'
 import { MotorElements } from './MotorElements'
 import { Terrometro3D } from './Terrometro'
+import { SpdaElements } from './SpdaElements'
 import { QuadroEletrico } from './QuadroEletrico'
 import { Tomada } from './Tomada'
 import { TomadasBR } from './TomadaBR'
@@ -94,11 +95,15 @@ export function Stage() {
   const ehEnv = cenario === 'subestacao-3d' // modelo walk-in (inspeção)
   const ehHosp = cenario === 'hospital' // instalação hospitalar walk-in (NBR 5410 §7)
   const ehAter = ehEnv && modo === 'aterramento' // pátio externo a céu aberto
-  const walkIn = ehEnv || ehHosp // modelo é o próprio ambiente (câmera livre, não confina)
+  const ehSpda = cenario === 'predio-spda' // prédio com SPDA, a céu aberto (NBR 5419-3)
+  const ehExterno = ehAter || ehSpda // cenas externas: sol + céu + grama
+  const walkIn = ehEnv || ehHosp || ehSpda // modelo é o próprio ambiente (câmera livre)
 
   // abertura: inspeção = vista aérea 3/4; hospital = dentro, à altura dos olhos;
   // demais = dentro da sala (ajustável por captura).
-  const camPos: [number, number, number] = ehHosp
+  const camPos: [number, number, number] = ehSpda
+    ? [18, 10, 18]
+    : ehHosp
     ? [4.5, 2.0, 9.5]
     : ehEnv
       ? [5.5, 5, 6.5]
@@ -106,18 +111,20 @@ export function Stage() {
         ? [4.5, 2.8, 6.5]
         : [2.8, 2.0, 3.2]
   const focusBaseY = ehArc || walkIn ? 0 : BENCH_TOP_Y
-  const defaultTarget: [number, number, number] = ehHosp
+  const defaultTarget: [number, number, number] = ehSpda
+    ? [0, 4.5, 0]
+    : ehHosp
     ? [0, 1.3, 0]
     : ehEnv
       ? [0, 1.0, -0.5]
       : ehArc
         ? [0, 1.3, 0.4]
         : [0, BENCH_TOP_Y + 0.35, 0]
-  const bg = ehAter ? '#bcdcff' : ehHosp ? '#dfe6ec' : ehEnv ? '#1b2026' : ehArc ? TEMA_SUB.bg : TEMA_BT.bg
+  const bg = ehExterno ? '#bcdcff' : ehHosp ? '#dfe6ec' : ehEnv ? '#1b2026' : ehArc ? TEMA_SUB.bg : TEMA_BT.bg
   // limites de confinamento/enquadramento da câmera (AABB)
-  const halfX = ehHosp ? 8 : ehEnv ? 3.0 : ehArc ? ROOM.size / 2 : LAB_ROOM.size / 2
-  const halfZ = ehHosp ? 10 : ehEnv ? 2.6 : ehArc ? ROOM.size / 2 : LAB_ROOM.size / 2
-  const roomH = ehHosp ? 3.3 : ehEnv ? 4.4 : ehArc ? ROOM.height : LAB_ROOM.height
+  const halfX = ehSpda ? 30 : ehHosp ? 8 : ehEnv ? 3.0 : ehArc ? ROOM.size / 2 : LAB_ROOM.size / 2
+  const halfZ = ehSpda ? 30 : ehHosp ? 10 : ehEnv ? 2.6 : ehArc ? ROOM.size / 2 : LAB_ROOM.size / 2
+  const roomH = ehSpda ? 20 : ehHosp ? 3.3 : ehEnv ? 4.4 : ehArc ? ROOM.height : LAB_ROOM.height
 
   return (
     <>
@@ -138,7 +145,7 @@ export function Stage() {
       onCreated={({ gl }) => {
         // reduz exposição na subestação branca (estava estourando); externo
         // ensolarado pede um pouco mais de brilho.
-        gl.toneMappingExposure = ehAter ? 0.92 : ehHosp ? 0.84 : ehEnv ? 0.78 : 1.0
+        gl.toneMappingExposure = ehExterno ? 0.92 : ehHosp ? 0.84 : ehEnv ? 0.78 : 1.0
       }}
       camera={{ position: camPos, fov: 42, near: 0.1, far: 100 }}
       onPointerDown={marcarInteragiu}
@@ -148,10 +155,10 @@ export function Stage() {
       <color attach="background" args={[bg]} />
 
       {/* iluminação */}
-      <ambientLight intensity={ehAter ? 0.55 : ehHosp ? 0.42 : ehArc ? 0.8 : ehEnv ? 0.4 : 0.45} />
+      <ambientLight intensity={ehExterno ? 0.55 : ehHosp ? 0.42 : ehArc ? 0.8 : ehEnv ? 0.4 : 0.45} />
       <hemisphereLight
         args={
-          ehAter
+          ehExterno
             ? ['#cfe7ff', '#5f7f43', 0.95] // céu azul / reflexo da grama
             : ehHosp
               ? ['#e6edf4', '#8b929b', 0.55] // interior hospitalar (menos brilho, + contraste)
@@ -163,24 +170,25 @@ export function Stage() {
         }
       />
       <directionalLight
-        position={ehAter ? SUN_POS : [4, 7, 3]}
-        intensity={ehAter ? 1.9 : ehHosp ? 1.25 : ehArc ? 1.0 : ehEnv ? 0.55 : 1.2}
-        color={ehAter ? '#fff3df' : '#ffffff'}
+        position={ehExterno ? SUN_POS : [4, 7, 3]}
+        intensity={ehExterno ? 1.9 : ehHosp ? 1.25 : ehArc ? 1.0 : ehEnv ? 0.55 : 1.2}
+        color={ehExterno ? '#fff3df' : '#ffffff'}
         // sombra real do sol SÓ no nível 'alto' (GPU dedicada); médio/baixo usam
         // o blob estático do Outdoor — evita o passe de shadow map por quadro.
         // Walk-ins indoor (inspeção/hospital) não projetam sombra direcional.
-        castShadow={cfg.shadows && (!walkIn || (ehAter && cfg.tier === 'alto'))}
+        castShadow={cfg.shadows && (!walkIn || (ehExterno && cfg.tier === 'alto'))}
         shadow-mapSize={[cfg.shadowMapSize, cfg.shadowMapSize]}
         shadow-bias={-0.0002}
       >
         {/* frustum de sombra largo no pátio (modelo grande, escala ~8) */}
         <orthographicCamera
           attach="shadow-camera"
-          args={ehAter ? [-18, 18, 18, -18, 0.1, 90] : [-7, 7, 7, -7, 0.1, 40]}
+          args={ehExterno ? [-18, 18, 18, -18, 0.1, 90] : [-7, 7, 7, -7, 0.1, 40]}
         />
       </directionalLight>
       {!ehEnv && <directionalLight position={[-5, 3, -2]} intensity={0.35} color="#9fb4d0" />}
       {ehAter && <Outdoor sun={SUN_POS} tier={cfg.tier} groundY={ATER_GROUND_Y} />}
+      {ehSpda && <Outdoor sun={SUN_POS} tier={cfg.tier} groundY={0} />}
 
       {walkIn ? null : ehArc ? (
         <Substation detail={detail} />
@@ -193,7 +201,9 @@ export function Stage() {
       )}
 
       <Suspense fallback={null}>
-        {ehEnv ? (
+        {ehSpda ? (
+          <SpdaScene />
+        ) : ehEnv ? (
           <EnvScene />
         ) : ehHosp ? (
           <HospScene />
@@ -231,7 +241,7 @@ export function Stage() {
         enableDamping={cfg.damping}
         dampingFactor={0.08}
         minDistance={walkIn ? 0.6 : ehArc ? 2.5 : 1.4}
-        maxDistance={ehAter ? 55 : ehHosp ? 35 : ehEnv ? 28 : ehArc ? 9 : 8}
+        maxDistance={ehSpda ? 70 : ehAter ? 55 : ehHosp ? 35 : ehEnv ? 28 : ehArc ? 9 : 8}
         maxPolarAngle={Math.PI / 2.05}
         target={defaultTarget}
       />
@@ -399,6 +409,52 @@ function HospWallPatch() {
       <boxGeometry args={[0.16, 4.14, 2.56]} />
       <meshStandardMaterial color="#e7e7e7" roughness={0.5} metalness={0} envMapIntensity={0.7} />
     </mesh>
+  )
+}
+
+/**
+ * Cena do módulo de CONTINUIDADE DO SPDA (NBR 5419-3): prédio + para-raios a
+ * céu aberto. Enquanto `spdaPredio.modelPath` estiver vazio, o prédio é o
+ * placeholder procedural de `SpdaElements`; ao entrar o GLB do Codex, o
+ * `Equipment3D` passa a desenhar o modelo real (mesma cena, sem outra mudança).
+ */
+function SpdaScene() {
+  const equipamento = useSim((s) => s.equipamento)
+  const pickMode = useSim((s) => s.pickMode)
+  const setPeca = useSim((s) => s.setPeca)
+  return (
+    <>
+      {equipamento.modelPath !== '' && (
+        <Equipment3D
+          equipment={equipamento}
+          envIntensity={0.7}
+          pickMode={pickMode}
+          onPick={(i) => {
+            const c = `${i.raw[0].toFixed(2)}, ${i.raw[1].toFixed(2)}, ${i.raw[2].toFixed(2)}`
+            setPeca(`${c}  [${i.mat}]`)
+            navigator.clipboard?.writeText(c)
+          }}
+        />
+      )}
+      <SpdaElements />
+      {/* plano invisível p/ calibrar pontos no CHÃO (mesmo recurso do pátio de
+          aterramento): clique reporta a coordenada de mundo. */}
+      {pickMode && (
+        <mesh
+          rotation={[-Math.PI / 2, 0, 0]}
+          position={[0, 0, 0]}
+          onClick={(e) => {
+            e.stopPropagation()
+            const c = `${e.point.x.toFixed(2)}, ${e.point.y.toFixed(2)}, ${e.point.z.toFixed(2)}`
+            setPeca(`${c}  [chão]`)
+            navigator.clipboard?.writeText(c)
+          }}
+        >
+          <planeGeometry args={[120, 120]} />
+          <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+        </mesh>
+      )}
+    </>
   )
 }
 

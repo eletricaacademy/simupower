@@ -4,11 +4,15 @@
 > Stack: Vite 5 + React 18 + TypeScript · three r0.169 + @react-three/fiber v8 + drei v9 + postprocessing · zustand v4 · Tailwind v4 (@theme) · @fontsource · Vitest.
 > Padrão: **engine pura e testada** → **catálogo orientado a dados** → cena/HUD renderizam qualquer par (equipamento × ensaio).
 
-Estado: **build limpo** (`npm run build`), **45 testes** passam (`npm test`).
+Estado: **build limpo** (`npm run build`), **66 testes** passam (`npm test`).
+
+> **Agentes:** o contexto compartilhado entre **Claude Code** e **Codex** (arquitetura, convenções e
+> divisão de trabalho por arquivo) está em **`AGENTS.md`** (o `CLAUDE.md` importa esse mesmo arquivo).
+> Contratos dos módulos em construção: **`docs/modulos/`**.
 
 ---
 
-## 1. Módulos (6 — todos disponíveis no menu)
+## 1. Módulos (7 — todos disponíveis no menu)
 
 | # | Módulo | modo | Equipamento | Engine | HUD |
 |---|--------|------|-------------|--------|-----|
@@ -18,8 +22,9 @@ Estado: **build limpo** (`npm run build`), **45 testes** passam (`npm test`).
 | 4 | **Procedimento de Desenergização** | `desenergizacao` | subestacao-limpa.glb | `desenergizacao` | `DesenergizacaoHud.tsx` |
 | 5 | **Resistência de Aterramento** | `aterramento` | aterramento.glb (pátio) | `aterramento` | `AterramentoHud.tsx` |
 | 6 | **Verificação de Instalações (NBR 5410 §7)** | `verificacao` | hospital.glb (walk-in, sala cirúrgica) | `verificacao` (sem registry; só casca) | `VerificacaoHud.tsx` |
+| 7 | **Continuidade do SPDA** | `spda` | spda-predio (**prédio procedural provisório**) | `spda` | `SpdaHud.tsx` |
 
-Roteamento por `modo` em `App.tsx`; cena por `cenario` em `scene/Stage.tsx` (bancada-lab / subestacao [arco] / subestacao-3d [walk-in env] / **hospital** [walk-in]).
+Roteamento por `modo` em `App.tsx`; cena por `cenario` em `scene/Stage.tsx` (bancada-lab / subestacao [arco] / subestacao-3d [walk-in env] / **hospital** [walk-in] / **predio-spda** [externo]).
 
 ### Detalhes por módulo
 
@@ -153,22 +158,49 @@ Roteamento por `modo` em `App.tsx`; cena por `cenario` em `scene/Stage.tsx` (ban
 4. Possível enriquecer a cena (Pablo manda mais objetos).
 5. `quadro-eletrico.glb` é o asset mais pesado (5MB sem otimizar) — reotimizar SÓ se achar um caminho que não quebre os internos (ou re-exportar do Blender mais leve).
 
+### 7. Continuidade do SPDA — NBR 5419-3 *(2026-09-08 — ferramenta pronta, ambiente 3D pendente)*
+
+Módulo criado a partir do molde do **módulo 5 (aterramento)**, mas com instrumento e fluxo próprios:
+mede a **continuidade** dos trechos do SPDA (captação → descidas → caixas de inspeção → BEP).
+
+- **Engine `spda.ts`** (pura, 21 testes): `R = ρ·L/S + Σ R_conexões (+ R_defeito) (+ R_pontas)`.
+  Materiais da NBR 5419-3 (Cu/Al/aço galv.), defeitos plantados (`emenda-frouxa` +0,82 Ω,
+  `corrosao` +2,6 Ω, `rompido` → **OL**) e o erro clássico de **não zerar as pontas** (+0,128 Ω em
+  todas as leituras). `emitirLaudo()` devolve conformidade + causa provável + ação corretiva.
+  ⚠ **Critério de aceitação (≤0,5 Ω conforme / ≤1,0 Ω atenção) ainda precisa ser confirmado com o Pablo** —
+  a NBR 5419-3 exige "continuidade" sem fixar número.
+- **`catalog/spdaPontos.ts`** — 6 trechos (`capt-anel`, `desc-d1..d4`, `eq-bep`) com comprimento,
+  material, seção, nº de conexões e defeito. **É o arquivo de fronteira com o Codex**: os campos
+  `pos`/`posOrigem`/`vista` estão marcados `CALIBRAR (CODEX)`.
+- **`spdaStore.ts`** (trecho ativo, `pontasZeradas`, medições, laudo) + **`SpdaHud.tsx`**
+  (miliohmímetro com lista de trechos, visor, travas por etapa e laudo com tabela de leituras).
+  Cenário didático "Íntegro / Com defeitos" no ⚙ (equivalente ao PerfilPicker do módulo 5).
+- **Cena**: novo `cenario: 'predio-spda'` no `Stage` (reusa `Outdoor` com `groundY=0`, sol e céu do
+  pátio de aterramento; `walkIn`, órbita até 70). `scene/SpdaElements.tsx` tem os **marcadores
+  clicáveis** (do Claude) + um **prédio PROCEDURAL provisório** (`PREDIO_PROCEDURAL = true`) para o
+  módulo rodar sem GLB.
+- **Pendente (Codex)**: `public/models/spda-predio.glb`, `modelPath`/`escalaAlvo` em
+  `equipment/spdaPredio.ts`, calibração dos 6 pontos e regravação das 5 vistas.
+  **Briefing completo e checklist de handoff: `docs/modulos/spda-continuidade.md`.**
+
 ## 6. Comandos
 ```
 npm install      # PC novo: instalar deps (node_modules NÃO deve ir no zip — tem binários win-x64: @img/sharp, lightningcss)
 npm run dev      # dev server (porta 5173, ou a próxima livre)
 npm run build    # typecheck + build
-npm test         # vitest (45 testes)
+npm test         # vitest (66 testes)
 ```
 
 > **Migrar para outro PC:** copie o projeto **sem** `node_modules/` (pesado e específico de plataforma) e rode `npm install` no destino. Pode descartar `.sim-shots/` (artefatos locais). Requer Node 18+ (testado no 24).
 
 ## 7. Estrutura-chave
 ```
-src/engine/        insulation, arcflash, inspection, aterramento (+ .test.ts) — lógica pura
-src/catalog/       types.ts · equipment/* · tests/* · index.ts (EQUIPAMENTOS, ENSAIOS, PAR_*)
-src/sim/           store (useSim) · arcStore · inspStore · aterStore · audioStore · poseStore · viewStore · orchestrator
+src/engine/        insulation, arcflash, inspection, aterramento, spda (+ .test.ts) — lógica pura
+src/catalog/       types.ts · equipment/* · tests/* · spdaPontos.ts · index.ts (EQUIPAMENTOS, ENSAIOS, PAR_*)
+src/sim/           store (useSim) · arcStore · inspStore · aterStore · spdaStore · audioStore · poseStore · viewStore · orchestrator
 src/scene/         Stage · Equipment3D · Megger · Leads · MotorElements · DesElements · Colaborador · Room · Substation · quality
 src/ui/            *Hud.tsx · GuidedPanel · Checklist · Instrument · sons.ts · SoundControl · Apresentador · BemVindo · ArcIntro · Watermark · Creditos · MainMenu
 public/            models/ (+raw/) · sounds/ (+voz/) · videos/ · brand/ · favicon.png
+docs/modulos/      contratos Claude × Codex dos módulos em construção
+AGENTS.md          contexto compartilhado dos agentes (CLAUDE.md importa)
 ```

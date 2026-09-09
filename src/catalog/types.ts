@@ -36,7 +36,13 @@ export interface DadosNominais {
 }
 
 /** Cenário 3D onde o equipamento é apresentado. */
-export type Cenario = 'bancada-lab' | 'subestacao' | 'subestacao-3d' | 'hospital'
+export type Cenario =
+  | 'bancada-lab'
+  | 'subestacao'
+  | 'subestacao-3d'
+  | 'hospital'
+  /** pátio externo com prédio + SPDA (continuidade NBR 5419-3) */
+  | 'predio-spda'
 
 export interface Equipment {
   id: string
@@ -104,6 +110,7 @@ export type EngineRef =
   | 'desenergizacao'
   | 'aterramento'
   | 'verificacao'
+  | 'spda'
 
 /** Modo de simulação — define qual HUD/fluxo a app usa. */
 export type ModoSim =
@@ -113,6 +120,7 @@ export type ModoSim =
   | 'desenergizacao'
   | 'aterramento'
   | 'verificacao'
+  | 'spda'
 
 /** Ação 3D de um passo de desenergização/reenergização. */
 export type AcaoDes =

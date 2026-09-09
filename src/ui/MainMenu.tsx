@@ -7,6 +7,7 @@ import {
   PAR_DESENERG,
   PAR_ATERRAMENTO,
   PAR_VERIFICACAO,
+  PAR_SPDA,
 } from '../catalog'
 import { asset } from '../lib/asset'
 import { color } from '../design/tokens'
@@ -82,6 +83,17 @@ const MODULOS: Modulo[] = [
     descricao: 'Medição de resistência de aterramento por queda de potencial (método dos 62%).',
     disponivel: true,
     par: PAR_ATERRAMENTO,
+  },
+  {
+    id: 'continuidade-spda',
+    titulo: 'Continuidade do SPDA',
+    equipamento: 'Prédio com para-raios',
+    instrumento: 'Miliohmímetro (continuidade)',
+    norma: 'NBR 5419-3',
+    descricao:
+      'Inspeção do SPDA: mede a continuidade da captação, das descidas e da equipotencialização, com laudo de conformidade.',
+    disponivel: true,
+    par: PAR_SPDA,
   },
   {
     id: 'verificacao-5410',
