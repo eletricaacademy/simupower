@@ -114,16 +114,18 @@ function GarraKelvin({ alvo, origem, cor, baixo }: { alvo: Vec3; origem: Vec3; c
   </group>
 }
 
-export function Inbrat() {
+/** Entrada visual opcional para cenários com outra geometria de conexão. */
+export function Inbrat({ externo }: { externo?: { ponto: PontoSPDA; pos: Vec3; rotas: Vec3[][]; conectado: boolean } } = {}) {
   const id = useSpda(s => s.pontoAtivo)
   const leitura = useSpda(s => s.medicoes[id])
   const zerado = useSpda(s => s.pontasZeradas)
-  const passo = useSim(s => s.ensaio.steps[s.passoIndex]?.id)
+  const passoAtual = useSim(s => s.ensaio.steps[s.passoIndex]?.id)
+  const passo = externo ? (externo.conectado ? 'spda-medir' : 'spda-zerar') : passoAtual
   const pref = useSim(s => s.qualidadePref)
   const baixo = resolverQualidade(pref).tier === 'baixo'
-  const ponto = getPontoSPDA(passo === 'spda-zerar' ? 'd1-d2-sup' : id)!
-  const pos = posicaoInbrat(ponto)
-  const painel = useMemo(() => criarPainel(leitura?.display ?? '— — —', zerado), [leitura?.display, zerado])
+  const ponto = externo?.ponto ?? getPontoSPDA(passo === 'spda-zerar' ? 'd1-d2-sup' : id)!
+  const pos = externo?.pos ?? posicaoInbrat(ponto)
+  const painel = useMemo(() => criarPainel(externo ? '— — —' : leitura?.display ?? '— — —', !externo && zerado), [leitura?.display, zerado, !!externo])
   useEffect(() => () => painel.dispose(), [painel])
   const cabos = useMemo(() => [ponto.posOrigem, ponto.pos].map((alvo, lado) => {
     const zBase = lado ? 0.0265 : -0.0629
@@ -140,7 +142,7 @@ export function Inbrat() {
       }
     })
     // Uma única garra por extremidade, alimentada pelas duas vias do respectivo PP.
-    const direcao = ponto.nivel === 'bep' && lado === 1
+    const direcao = externo ? new THREE.Vector3(alvo[0] < 0 ? 1 : -1, -0.5, 0.35).normalize() : ponto.nivel === 'bep' && lado === 1
       ? new THREE.Vector3(0, -0.5, -1).normalize()
       : new THREE.Vector3(Math.sign(alvo[0]), -0.5, Math.sign(alvo[2]) * 0.35).normalize()
     const traseira = new THREE.Vector3(...alvo).addScaledVector(direcao, 0.31).toArray() as Vec3
@@ -148,7 +150,9 @@ export function Inbrat() {
     // Os cabos saem pela lateral da maleta; pontos extras evitam a spline cruzar o visor.
     const piso: Vec3 = [pos[0] + 0.3 * ESCALA_INBRAT, pos[1] + 0.025, z]
     const rota: Vec3[] = [uniao, piso]
-    if (ponto.nivel === 'bep') {
+    if (externo) {
+      rota.push(...externo.rotas[lado])
+    } else if (ponto.nivel === 'bep') {
       if (lado === 0) rota.push([-3.5, 0.39, -2.5], [-3.7, 0.39, -3.7], [-3.7, 0.06, -5.5], [-7.5, 0.06, -5.5])
       else rota.push([-4.7, 0.39, -0.6])
     } else {
@@ -161,7 +165,7 @@ export function Inbrat() {
       for (let atual = a; atual !== b;) { atual = (atual + sentido + 4) % 4; rota.push(cantos[atual]) }
     }
     return { pontos: [...rota, aproxima, traseira], vias, alvo, traseira, cor: lado ? color.inbrat.maleta : color.inbrat.borracha }
-  }), [ponto, pos[0], pos[1], pos[2]])
+  }), [ponto, pos[0], pos[1], pos[2], externo])
   if (!['spda-zerar', 'spda-medir', 'spda-laudo'].includes(passo)) return null
   return <group>
     <group position={pos} rotation={[0, Math.PI, 0]} scale={ESCALA_INBRAT} onClick={e => { e.stopPropagation(); useView.getState().pedir('foco') }}>
@@ -192,6 +196,6 @@ export function Inbrat() {
       <CaboKelvin pontos={c.pontos} cor={color.inbrat.borracha} baixo={baixo} raio={0.01} />
       <GarraKelvin alvo={c.alvo} origem={c.traseira} cor={c.cor} baixo={baixo} />
     </group>)}
-    {passo === 'spda-medir' && <SpdaFluxo ponto={ponto} cabos={cabos} baixo={baixo} />}
+    {!externo && passo === 'spda-medir' && <SpdaFluxo ponto={ponto} cabos={cabos} baixo={baixo} />}
   </group>
 }

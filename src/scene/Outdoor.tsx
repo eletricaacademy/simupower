@@ -224,6 +224,7 @@ export function Outdoor({
   tier,
   groundY = 0,
   esparso = false,
+  pisoProprio = false,
 }: {
   sun?: [number, number, number]
   tier: Tier
@@ -231,6 +232,7 @@ export function Outdoor({
   groundY?: number
   /** Menos construções e atmosfera sem halo intenso para a inspeção do SPDA. */
   esparso?: boolean
+  pisoProprio?: boolean
 }) {
   const detail = tier !== 'baixo'
   const temSombraReal = tier === 'alto'
@@ -266,17 +268,17 @@ export function Outdoor({
       </mesh>
 
       {/* BRITA (pedrisco granito) no piso da subestação — camada fina, sobre a grama */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[1, groundY + 0.004, 0]} receiveShadow={temSombraReal}>
+      {!pisoProprio && <mesh rotation={[-Math.PI / 2, 0, 0]} position={[1, groundY + 0.004, 0]} receiveShadow={temSombraReal}>
         <planeGeometry args={[8.5, 7]} />
         <meshLambertMaterial map={brita} />
-      </mesh>
+      </mesh>}
 
       {/* contexto de fundo (paisagem) — leve, fora da área de trabalho */}
       <CenarioFundo baseY={groundY} detail={detail} esparso={esparso} />
 
 
       {/* sombra estática (médio/baixo) — grounding sem passe de shadow map */}
-      {blob && (
+      {blob && !pisoProprio && (
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, groundY + 0.015, 0]} renderOrder={1}>
           <planeGeometry args={[13, 13]} />
           <meshBasicMaterial map={blob} transparent depthWrite={false} />

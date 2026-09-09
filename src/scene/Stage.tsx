@@ -25,6 +25,7 @@ import { DesElements } from './DesElements'
 import { MotorElements } from './MotorElements'
 import { Terrometro3D } from './Terrometro'
 import { SpdaElements } from './SpdaElements'
+import { EstruturalElements } from './EstruturalElements'
 import { Inbrat, vistaInbrat } from './Inbrat'
 import { useSpda } from '../sim/spdaStore'
 import { getPontoSPDA } from '../catalog/spdaPontos'
@@ -101,13 +102,14 @@ export function Stage() {
   const ehEnv = cenario === 'subestacao-3d' // modelo walk-in (inspeção)
   const ehHosp = cenario === 'hospital' // instalação hospitalar walk-in (NBR 5410 §7)
   const ehAter = ehEnv && modo === 'aterramento' // pátio externo a céu aberto
-  const ehSpda = cenario === 'predio-spda' // prédio com SPDA, a céu aberto (NBR 5419-3)
+  const ehEstrutural = cenario === 'galpao-estrutural'
+  const ehSpda = cenario === 'predio-spda' || ehEstrutural // iluminação externa comum aos módulos SPDA
   const ehExterno = ehAter || ehSpda // cenas externas: sol + céu + grama
   const walkIn = ehEnv || ehHosp || ehSpda // modelo é o próprio ambiente (câmera livre)
 
   // abertura: inspeção = vista aérea 3/4; hospital = dentro, à altura dos olhos;
   // demais = dentro da sala (ajustável por captura).
-  const camPos: [number, number, number] = ehSpda
+  const camPos: [number, number, number] = ehEstrutural ? [32, 23, 36] : ehSpda
     ? [18, 10, 18]
     : ehHosp
     ? [4.5, 2.0, 9.5]
@@ -194,7 +196,7 @@ export function Stage() {
       </directionalLight>
       {!ehEnv && <directionalLight position={[-5, 3, -2]} intensity={0.35} color="#9fb4d0" />}
       {ehAter && <Outdoor sun={SUN_POS} tier={cfg.tier} groundY={ATER_GROUND_Y} />}
-      {ehSpda && <Outdoor sun={SUN_POS} tier={cfg.tier} groundY={0} esparso />}
+      {ehSpda && <Outdoor sun={SUN_POS} tier={cfg.tier} groundY={0} esparso pisoProprio={ehEstrutural} />}
 
       {walkIn ? null : ehArc ? (
         <Substation detail={detail} />
@@ -207,7 +209,9 @@ export function Stage() {
       )}
 
       <Suspense fallback={null}>
-        {ehSpda ? (
+        {ehEstrutural ? (
+          <EstruturalElements />
+        ) : ehSpda ? (
           <SpdaScene />
         ) : ehEnv ? (
           <EnvScene />
@@ -255,17 +259,17 @@ export function Stage() {
       <CameraRig cfg={cfg} reduced={reduced} baseY={focusBaseY} defaultTarget={defaultTarget} tourMode={ehEnv || ehSpda} />
       {/* walk-in (inspeção/hospital): câmera livre p/ percorrer; demais salas confinam */}
       {!walkIn && <ConfineToRoom halfX={halfX} halfZ={halfZ} height={roomH} />}
-      <ViewCommands
+      {!ehEstrutural && <ViewCommands
         defaultPos={camPos}
         defaultTarget={defaultTarget}
         half={Math.min(halfX, halfZ)}
         height={roomH}
-        extraViews={ehHosp ? { quadro: QUADRO_VIEW, foco: focoView } : ehSpda ? {
+        extraViews={ehHosp ? { quadro: QUADRO_VIEW, foco: focoView } : ehSpda && !ehEstrutural ? {
           foco: vistaInbrat(pontoSpda), quadro: pontoSpda.vista,
           origem: { pos: [pontoSpda.posOrigem[0] + Math.sign(pontoSpda.posOrigem[0]) * 1.25, 1.5, pontoSpda.posOrigem[2] + Math.sign(pontoSpda.posOrigem[2]) * 2.65], target: pontoSpda.posOrigem },
           fluxo: { pos: [18, 15, -20], target: [0, pontoSpda.nivel === 'superior' ? 4 : 0.5, 0] },
         } : undefined}
-      />
+      />}
       <PoseCapturer />
       <InitialPose />
       <ActivityDriver fpsCap={cfg.fpsCap} />

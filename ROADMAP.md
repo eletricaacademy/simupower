@@ -1,5 +1,15 @@
 # SimuPower — Módulo NR-10 · Roadmap & Status
 
+### 09/09/2026 — Início do SPDA natural/estrutural (edição 2026)
+
+Novo ambiente explorável no menu: galpão industrial procedural 16 × 24 m, oito
+pilares, armaduras, cobertura, Aterrinsert e BEP interno. Alterna obra/pronto e
+revela ferragens; seleciona pares e conecta as duas garras do Inbrat. HUD desktop
+e MobileSheet. Medições numéricas, fluxo de corrente e veredito deste módulo
+ainda pendentes da topologia e validação dos critérios na ABNT NBR 5419-3:2026.
+Não foi feita conversão automática das regras antigas. Decisão de usar sempre
+2026 salva no AGENTS.md. Contrato: `docs/modulos/spda-estrutural.md`.
+
 ### 09/09/2026 — Percurso da corrente no SPDA
 
 Setas animadas após medir acompanham C1, os condutores e o retorno C2, incluindo os dois ramos do anel e a ligação ao BEP interno. Anel enterrado esquemático visível através do solo; controles para ocultar/mostrar e enquadrar o percurso no desktop/mobile. Sem bloom ou alteração nos cálculos. Build e 75 testes aprovados. Contrato: `docs/modulos/spda-continuidade.md`.

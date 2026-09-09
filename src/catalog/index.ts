@@ -19,8 +19,11 @@ import { desenergizacaoProcedure } from './tests/desenergizacao'
 import { aterramentoProcedure } from './tests/aterramento'
 import { verificacaoProcedure } from './tests/verificacao'
 import { spdaProcedure } from './tests/spda'
+import { galpaoEstrutural } from './equipment/galpaoEstrutural'
+import { estruturalProcedure } from './tests/estrutural'
 
 export const EQUIPAMENTOS: Record<string, Equipment> = {
+  [galpaoEstrutural.id]: galpaoEstrutural,
   [motor.id]: motor,
   [painelMT.id]: painelMT,
   [subestacao.id]: subestacao,
@@ -31,6 +34,7 @@ export const EQUIPAMENTOS: Record<string, Equipment> = {
 }
 
 export const ENSAIOS: Record<string, TestProcedure> = {
+  [estruturalProcedure.id]: estruturalProcedure,
   [insulationProcedure.id]: insulationProcedure,
   [arcflashProcedure.id]: arcflashProcedure,
   [inspecaoProcedure.id]: inspecaoProcedure,
@@ -87,6 +91,8 @@ export function getEquipamento(id: string): Equipment {
   if (!e) throw new Error(`Equipamento não encontrado: ${id}`)
   return e
 }
+
+export const PAR_ESTRUTURAL = { equipamentoId: galpaoEstrutural.id, ensaioId: estruturalProcedure.id } as const
 
 export function getEnsaio(id: string): TestProcedure {
   const t = ENSAIOS[id]

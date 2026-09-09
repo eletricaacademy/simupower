@@ -43,6 +43,7 @@ export type Cenario =
   | 'hospital'
   /** pátio externo com prédio + SPDA (continuidade NBR 5419-3) */
   | 'predio-spda'
+  | 'galpao-estrutural'
 
 export interface Equipment {
   id: string
@@ -114,6 +115,7 @@ export type EngineRef =
 
 /** Modo de simulação — define qual HUD/fluxo a app usa. */
 export type ModoSim =
+  | 'spda-estrutural'
   | 'guiado-megger'
   | 'arcflash'
   | 'inspecao'

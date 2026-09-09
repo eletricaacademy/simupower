@@ -8,6 +8,7 @@ import {
   PAR_ATERRAMENTO,
   PAR_VERIFICACAO,
   PAR_SPDA,
+  PAR_ESTRUTURAL,
 } from '../catalog'
 import { asset } from '../lib/asset'
 import { color } from '../design/tokens'
@@ -30,6 +31,12 @@ const SENHA_ACESSO = '3020'
 
 /** Catálogo de módulos exibidos no menu (orientado a dados). */
 const MODULOS: Modulo[] = [
+  {
+    id: 'spda-estrutural', titulo: 'SPDA natural / estrutural', equipamento: 'Galpão industrial',
+    instrumento: 'Inbrat · conexões nas ferragens e Aterrinsert', norma: 'ABNT NBR 5419-3:2026',
+    descricao: 'Ambiente em desenvolvimento: explore as ferragens, revele a estrutura interna e conecte as garras nos pontos de acesso.',
+    disponivel: true, par: PAR_ESTRUTURAL,
+  },
   {
     id: 'iso-motor',
     titulo: 'Teste de Isolamento em Motor',

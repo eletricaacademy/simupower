@@ -52,6 +52,11 @@ engine pura e testada  →  catálogo orientado a dados  →  cena/HUD renderiza
 
 ## 3. Convenções que não se negociam
 
+- **SPDA: usar sempre a série ABNT NBR 5419:2026 nos exemplos**, conforme decisão
+  explícita do Pablo em 09/09/2026. Conferir a parte aplicável e suas correções.
+  Vídeos e materiais de 2005/2015 servem como referência visual/histórica, nunca
+  como prova dos critérios de 2026. Não apenas trocar o ano de regras antigas.
+
 - **Tudo em PT-BR**: nomes, comentários, textos de UI. Comentários explicam *por quê*.
 - **Nenhum hex solto**: cores vêm de `src/design/tokens.ts` (`color.accent`,
   `color.status.pass|marginal|fail`…).
@@ -107,6 +112,21 @@ desenergização/LOTO · resistência de aterramento · verificação NBR 5410 �
 
 Detalhes e histórico completo: **`ROADMAP.md`**.
 Contratos de módulo em construção: **`docs/modulos/`**.
+
+### Novo módulo autorizado — SPDA natural/estrutural
+
+Pablo autorizou seguir com um galpão industrial, ensaios nas ferragens e acesso
+por Aterrinsert. Referência visual: https://www.youtube.com/watch?v=O_flIvGlVLY
+(Termotécnica; o vídeo cita 2005). Norma do novo módulo: ABNT NBR 5419-3:2026.
+Contrato e pendências: `docs/modulos/spda-estrutural.md`. Manter o SPDA convencional
+como módulo separado. Proposta inicial: ferragens expostas e galpão concretado,
+com visualização interna das armaduras e do percurso elétrico.
+
+Primeira etapa visual integrada: card SPDA natural / estrutural no menu, galpão
+procedural, obra/pronto, revelar ferragens e conectar garras. Build e 75 testes
+existentes aprovados; desktop e painel mobile conferidos. **Ainda não há medição,
+animação da corrente ou laudo no módulo estrutural.** Aguardando fonte da edição
+2026 para validar os critérios; contrato lista também as próximas tarefas visuais.
 
 ### Continuação compartilhada — SPDA (09/09/2026)
 

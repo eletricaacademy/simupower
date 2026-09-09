@@ -6,6 +6,7 @@ import { DesenergizacaoHud } from './ui/DesenergizacaoHud'
 import { AterramentoHud } from './ui/AterramentoHud'
 import { VerificacaoHud } from './ui/VerificacaoHud'
 import { SpdaHud } from './ui/SpdaHud'
+import { EstruturalHud } from './ui/EstruturalHud'
 import { MainMenu } from './ui/MainMenu'
 import { LandscapeFrame } from './ui/LandscapeFrame'
 import { AvisoMobile } from './ui/AvisoMobile'
@@ -99,6 +100,8 @@ export default function App() {
             <AterramentoHud />
           ) : modo === 'verificacao' ? (
             <VerificacaoHud />
+          ) : modo === 'spda-estrutural' ? (
+            <EstruturalHud />
           ) : modo === 'spda' ? (
             <SpdaHud />
           ) : (
