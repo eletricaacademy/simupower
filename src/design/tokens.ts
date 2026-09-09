@@ -9,6 +9,26 @@
  */
 
 export const color = {
+  /** Materiais do prédio de treinamento e do SPDA (também usados no GLB). */
+  spda: {
+    concreto: '#c9c5bd',
+    cobertura: '#a9a49b',
+    metal: '#4a5058',
+    cobre: '#b87333',
+    isolador: '#e6ebf0',
+    vidro: '#314f60',
+    aluminio: '#cfd4da',
+    oxidacao: '#54876b',
+  },
+  inbrat: {
+    maleta: '#ee3027',
+    painel: '#333537',
+    borracha: '#17191b',
+    tecla: '#f0f1ed',
+    tela: '#eef3ee',
+    tinta: '#283438',
+    ligar: '#20a080',
+  },
   /** fundo do palco 3D (escuro, imersivo) */
   viewport: '#0B0F14',
   /** painéis HUD flutuantes (vidro fosco) — usar com backdrop-blur */

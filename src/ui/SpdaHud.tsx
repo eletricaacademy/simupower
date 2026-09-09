@@ -18,6 +18,8 @@ import { useDraggable } from './useDraggable'
 import { MobileSheet } from './MobileSheet'
 import { Detalhes } from './Detalhes'
 import { color } from '../design/tokens'
+import { SpdaCalibracao } from '../scene/SpdaCalibracao'
+import { useView } from '../sim/viewStore'
 
 const CORV: Record<'pass' | 'marginal' | 'fail', string> = {
   pass: color.status.pass,
@@ -91,7 +93,7 @@ export function SpdaHud() {
       <HudTopBar onConfig={() => setConfigAberto((v) => !v)} configAberto={configAberto} right={<SoundControl />} />
 
       {configAberto && (
-        <div className="absolute right-3 pointer-events-auto" style={{ top: 72 }}>
+        <div className="absolute right-3 z-50 pointer-events-auto" style={{ top: 72 }}>
           <div className="hud-glass rounded-[14px] p-4 w-[280px] max-h-[80vh] overflow-y-auto hud-scroll" style={cfgDrag.style}>
             <div
               className="font-display font-semibold text-[14px] mb-3 select-none"
@@ -113,6 +115,7 @@ export function SpdaHud() {
             <CenarioPicker />
             <div className="my-3 h-px" style={{ background: color.hairline }} />
             <QualityPicker />
+            <SpdaCalibracao />
           </div>
         </div>
       )}
@@ -288,7 +291,15 @@ function Miliohmimetro() {
   const nMedidos = SPDA_PONTOS.filter((p) => medicoes[p.id]).length
 
   return (
-    <div className="instrument-panel rounded-[12px] p-3 w-[330px] max-w-[90vw]">
+    <div className="instrument-panel rounded-[12px] p-3 w-[330px] max-w-[90vw] max-h-[calc(100dvh-88px)] overflow-y-auto hud-scroll" style={{ borderTop: `4px solid ${color.inbrat.maleta}` }}>
+      <div className="flex items-center justify-between mb-2">
+        <span className="font-display font-bold text-[16px]" style={{ color: color.text }}>inbrat <span className="font-mono text-[10px] font-normal">INMD1 PRO</span></span>
+        <button className="text-[10px] rounded px-2 py-1" style={{ color: color.text, background: color.inbrat.painel }} onClick={() => useView.getState().pedir('foco')}>Ver equipamento 3D</button>
+      </div>
+      <div className="flex items-center justify-between text-[10px] mb-2" style={{ color: color.textMuted }}>
+        <span>Simulação didática · Continuidade</span>
+        <button onClick={() => useView.getState().pedir('quadro')} style={{ color: color.accentCool }}>Ver conexão</button>
+      </div>
       <div className="flex items-center justify-between mb-2">
         <span className="text-[10px] uppercase tracking-[0.18em]" style={{ color: color.textFaint }}>
           Continuidade · RLO

@@ -1,7 +1,7 @@
 # Módulo 7 — Continuidade do SPDA (NBR 5419-3)
 
-**Contrato Claude × Codex.** Estado em 2026-09-08: **ferramenta pronta e rodando**
-(com prédio procedural provisório); **ambiente 3D pendente — tarefa do Codex**.
+**Contrato Claude × Codex.** Estado em 2026-09-08: **ferramenta e ambiente 3D integrados**.
+Prédio GLB com SPDA, contatos calibrados e reprodução visual do Inbrat INMD1 PRO.
 
 Abrir pelo menu → card "Continuidade do SPDA" (senha de acesso das ferramentas: a mesma
 dos demais módulos, em `MainMenu.tsx`).
@@ -52,13 +52,13 @@ provável e ação corretiva.
 | `src/ui/SpdaHud.tsx` | HUD + instrumento + laudo |
 | wiring | `types.ts`, `catalog/index.ts` (`PAR_SPDA`), `App.tsx`, `MainMenu.tsx` |
 
-### Codex (a fazer)
+### Codex (entregue)
 
 | Arquivo | Tarefa |
 |---|---|
 | `public/models/spda-predio.glb` | **modelo do prédio com SPDA** (bruto em `assets-raw/models/`) |
 | `src/scene/SpdaElements.tsx` | trocar `PredioProcedural` pelo cenário real |
-| `src/catalog/spdaPredio.ts` | preencher `modelPath` e `escalaAlvo` |
+| `src/catalog/equipment/spdaPredio.ts` | `modelPath` e escala 1:1 do GLB |
 | `src/catalog/spdaPontos.ts` | calibrar `pos`, `posOrigem`, `vista` |
 | `src/catalog/tests/spda.ts` | regravar as 5 `vista`s de câmera |
 
@@ -115,9 +115,91 @@ Convenção: 1 unidade = 1 m, base do prédio em `y = 0`, prédio centrado na or
 
 ## 5. Pendências conhecidas
 
-- [ ] Modelo 3D do prédio (Codex) e calibração dos 6 pontos.
+- [x] Modelo 3D do prédio (Codex) e calibração dos 6 pontos.
 - [x] Critério de aceitação confirmado pelo Pablo em 2026-09-08: **0,2 / 1,0 Ω**.
 - [ ] Locução dos passos (padrão dos outros módulos: `public/sounds/voz/`).
 - [ ] Avaliar medir também a **resistência de aterramento de cada descida** (hoje o
       módulo é só continuidade; o módulo 5 já cobre queda de potencial).
 - [ ] Som próprio: hoje reusa `sounds/campo.mp3` (campo aberto), como o módulo 5.
+
+## 6. Entrega do Codex — 2026-09-08
+
+- GLB autoral: edificação 12 × 8 × 9 m, com vãos reais e vidro recuado, esquadrias,
+  persianas, peitoris, pingadeiras, portões, puxadores, marquises com tirantes,
+  arandelas, drenagem pluvial, venezianas, alçapão e exaustores.
+- Reboco com cor, normal e rugosidade em três PNGs de 512 px incorporados ao GLB.
+  UV em metros; sem downloads em execução. Geometria agrupada por sete materiais,
+  respeitando os perfis de qualidade já aplicados pelo Stage/Equipment3D.
+- Anel contínuo, seis captores, quatro descidas com fixações, caixas abertas com
+  conectores e ligação física D1–BEP. Emenda frouxa D3 e oxidação D4 acompanham
+  `cenario === 'com-defeitos'`. Espessuras dos condutores têm exagero visual didático;
+  os valores elétricos de seção, comprimento e resistência continuam os do catálogo.
+- Fonte editável e reprodução: `node assets-raw/models/gerar-spda.mjs`. O bruto
+  mantém peças nomeadas; a versão de uso funde por material sem alterar eixos.
+  `spda-geometria.json` registra limites e transformação esperada do carregador.
+  Estes arquivos específicos de autoria entram no commit apesar do ignore geral de `assets-raw/`.
+- `PREDIO_PROCEDURAL = false`; catálogo aponta para o GLB. `modelPath` vazio mantém
+  uma cena simplificada para a ferramenta funcionar sem o asset declarado.
+
+### Calibração e enquadramentos
+
+Os contatos abaixo foram capturados por clique no material `SPDA_cobre`, através
+de “Identificar ponto”. O HUD arredonda a centímetros. Referências superiores
+seguem as coordenadas dos nós construtivos do anel; a proximidade de todas as
+extremidades com a geometria é verificada em `scene/spdaModelo.test.ts`.
+
+| Trecho | Contato capturado (x, y, z) |
+|---|---|
+| capt-anel | 6.21, 9.36, -4.27 |
+| desc-d1 | -6.28, 0.70, -4.35 |
+| desc-d2 | 6.26, 0.70, -4.35 |
+| desc-d3 | 6.27, 0.70, 4.35 |
+| desc-d4 | -6.26, 0.70, 4.35 |
+| eq-bep | -6.28, 0.92, 1.49 |
+
+Vistas capturadas no HUD: visão geral (segurança/laudo); vista elevada da cobertura
+(inspeção); INMD1 PRO próximo do BEP (preparar instrumento); captação (início das
+medições). Cada seleção de trecho também possui aproximação própria.
+Na identificação, os marcadores ficam temporariamente ocultos para o clique
+atingir a superfície do GLB. `Marcadores`, `Marcador` e `Trecho` não foram alterados.
+
+### Inbrat — escopo visual solicitado por Pablo durante a execução
+
+Modelo adotado como referência: **INMD1 PRO**, na ausência de outro código indicado.
+`scene/Inbrat.tsx` modela maleta vermelha, borda de borracha, terminais P1/C1/P2/C2,
+painel, visor, teclas e fechos, em 258 × 205 × 120 mm. O visor recebe a leitura do
+store; quatro cabos ilustram as duas extremidades do trecho. “Ver equipamento 3D”
+e “Ver conexão” permitem alternar o enquadramento sem alterar a medição.
+
+Fontes oficiais consultadas:
+- [Produto e dimensões](https://inbrat.com.br/produto/inmd1-pro-miliohmimetro-de-1-2a/).
+- [Foto frontal utilizada como referência](https://inbrat.com.br/wp-content/uploads/2025/09/INMD1-05.jpg).
+
+**Limite funcional:** reprodução visual, não emulação do firmware ou da metrologia
+do fabricante. A engine conserva a didática original de compensação das pontas,
+leituras e critérios. A Inbrat descreve medição Kelvin de quatro terminais; a
+página pública apresenta informações de faixa divergentes das de outras páginas
+do fabricante. ⚠ REVISAR COM O PABLO antes de alterar o modelo elétrico para uma
+simulação fiel ao instrumento real. Nenhuma faixa foi inventada ou substituída.
+
+### Mudanças mínimas fora dos arquivos exclusivos da cena
+
+- `ui/SpdaHud.tsx`: ligação de controles de calibração que faltavam no painel,
+  identificação visual Inbrat e botões de câmera; painel de configurações acima
+  do instrumento; limite de altura com rolagem. Sem mudanças nos cálculos ou ações
+  de medir, compensar, selecionar, concluir e emitir laudo.
+- `design/tokens.ts`: materiais do prédio e cores do gabinete/painel Inbrat.
+- `catalog/tests/spda.ts`: apenas vistas e comentário de calibração.
+- Nenhuma alteração em `engine/**`, `sim/**` ou nos campos elétricos dos trechos.
+
+### Verificação
+
+- Build de produção e **69 testes Vitest aprovados** (66 existentes e três de geometria).
+- Testes geométricos verificam metros, centralização, assentamento, contato com
+  cobre, orçamento de malhas, texturas locais e ausência de codecs externos.
+- Fluxo desktop exercitado até o laudo com seis medições: quatro aprovadas, D3 em
+  atenção e D4 reprovada. Conferidas vistas da cobertura e das quatro caixas/BEP.
+- MobileSheet, painel Inbrat e acesso ao módulo conferidos em viewport de 390 × 844,
+  inclusive com qualidade baixa; o campo horizontal se adapta ao retrato para
+  evitar cortes laterais. A câmera permanece livre e os botões permitem
+  aproximação do equipamento/conexão.

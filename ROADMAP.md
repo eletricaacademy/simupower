@@ -158,7 +158,7 @@ Roteamento por `modo` em `App.tsx`; cena por `cenario` em `scene/Stage.tsx` (ban
 4. Possível enriquecer a cena (Pablo manda mais objetos).
 5. `quadro-eletrico.glb` é o asset mais pesado (5MB sem otimizar) — reotimizar SÓ se achar um caminho que não quebre os internos (ou re-exportar do Blender mais leve).
 
-### 7. Continuidade do SPDA — NBR 5419-3 *(2026-09-08 — ferramenta pronta, ambiente 3D pendente)*
+### 7. Continuidade do SPDA — NBR 5419-3 *(2026-09-08 — ferramenta e ambiente 3D integrados)*
 
 Módulo criado a partir do molde do **módulo 5 (aterramento)**, mas com instrumento e fluxo próprios:
 mede a **continuidade** dos trechos do SPDA (captação → descidas → caixas de inspeção → BEP).
@@ -176,12 +176,21 @@ mede a **continuidade** dos trechos do SPDA (captação → descidas → caixas 
   (miliohmímetro com lista de trechos, visor, travas por etapa e laudo com tabela de leituras).
   Cenário didático "Íntegro / Com defeitos" no ⚙ (equivalente ao PerfilPicker do módulo 5).
 - **Cena**: novo `cenario: 'predio-spda'` no `Stage` (reusa `Outdoor` com `groundY=0`, sol e céu do
-  pátio de aterramento; `walkIn`, órbita até 70). `scene/SpdaElements.tsx` tem os **marcadores
-  clicáveis** (do Claude) + um **prédio PROCEDURAL provisório** (`PREDIO_PROCEDURAL = true`) para o
-  módulo rodar sem GLB.
-- **Pendente (Codex)**: `public/models/spda-predio.glb`, `modelPath`/`escalaAlvo` em
-  `equipment/spdaPredio.ts`, calibração dos 6 pontos e regravação das 5 vistas.
-  **Briefing completo e checklist de handoff: `docs/modulos/spda-continuidade.md`.**
+  pátio de aterramento; `walkIn`, órbita até 70). **GLB autoral** `public/models/spda-predio.glb`:
+  janelas recuadas, esquadrias, peitoris, persianas, portões, marquises, drenagem, exaustores
+  e reboco com mapas PBR locais. Sete malhas por material, sem Draco/meshopt/quantização.
+  Anel, seis captores, quatro descidas com fixações, caixas abertas e BEP conectado.
+  D3 com emenda frouxa e D4 com corrosão apenas no cenário com defeitos.
+- **Calibração (Codex)**: seis contatos capturados pelo pick do GLB, vistas dos trechos e
+  cinco etapas registradas; escala preserva metros e base em zero. Selecionar um trecho
+  aproxima a conexão. `Stage` agora aplica o tour também ao SPDA. Fallback procedural
+  disponível com `modelPath` vazio. Componentes de marcadores e trechos preservados.
+- **Inbrat INMD1 PRO**: representação 3D autoral baseada na referência oficial, quatro
+  terminais, cabos e visor sincronizado com o ensaio. HUD com “Ver equipamento 3D” e
+  “Ver conexão”. É referência visual; a engine didática permanece sem alterações.
+- **Autoria**: gerador e bruto em `assets-raw/models/`; controles de pick/captura em
+  ⚙ → Calibração do ambiente 3D. Testes geométricos protegem escala e contatos do GLB.
+  **Detalhes, fontes e limites do handoff: `docs/modulos/spda-continuidade.md`.**
 
 ## 6. Comandos
 ```

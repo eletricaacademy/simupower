@@ -25,6 +25,9 @@ import { DesElements } from './DesElements'
 import { MotorElements } from './MotorElements'
 import { Terrometro3D } from './Terrometro'
 import { SpdaElements } from './SpdaElements'
+import { Inbrat, vistaInbrat } from './Inbrat'
+import { useSpda } from '../sim/spdaStore'
+import { getPontoSPDA } from '../catalog/spdaPontos'
 import { QuadroEletrico } from './QuadroEletrico'
 import { Tomada } from './Tomada'
 import { TomadasBR } from './TomadaBR'
@@ -69,6 +72,9 @@ export function Stage() {
   const pref = useSim((s) => s.qualidadePref)
   const cenario = useSim((s) => s.equipamento.cenario ?? 'bancada-lab')
   const modo = useSim((s) => s.ensaio.modo)
+  const pontoSpdaId = useSpda((s) => s.pontoAtivo)
+  const etapaSpda = useSim((s) => s.ensaio.steps[s.passoIndex]?.id)
+  const pontoSpda = getPontoSPDA(etapaSpda === 'spda-zerar' ? 'eq-bep' : pontoSpdaId)!
   // vista de foco na tomada ativa (verificação) — usada pelo botão/início do ensaio
   const alvoVerif = useVerif((s) => s.alvo)
   const focoView = useMemo(() => {
@@ -246,7 +252,7 @@ export function Stage() {
         target={defaultTarget}
       />
 
-      <CameraRig cfg={cfg} reduced={reduced} baseY={focusBaseY} defaultTarget={defaultTarget} tourMode={ehEnv} />
+      <CameraRig cfg={cfg} reduced={reduced} baseY={focusBaseY} defaultTarget={defaultTarget} tourMode={ehEnv || ehSpda} />
       {/* walk-in (inspeção/hospital): câmera livre p/ percorrer; demais salas confinam */}
       {!walkIn && <ConfineToRoom halfX={halfX} halfZ={halfZ} height={roomH} />}
       <ViewCommands
@@ -254,7 +260,7 @@ export function Stage() {
         defaultTarget={defaultTarget}
         half={Math.min(halfX, halfZ)}
         height={roomH}
-        extraViews={ehHosp ? { quadro: QUADRO_VIEW, foco: focoView } : undefined}
+        extraViews={ehHosp ? { quadro: QUADRO_VIEW, foco: focoView } : ehSpda ? { foco: vistaInbrat(pontoSpda), quadro: pontoSpda.vista } : undefined}
       />
       <PoseCapturer />
       <InitialPose />
@@ -432,11 +438,12 @@ function SpdaScene() {
           onPick={(i) => {
             const c = `${i.raw[0].toFixed(2)}, ${i.raw[1].toFixed(2)}, ${i.raw[2].toFixed(2)}`
             setPeca(`${c}  [${i.mat}]`)
-            navigator.clipboard?.writeText(c)
+            navigator.clipboard?.writeText(c).catch(() => { /* Coordenadas continuam visíveis no HUD. */ })
           }}
         />
       )}
       <SpdaElements />
+      <Inbrat />
       {/* plano invisível p/ calibrar pontos no CHÃO (mesmo recurso do pátio de
           aterramento): clique reporta a coordenada de mundo. */}
       {pickMode && (
@@ -447,7 +454,7 @@ function SpdaScene() {
             e.stopPropagation()
             const c = `${e.point.x.toFixed(2)}, ${e.point.y.toFixed(2)}, ${e.point.z.toFixed(2)}`
             setPeca(`${c}  [chão]`)
-            navigator.clipboard?.writeText(c)
+            navigator.clipboard?.writeText(c).catch(() => { /* Coordenadas continuam visíveis no HUD. */ })
           }}
         >
           <planeGeometry args={[120, 120]} />
@@ -572,7 +579,7 @@ function CapturaCena() {
     const f = (v: THREE.Vector3) => `${v.x.toFixed(2)}, ${v.y.toFixed(2)}, ${v.z.toFixed(2)}`
     const texto = `pos: [${f(p)}]  alvo: [${f(t)}]`
     setCenaPose(texto)
-    navigator.clipboard?.writeText(texto)
+    navigator.clipboard?.writeText(texto).catch(() => { /* A captura permanece disponível no painel. */ })
   }, [tick, camera, controls, setCenaPose])
   return null
 }

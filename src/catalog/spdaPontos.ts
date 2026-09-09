@@ -60,9 +60,8 @@ export interface PontoSPDA {
 }
 
 /**
- * Prédio de referência (placeholder até o GLB do Codex): 12 m × 8 m de base,
- * 9 m de altura, 4 descidas nos cantos. Estas medidas alimentam a cena
- * procedural provisória em `scene/SpdaElements.tsx`.
+ * Edificação do GLB: 12 m × 8 m de base, 9 m de altura. As mesmas medidas
+ * sustentam o fallback procedural quando não há modelPath.
  */
 export const PREDIO = {
   largura: 12,
@@ -74,8 +73,8 @@ export const PREDIO = {
 
 /**
  * Trechos ensaiados. A ordem é a ordem de medição sugerida no HUD.
- * ⚠ `pos`/`posOrigem` são PLACEHOLDERS derivados de PREDIO — Codex recalibra
- * sobre o modelo real.
+ * `pos` capturadas por pick no GLB em 2026-09-08; vistas capturadas no HUD.
+ * Referências superiores seguem os nós do anel modelado em metros.
  */
 export const SPDA_PONTOS: PontoSPDA[] = [
   {
@@ -90,8 +89,9 @@ export const SPDA_PONTOS: PontoSPDA[] = [
     secaoMm2: 35,
     conexoes: 3,
     dica: 'Verifique fixações, emendas do anel e distância entre captores.',
-    pos: [6, 9.3, -4],
-    posOrigem: [-6, 9.3, -4],
+    pos: [6.21, 9.36, -4.27],
+    posOrigem: [-6.25, 9.35, -4.25],
+    vista: { pos: [10, 12, -10], target: [6.25, 9.35, -4.25] },
   },
   {
     id: 'desc-d1',
@@ -105,8 +105,9 @@ export const SPDA_PONTOS: PontoSPDA[] = [
     secaoMm2: 35,
     conexoes: 4,
     dica: 'Condutor sem emendas desnecessárias, fixado a cada 1,0 m.',
-    pos: [-6, 0.7, -4],
-    posOrigem: [-6, 9.3, -4],
+    pos: [-6.28, 0.7, -4.35],
+    posOrigem: [-6.25, 9.35, -4.25],
+    vista: { pos: [-7.5, 1.5, -7], target: [-6.25, 0.7, -4.35] },
   },
   {
     id: 'desc-d2',
@@ -120,8 +121,9 @@ export const SPDA_PONTOS: PontoSPDA[] = [
     secaoMm2: 35,
     conexoes: 4,
     dica: 'Confira a caixa de inspeção: conector desconectável para medição.',
-    pos: [6, 0.7, -4],
-    posOrigem: [6, 9.3, -4],
+    pos: [6.26, 0.7, -4.35],
+    posOrigem: [6.25, 9.35, -4.25],
+    vista: { pos: [7.5, 1.5, -7], target: [6.25, 0.7, -4.35] },
   },
   {
     id: 'desc-d3',
@@ -136,8 +138,9 @@ export const SPDA_PONTOS: PontoSPDA[] = [
     conexoes: 5,
     defeito: 'emenda-frouxa',
     dica: 'Emenda no meio da descida — ponto clássico de aperto insuficiente.',
-    pos: [6, 0.7, 4],
-    posOrigem: [6, 9.3, 4],
+    pos: [6.27, 0.7, 4.35],
+    posOrigem: [6.25, 9.35, 4.25],
+    vista: { pos: [7.5, 1.5, 7], target: [6.25, 0.7, 4.35] },
   },
   {
     id: 'desc-d4',
@@ -152,8 +155,9 @@ export const SPDA_PONTOS: PontoSPDA[] = [
     conexoes: 4,
     defeito: 'corrosao',
     dica: 'Trecho exposto à maresia/umidade — procure oxidação verde no conector.',
-    pos: [-6, 0.7, 4],
-    posOrigem: [-6, 9.3, 4],
+    pos: [-6.26, 0.7, 4.35],
+    posOrigem: [-6.25, 9.35, 4.25],
+    vista: { pos: [-7.5, 1.5, 7], target: [-6.25, 0.7, 4.35] },
   },
   {
     id: 'eq-bep',
@@ -167,8 +171,9 @@ export const SPDA_PONTOS: PontoSPDA[] = [
     secaoMm2: 50,
     conexoes: 3,
     dica: 'A ligação do SPDA ao BEP é obrigatória: sem ela, não há equipotencial.',
-    pos: [-6.8, 0.9, 2.2],
-    posOrigem: [-6, 0.7, -4],
+    pos: [-6.28, 0.92, 1.49],
+    posOrigem: [-6.28, 0.7, -4.35],
+    vista: { pos: [-9, 1.6, 2.5], target: [-6.28, 0.9, 1.5] },
   },
 ]
 

@@ -1,5 +1,5 @@
-import { useMemo, useRef } from 'react'
-import { useFrame } from '@react-three/fiber'
+import { useEffect, useMemo, useRef } from 'react'
+import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { useSpda } from '../sim/spdaStore'
 import { useSim } from '../sim/store'
@@ -25,12 +25,12 @@ import { color } from '../design/tokens'
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-/** Enquanto não há GLB do prédio, a cena é desenhada em geometria pura. */
-export const PREDIO_PROCEDURAL = true
+/** Fallback de autoria; modelPath vazio também habilita a geometria simplificada. */
+export const PREDIO_PROCEDURAL = false
 
-const COR_CONDUTOR = '#b87333' // cobre nu
-const COR_PREDIO = '#c9c5bd'
-const COR_LAJE = '#a9a49b'
+const COR_CONDUTOR = color.spda.cobre // cobre nu
+const COR_PREDIO = color.spda.concreto
+const COR_LAJE = color.spda.cobertura
 
 /** Cor do marcador conforme o estado do trecho no ensaio. */
 const CORES: Record<string, string> = {
@@ -41,13 +41,77 @@ const CORES: Record<string, string> = {
 
 export function SpdaElements() {
   const modo = useSim((s) => s.ensaio.modo)
+  const modelPath = useSim((s) => s.equipamento.modelPath)
+  const pickMode = useSim((s) => s.pickMode)
   if (modo !== 'spda') return null
   return (
     <>
-      {PREDIO_PROCEDURAL && <PredioProcedural />}
-      <Marcadores />
+      {(PREDIO_PROCEDURAL || !modelPath) && <PredioProcedural />}
+      {!pickMode && <Marcadores />}
+      <FocoSpda />
+      <EnquadramentoSpda />
+      {modelPath && <DefeitosVisuais />}
     </>
   )
+}
+
+/** Em retrato, preserva o campo horizontal para não cortar o prédio nas laterais. */
+function EnquadramentoSpda() {
+  const camera = useThree(s => s.camera)
+  const largura = useThree(s => s.size.width)
+  const altura = useThree(s => s.size.height)
+  const invalidate = useThree(s => s.invalidate)
+  useEffect(() => {
+    if (!(camera instanceof THREE.PerspectiveCamera)) return
+    const aspecto = largura / Math.max(1, altura)
+    camera.fov = THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(42 / 2)) / Math.min(1, aspecto)))
+    camera.updateProjectionMatrix()
+    invalidate()
+  }, [camera, largura, altura, invalidate])
+  return null
+}
+
+/** Selecionar um trecho leva a câmera à conexão, inclusive nas fachadas ocultas. */
+function FocoSpda() {
+  const id = useSpda(s => s.pontoAtivo)
+  const camera = useThree(s => s.camera)
+  const controls = useThree(s => s.controls) as { target: THREE.Vector3; update: () => void } | null
+  const invalidate = useThree(s => s.invalidate)
+  const anterior = useRef(id)
+  useEffect(() => {
+    if (anterior.current === id || !controls) return
+    anterior.current = id
+    const ponto = SPDA_PONTOS.find(p => p.id === id)
+    if (!ponto?.vista) return
+    camera.position.set(...ponto.vista.pos)
+    controls.target.set(...ponto.vista.target)
+    controls.update()
+    invalidate()
+  }, [id, camera, controls, invalidate])
+  return null
+}
+
+/** Defeitos acompanham o cenário elétrico; nunca aparecem na instalação íntegra. */
+function DefeitosVisuais() {
+  const defeitos = useSpda(s => s.cenario === 'com-defeitos')
+  if (!defeitos) return null
+  return <group>
+    <group position={[6.25, 4.5, 4.25]}>
+      <mesh rotation={[0, 0, 0.22]} castShadow>
+        <boxGeometry args={[0.14, 0.32, 0.1]} />
+        <meshStandardMaterial color={color.spda.cobre} metalness={0.65} roughness={0.5} />
+      </mesh>
+      {/* Cabeça afastada da chapa evidencia o parafuso sem aperto. */}
+      <mesh position={[0.04, 0.09, 0.12]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.04, 0.04, 0.16, 6]} />
+        <meshStandardMaterial color={color.spda.aluminio} metalness={0.7} roughness={0.4} />
+      </mesh>
+    </group>
+    <mesh position={[-6.25, 0.7, 4.353]}>
+      <boxGeometry args={[0.17, 0.22, 0.012]} />
+      <meshStandardMaterial color={color.spda.oxidacao} roughness={0.95} />
+    </mesh>
+  </group>
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -154,8 +218,8 @@ function Trecho({
  */
 function PredioProcedural() {
   const { largura: L, profundidade: P, altura: H, alturaCaixa } = PREDIO
-  const hx = L / 2
-  const hz = P / 2
+  const hx = L / 2 + 0.25
+  const hz = P / 2 + 0.25
   const quinas: [number, number][] = [
     [-hx, -hz],
     [hx, -hz],
@@ -178,11 +242,11 @@ function PredioProcedural() {
       </mesh>
 
       {/* anel de captação (condutor nu no perímetro da cobertura) */}
-      <AnelCaptacao largura={L} profundidade={P} y={H + 0.4} />
+      <AnelCaptacao largura={L + 0.5} profundidade={P + 0.5} y={H + 0.35} />
 
       {/* captores (mini-hastes) nas quinas e no meio dos lados maiores */}
       {[...quinas, [0, -hz] as [number, number], [0, hz] as [number, number]].map(([x, z], i) => (
-        <Captor key={i} pos={[x, H + 0.4, z]} />
+          <Captor key={i} pos={[x, H + 0.35, z]} />
       ))}
 
       {/* descidas nas 4 quinas + caixa de inspeção na base */}
@@ -197,9 +261,9 @@ function PredioProcedural() {
       ))}
 
       {/* BEP — barramento de equipotencialização principal (parede externa) */}
-      <mesh position={[-hx - 0.8, 0.9, 2.2]} castShadow>
+      <mesh position={[-6.28, 0.92, 1.49]} castShadow>
         <boxGeometry args={[0.28, 0.36, 0.12]} />
-        <meshStandardMaterial color="#2f6f3f" roughness={0.6} metalness={0.2} />
+        <meshStandardMaterial color={color.spda.oxidacao} roughness={0.6} metalness={0.2} />
       </mesh>
     </group>
   )
@@ -245,11 +309,11 @@ function Captor({ pos }: { pos: [number, number, number] }) {
     <group position={pos}>
       <mesh position={[0, 0.3, 0]} castShadow>
         <cylinderGeometry args={[0.022, 0.022, 0.6, 8]} />
-        <meshStandardMaterial color="#cfd4da" metalness={0.85} roughness={0.3} />
+        <meshStandardMaterial color={color.spda.aluminio} metalness={0.85} roughness={0.3} />
       </mesh>
       <mesh position={[0, 0.64, 0]}>
         <coneGeometry args={[0.035, 0.1, 8]} />
-        <meshStandardMaterial color="#e6ebf0" metalness={0.9} roughness={0.2} />
+        <meshStandardMaterial color={color.spda.isolador} metalness={0.9} roughness={0.2} />
       </mesh>
     </group>
   )
@@ -261,7 +325,7 @@ function CaixaInspecao({ pos }: { pos: [number, number, number] }) {
     <group position={pos}>
       <mesh castShadow receiveShadow>
         <boxGeometry args={[0.3, 0.4, 0.16]} />
-        <meshStandardMaterial color="#4a5058" roughness={0.7} metalness={0.35} />
+        <meshStandardMaterial color={color.spda.metal} roughness={0.7} metalness={0.35} />
       </mesh>
       <mesh position={[0, 0, 0.09]}>
         <boxGeometry args={[0.22, 0.3, 0.02]} />

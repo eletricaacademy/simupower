@@ -7,8 +7,7 @@ import type { TestProcedure } from '../types'
  * cena 3D. A medição é feita TRECHO A TRECHO — captação, cada descida e a
  * equipotencialização ao BEP (ver `catalog/spdaPontos.ts`).
  *
- * ⚠ As `vista`s de câmera são PLACEHOLDERS — recalibrar com o capturador de
- * pose depois que o prédio 3D (Codex) estiver na cena.
+ * Vistas capturadas no HUD sobre o GLB do prédio em 2026-09-08.
  */
 export const spdaProcedure: TestProcedure = {
   id: 'continuidade-spda',
@@ -62,7 +61,7 @@ export const spdaProcedure: TestProcedure = {
       acaoTipo: 'confirmar',
       requer: ['spda-seguranca'],
       norma: 'NBR 5419-3 · 7 (inspeção)',
-      vista: { pos: [12, 6, 12], target: [0, 3.5, 0] },
+      vista: { pos: [11.73, 24.57, 11.73], target: [0, 4.5, 0] },
     },
     {
       id: 'spda-zerar',
@@ -80,7 +79,7 @@ export const spdaProcedure: TestProcedure = {
       acaoTipo: 'confirmar',
       requer: ['spda-visual'],
       norma: 'NBR 5419-3 · Anexo (ensaios)',
-      vista: { pos: [-8, 2.2, 6], target: [-6, 0.9, 2.2] },
+      vista: { pos: [-6.62, 0.66, 2.35], target: [-6.9, 0.11, 1.8] },
     },
     {
       id: 'spda-medir',
@@ -99,7 +98,7 @@ export const spdaProcedure: TestProcedure = {
       acaoTipo: 'confirmar',
       requer: ['spda-zerar'],
       norma: 'NBR 5419-3 · 7 (ensaios de continuidade)',
-      vista: { pos: [10, 3, 10], target: [0, 2, 0] },
+      vista: { pos: [10, 12, -10], target: [6.25, 9.35, -4.25] },
     },
     {
       id: 'spda-laudo',
@@ -116,7 +115,7 @@ export const spdaProcedure: TestProcedure = {
       acaoTipo: 'confirmar',
       requer: ['spda-medir'],
       norma: 'NBR 5419-3 · 7',
-      vista: { pos: [16, 9, 16], target: [0, 4, 0] },
+      vista: { pos: [18, 10, 18], target: [0, 4.5, 0] },
     },
   ],
 }

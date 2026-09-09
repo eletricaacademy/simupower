@@ -23,8 +23,8 @@ export const spdaPredio: Equipment = {
   id: 'spda-predio',
   nome: 'Prédio com SPDA',
   tipo: 'painel', // estrutura civil; reusa o tipo genérico (como a malha de aterramento)
-  modelPath: '', // ← CODEX: 'models/spda-predio.glb'
-  escalaAlvo: 14,
+  modelPath: 'models/spda-predio.glb',
+  escalaAlvo: 13.511651039123535,
   cenario: 'predio-spda',
   vistaInicial: { pos: [18, 10, 18], target: [0, 4.5, 0] },
   anchors: [],
