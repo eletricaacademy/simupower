@@ -79,7 +79,7 @@ export const spdaProcedure: TestProcedure = {
       acaoTipo: 'confirmar',
       requer: ['spda-visual'],
       norma: 'NBR 5419-3 · Anexo (ensaios)',
-      vista: { pos: [-6.62, 0.66, 2.35], target: [-6.9, 0.11, 1.8] },
+      vista: { pos: [-7.55, 1.51, 3.05], target: [-6.9, 0.31, 1.8] },
     },
     {
       id: 'spda-medir',

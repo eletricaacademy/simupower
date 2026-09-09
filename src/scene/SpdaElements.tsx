@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Html } from '@react-three/drei'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { useSpda } from '../sim/spdaStore'
@@ -43,11 +44,21 @@ export function SpdaElements() {
   const modo = useSim((s) => s.ensaio.modo)
   const modelPath = useSim((s) => s.equipamento.modelPath)
   const pickMode = useSim((s) => s.pickMode)
+  const passo = useSim(s => s.ensaio.steps[s.passoIndex]?.id)
+  const [mostrarPontos, setMostrarPontos] = useState(true)
+  const medindo = passo === 'spda-medir'
   if (modo !== 'spda') return null
   return (
     <>
       {(PREDIO_PROCEDURAL || !modelPath) && <PredioProcedural />}
-      {!pickMode && <Marcadores />}
+      {!pickMode && (!medindo || mostrarPontos) && <Marcadores />}
+      {!pickMode && medindo && <Html fullscreen calculatePosition={(_objeto, _camera, tamanho) => [tamanho.width / 2, tamanho.height / 2]} style={{ pointerEvents: 'none' }}>
+        <button type="button" onClick={() => setMostrarPontos(v => !v)}
+          aria-pressed={mostrarPontos}
+          style={{ pointerEvents: 'auto', position: 'absolute', top: 64, left: '50%', transform: 'translateX(-50%)', padding: '7px 12px', borderRadius: 8, background: color.inbrat.borracha, color: color.inbrat.tecla, border: 'none', cursor: 'pointer', fontSize: 12 }}>
+          {mostrarPontos ? 'Ocultar marcadores' : 'Mostrar marcadores'}
+        </button>
+      </Html>}
       <FocoSpda />
       <EnquadramentoSpda />
       {modelPath && <DefeitosVisuais />}

@@ -9,6 +9,9 @@ import { color } from '../design/tokens'
 import { resolverQualidade } from './quality'
 import type { Vec3 } from '../catalog/types'
 
+/** Ampliação didática solicitada pelo Pablo; a instalação permanece em metros. */
+const ESCALA_INBRAT = 3
+
 /** Referência visual: INMD1 PRO, foto INMD1-05 e dimensões publicadas pela Inbrat.
  * A leitura vem do ensaio didático existente; não emula firmware/faixas do aparelho.
  */
@@ -20,7 +23,7 @@ export function posicaoInbrat(ponto: PontoSPDA): Vec3 {
 
 export function vistaInbrat(ponto: PontoSPDA) {
   const [x, y, z] = posicaoInbrat(ponto)
-  return { pos: [x + 0.28, y + 0.65, z + 0.55] as Vec3, target: [x, y + 0.1, z] as Vec3 }
+  return { pos: [x + Math.sign(x) * 0.65, y + 1.5, z + Math.sign(z) * 1.25] as Vec3, target: [x, y + 0.3, z] as Vec3 }
 }
 
 function criarPainel(leitura: string, zerado: boolean) {
@@ -68,10 +71,42 @@ function criarPainel(leitura: string, zerado: boolean) {
 function CaboKelvin({ pontos, cor, baixo }: { pontos: Vec3[]; cor: string; baixo: boolean }) {
   const geometria = useMemo(() => new THREE.TubeGeometry(
     new THREE.CatmullRomCurve3(pontos.map(p => new THREE.Vector3(...p)), false, 'centripetal'),
-    baixo ? 32 : 64, 0.0025, baixo ? 4 : 6, false,
+    baixo ? 32 : 64, 0.006, baixo ? 4 : 6, false,
   ), [pontos, baixo])
   useEffect(() => () => geometria.dispose(), [geometria])
   return <mesh geometry={geometria}><meshStandardMaterial color={cor} roughness={0.7} /></mesh>
+}
+
+/** Garra jacaré: o ponto local zero é a mordida no cobre, nunca o centro do cabo. */
+function GarraKelvin({ alvo, origem, cor, baixo }: { alvo: Vec3; origem: Vec3; cor: string; baixo: boolean }) {
+  const orientacao = useMemo(() => {
+    const direcao = new THREE.Vector3(...origem).sub(new THREE.Vector3(...alvo)).normalize()
+    return new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), direcao)
+  }, [alvo, origem])
+  return <group position={alvo} quaternion={orientacao}>
+    {/* Duas mandíbulas se fecham no contato; cabos entram atrás dos punhos. */}
+    {[-1, 1].map(lado => <group key={lado} rotation={[-lado * 0.14, 0, 0]}>
+      <mesh position={[0, lado * 0.012, 0.072]} castShadow>
+        <boxGeometry args={[0.052, 0.014, 0.15]} />
+        <meshStandardMaterial color={color.spda.aluminio} metalness={0.8} roughness={0.3} />
+      </mesh>
+      <RoundedBox args={[0.068, 0.036, 0.15]} radius={0.01} smoothness={baixo ? 1 : 3} position={[0, lado * 0.02, 0.195]} castShadow>
+        <meshStandardMaterial color={cor} roughness={0.65} />
+      </RoundedBox>
+      {!baixo && [0.022, 0.04, 0.058, 0.076].map(z => <mesh key={z} position={[0, lado * 0.003, z]}>
+        <boxGeometry args={[0.049, 0.009, 0.006]} />
+        <meshStandardMaterial color={color.spda.aluminio} metalness={0.8} roughness={0.35} />
+      </mesh>)}
+    </group>)}
+    <mesh position={[0, 0, 0.125]} rotation={[0, 0, Math.PI / 2]}>
+      <cylinderGeometry args={[0.022, 0.022, 0.079, 12]} />
+      <meshStandardMaterial color={color.spda.aluminio} metalness={0.75} roughness={0.4} />
+    </mesh>
+    <mesh position={[0, 0, 0.28]} rotation={[Math.PI / 2, 0, 0]}>
+      <cylinderGeometry args={[0.013, 0.016, 0.055, 10]} />
+      <meshStandardMaterial color={cor} roughness={0.7} />
+    </mesh>
+  </group>
 }
 
 export function Inbrat() {
@@ -86,23 +121,26 @@ export function Inbrat() {
   const painel = useMemo(() => criarPainel(leitura?.display ?? '— — —', zerado), [leitura?.display, zerado])
   useEffect(() => () => painel.dispose(), [painel])
   const cabos = useMemo(() => [ponto.posOrigem, ponto.pos].flatMap((alvo, lado) => [0, 1].map(tipo => {
-    const z = pos[2] + (lado ? 0.0265 : -0.0629) + tipo * 0.0373
-    const origem: Vec3 = [pos[0] - 0.09425, pos[1] + 0.139, z]
+    const z = pos[2] + ((lado ? 0.0265 : -0.0629) + tipo * 0.0373) * ESCALA_INBRAT
+    const origem: Vec3 = [pos[0] - 0.09425 * ESCALA_INBRAT, pos[1] + 0.139 * ESCALA_INBRAT, z]
     const elevada = alvo[1] > pos[1] + 1
     const intermediario: Vec3 = elevada
       ? [alvo[0] + Math.sign(alvo[0]) * (0.17 + tipo * 0.025), pos[1] + 0.18, alvo[2] + Math.sign(alvo[2]) * 0.17]
       : [(origem[0] + alvo[0]) / 2, pos[1] + 0.16, (origem[2] + alvo[2]) / 2 + tipo * 0.05]
-    const aproxima: Vec3 = [alvo[0] + Math.sign(alvo[0]) * 0.06, alvo[1] + 0.035, alvo[2] + Math.sign(alvo[2]) * 0.06]
+    // Um par por extremidade: as garras chegam por lados distintos do mesmo contato.
+    const direcao = new THREE.Vector3(Math.sign(alvo[0]) * (tipo ? 0.35 : 1), tipo ? 0.55 : -0.5, Math.sign(alvo[2]) * (tipo ? 1 : 0.35)).normalize()
+    const traseira = new THREE.Vector3(...alvo).addScaledVector(direcao, 0.31).toArray() as Vec3
+    const aproxima = new THREE.Vector3(...alvo).addScaledVector(direcao, 0.43).toArray() as Vec3
     // Os cabos saem pela lateral da maleta; pontos extras evitam a spline cruzar o visor.
-    const saida: Vec3 = [pos[0] - 0.18, pos[1] + 0.15, z]
-    const piso: Vec3 = [pos[0] - 0.3 - tipo * 0.025, pos[1] + 0.025, z]
+    const saida: Vec3 = [pos[0] - 0.18 * ESCALA_INBRAT, pos[1] + 0.15 * ESCALA_INBRAT, z]
+    const piso: Vec3 = [pos[0] - 0.3 * ESCALA_INBRAT - tipo * 0.025, pos[1] + 0.025, z]
     const rota: Vec3[] = [origem, saida, piso, intermediario]
     if (elevada) rota.push([intermediario[0], alvo[1] - 0.18, intermediario[2]])
-    return { pontos: [...rota, aproxima, alvo], cor: tipo ? color.inbrat.maleta : color.inbrat.borracha }
+    return { pontos: [...rota, aproxima, traseira], alvo, traseira, cor: tipo ? color.inbrat.maleta : color.inbrat.borracha }
   })), [ponto, pos[0], pos[1], pos[2]])
   if (!['spda-zerar', 'spda-medir', 'spda-laudo'].includes(passo)) return null
   return <group>
-    <group position={pos} onClick={e => { e.stopPropagation(); useView.getState().pedir('foco') }}>
+    <group position={pos} scale={ESCALA_INBRAT} onClick={e => { e.stopPropagation(); useView.getState().pedir('foco') }}>
       <RoundedBox args={[0.258, 0.12, 0.205]} radius={0.014} smoothness={baixo ? 1 : 3} position={[0, 0.06, 0]} castShadow>
         <meshStandardMaterial color={color.inbrat.maleta} roughness={0.65} />
       </RoundedBox>
@@ -125,6 +163,9 @@ export function Inbrat() {
         <meshStandardMaterial color={color.inbrat.borracha} roughness={0.65} />
       </mesh>)}
     </group>
-    {passo === 'spda-medir' && cabos.map((c, i) => <CaboKelvin key={i} {...c} baixo={baixo} />)}
+    {passo === 'spda-medir' && cabos.map((c, i) => <group key={i}>
+      <CaboKelvin pontos={c.pontos} cor={c.cor} baixo={baixo} />
+      <GarraKelvin alvo={c.alvo} origem={c.traseira} cor={c.cor} baixo={baixo} />
+    </group>)}
   </group>
 }

@@ -167,8 +167,15 @@ atingir a superfície do GLB. `Marcadores`, `Marcador` e `Trecho` não foram alt
 
 Modelo adotado como referência: **INMD1 PRO**, na ausência de outro código indicado.
 `scene/Inbrat.tsx` modela maleta vermelha, borda de borracha, terminais P1/C1/P2/C2,
-painel, visor, teclas e fechos, em 258 × 205 × 120 mm. O visor recebe a leitura do
-store; quatro cabos ilustram as duas extremidades do trecho. “Ver equipamento 3D”
+painel, visor, teclas e fechos, com proporções de referência de 258 × 205 × 120 mm.
+A pedido do Pablo, a exibição usa ampliação didática de **3×**, mantendo o prédio
+em metros. O visor recebe a leitura do store; quatro cabos terminam em garras
+jacaré vermelhas e pretas, com mandíbulas metálicas, articulação e punhos isolados.
+Cada par prende a respectiva extremidade calibrada do trecho selecionado.
+“Ocultar marcadores” permite inspecionar as garras sem sobreposição; a seleção
+continua disponível no painel, e os marcadores podem ser reexibidos. As funções
+`Marcadores`, `Marcador` e `Trecho` permanecem intactas.
+“Ver equipamento 3D”
 e “Ver conexão” permitem alternar o enquadramento sem alterar a medição.
 
 Fontes oficiais consultadas:
@@ -189,7 +196,8 @@ simulação fiel ao instrumento real. Nenhuma faixa foi inventada ou substituíd
   do instrumento; limite de altura com rolagem. Sem mudanças nos cálculos ou ações
   de medir, compensar, selecionar, concluir e emitir laudo.
 - `design/tokens.ts`: materiais do prédio e cores do gabinete/painel Inbrat.
-- `catalog/tests/spda.ts`: apenas vistas e comentário de calibração.
+- `catalog/tests/spda.ts`: apenas vistas e comentário de calibração; a vista da
+  preparação foi recapturada para a ampliação de 3×.
 - Nenhuma alteração em `engine/**`, `sim/**` ou nos campos elétricos dos trechos.
 
 ### Verificação

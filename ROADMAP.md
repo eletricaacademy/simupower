@@ -187,7 +187,9 @@ mede a **continuidade** dos trechos do SPDA (captação → descidas → caixas 
   disponível com `modelPath` vazio. Componentes de marcadores e trechos preservados.
 - **Inbrat INMD1 PRO**: representação 3D autoral baseada na referência oficial, quatro
   terminais, cabos e visor sincronizado com o ensaio. HUD com “Ver equipamento 3D” e
-  “Ver conexão”. É referência visual; a engine didática permanece sem alterações.
+  “Ver conexão”. Ampliação didática de 3× solicitada pelo Pablo, garras jacaré nas
+  duas extremidades calibradas e controle para ocultar marcadores durante a inspeção
+  do contato. É referência visual; a engine didática permanece sem alterações.
 - **Autoria**: gerador e bruto em `assets-raw/models/`; controles de pick/captura em
   ⚙ → Calibração do ambiente 3D. Testes geométricos protegem escala e contatos do GLB.
   **Detalhes, fontes e limites do handoff: `docs/modulos/spda-continuidade.md`.**
