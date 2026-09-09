@@ -103,7 +103,46 @@ arquivo**, não por tarefa:
 
 7 módulos: isolamento em motor · arco elétrico · inspeção de subestação ·
 desenergização/LOTO · resistência de aterramento · verificação NBR 5410 §7 ·
-**continuidade do SPDA** (novo — ferramenta pronta, ambiente 3D pendente com o Codex).
+**continuidade do SPDA** (ferramenta e ambiente 3D implementados; atualização em 09/09/2026).
 
 Detalhes e histórico completo: **`ROADMAP.md`**.
 Contratos de módulo em construção: **`docs/modulos/`**.
+
+### Continuação compartilhada — SPDA (09/09/2026)
+
+Antes de continuar, ler a revisão vigente de `docs/modulos/spda-continuidade.md`.
+Ela prevalece sobre o histórico e sobre o prompt inicial `PROMPT-CODEX-spda.md`,
+que ainda descreve o BEP externo e o ambiente pendente. Conferir `git status` e
+a branch antes de editar; não sobrescrever trabalho de outro agente.
+
+**Decisões do Pablo a preservar:**
+
+- Edificação GLB mais realista, com fallback procedural. Entorno reduzido a três
+  prédios distantes, iluminação suavizada e bloom desativado no SPDA.
+- Miliohmímetro Inbrat INMD1 PRO ampliado 3× para leitura visual e girado 180°.
+  Exatamente dois cabos PP de duas vias: P1/C1 juntos e P2/C2 juntos, cada cabo
+  terminado em uma garra. Não voltar a quatro cabos/garras separados.
+- Marcadores deslocados para fora das caixas, sem encobrir contatos; botão para ocultar.
+- Medir pares vizinhos D1–D2, D2–D3, D3–D4, D4–D1, primeiro nos terminais superiores
+  e depois inferiores; repetir nas cruzadas D1–D3 e D2–D4. Mover as duas garras
+  preserva o par e mantém leituras independentes. Com D1 inferior–BEP são 13 registros.
+- BEP dentro da sala elétrica, ao lado do QGBT fechado, com entrada pela porta norte.
+- Ao medir, animar C1 → condutores → C2, incluindo os dois ramos do anel e a ligação
+  ao BEP. P1/P2 representam leitura de tensão. Mostrar/ocultar fluxo e enquadrar
+  percurso completo; setas ilustrativas, sem indicar intensidade física. Anel
+  enterrado visível através do solo, com profundidade esquemática de 0,35 m.
+
+**Implementação e validação registradas:**
+
+- `1034ac0`: 13 medições, modelo de ramos em paralelo e sala elétrica interna.
+- `e52b161`: animação da corrente, dados em `src/catalog/spdaFluxo.ts`, renderização
+  em `src/scene/SpdaFluxo.tsx` usando os cabos de `Inbrat.tsx`; controles no HUD/store.
+- Ajustes fora da área exclusiva do Codex foram necessários para os pedidos do
+  Pablo e estão documentados no contrato. Manter um agente por arquivo.
+- Build, 75 testes e `git diff --check` aprovados na entrega da animação. Conferidos
+  no navegador os percursos superior, inferior e BEP, além de ocultar/mostrar fluxo.
+- O fluxo anterior de 13 leituras foi validado até o laudo e em mobile 390×844.
+  A conferência mobile específica da nova animação ficou inconclusiva porque a
+  conexão de automação com a aba foi perdida; não tratá-la como validada.
+- Nenhum deploy nesta entrega. Branch na gravação: `feat/spda-continuidade`.
+  Revalidar branch, servidor local e estado da árvore na próxima sessão.
