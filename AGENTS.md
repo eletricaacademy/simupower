@@ -122,11 +122,15 @@ Contrato e pendências: `docs/modulos/spda-estrutural.md`. Manter o SPDA convenc
 como módulo separado. Proposta inicial: ferragens expostas e galpão concretado,
 com visualização interna das armaduras e do percurso elétrico.
 
-Primeira etapa visual integrada: card SPDA natural / estrutural no menu, galpão
-procedural, obra/pronto, revelar ferragens e conectar garras. Build e 75 testes
-existentes aprovados; desktop e painel mobile conferidos. **Ainda não há medição,
-animação da corrente ou laudo no módulo estrutural.** Aguardando fonte da edição
-2026 para validar os critérios; contrato lista também as próximas tarefas visuais.
+Galpão procedural com obra/pronto, ferragens, garras e ensaios. Pablo forneceu os
+quatro PDFs de 2026 no disco G: (caminho em `docs/modulos/spda-estrutural.md`).
+Parte 3 lida: F.1 cruzadas topo–base, limite inclusivo 1 Ω; F.4 captação–BEP,
+limite inclusivo 0,2 Ω; simulação Kelvin 1 A CC, quatro terminais em dois PP.
+O módulo agora tem oito cruzadas + comprobatória, engine nodal, fluxo, defeitos e
+relatório CSV. Concreto moldado no local, não pré-moldado nem fundação isolada.
+Critérios e fonte no contrato. Não somar resistência dos cabos à leitura Kelvin
+ideal nem copiar limites fixos para ensaios não naturais F.5–F.7. O convencional
+ainda precisa de revisão técnica própria para 2026, sem simples troca do ano.
 
 ### Continuação compartilhada — SPDA (09/09/2026)
 

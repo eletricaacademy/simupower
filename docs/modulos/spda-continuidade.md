@@ -1,5 +1,12 @@
 # Módulo 7 — Continuidade do SPDA (NBR 5419-3)
 
+### Cabo PP acima do solo — 09/09/2026
+
+Corrigido o afundamento causado pela interpolação Catmull-Rom antes de subidas
+longas. `scene/curvaCaboPP.ts` limita a altura entre apoios consecutivos, mantendo
+curvas horizontais suaves. Capa e fluxo usam a mesma curva nos dois módulos SPDA.
+Testes verificam também a espessura do tubo acima do solo e o patamar da sala.
+
 ### Corrente de ensaio — 09/09/2026
 
 - Ao medir, setas ilustram C1 → condutores → C2, reutilizando os dois cabos PP e as garras. P1/P2 permanecem identificados como leitura de tensão.

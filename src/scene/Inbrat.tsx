@@ -8,7 +8,8 @@ import { getPontoSPDA, type PontoSPDA } from '../catalog/spdaPontos'
 import { color } from '../design/tokens'
 import { resolverQualidade } from './quality'
 import type { Vec3 } from '../catalog/types'
-import { SpdaFluxo } from './SpdaFluxo'
+import { SpdaFluxo, SetasCorrente } from './SpdaFluxo'
+import { CurvaCaboPP } from './curvaCaboPP'
 
 /** Ampliação didática solicitada pelo Pablo; a instalação permanece em metros. */
 const ESCALA_INBRAT = 3
@@ -69,11 +70,11 @@ function criarPainel(leitura: string, zerado: boolean) {
   return tex
 }
 
-function CaboKelvin({ pontos, cor, baixo, raio = 0.006 }: { pontos: Vec3[]; cor: string; baixo: boolean; raio?: number }) {
+function CaboKelvin({ pontos, cor, baixo, raio = 0.006, apoiado = false }: { pontos: Vec3[]; cor: string; baixo: boolean; raio?: number; apoiado?: boolean }) {
   const geometria = useMemo(() => new THREE.TubeGeometry(
-    new THREE.CatmullRomCurve3(pontos.map(p => new THREE.Vector3(...p)), false, 'centripetal'),
+    apoiado ? new CurvaCaboPP(pontos) : new THREE.CatmullRomCurve3(pontos.map(p => new THREE.Vector3(...p)), false, 'centripetal'),
     baixo ? 32 : 64, raio, baixo ? 4 : 6, false,
-  ), [pontos, baixo, raio])
+  ), [pontos, baixo, raio, apoiado])
   useEffect(() => () => geometria.dispose(), [geometria])
   return <mesh geometry={geometria}><meshStandardMaterial color={cor} roughness={0.7} /></mesh>
 }
@@ -115,7 +116,7 @@ function GarraKelvin({ alvo, origem, cor, baixo }: { alvo: Vec3; origem: Vec3; c
 }
 
 /** Entrada visual opcional para cenários com outra geometria de conexão. */
-export function Inbrat({ externo }: { externo?: { ponto: PontoSPDA; pos: Vec3; rotas: Vec3[][]; conectado: boolean } } = {}) {
+export function Inbrat({ externo }: { externo?: { ponto: PontoSPDA; pos: Vec3; rotas: Vec3[][]; conectado: boolean; display?: string; fluxo?: boolean } } = {}) {
   const id = useSpda(s => s.pontoAtivo)
   const leitura = useSpda(s => s.medicoes[id])
   const zerado = useSpda(s => s.pontasZeradas)
@@ -125,7 +126,8 @@ export function Inbrat({ externo }: { externo?: { ponto: PontoSPDA; pos: Vec3; r
   const baixo = resolverQualidade(pref).tier === 'baixo'
   const ponto = externo?.ponto ?? getPontoSPDA(passo === 'spda-zerar' ? 'd1-d2-sup' : id)!
   const pos = externo?.pos ?? posicaoInbrat(ponto)
-  const painel = useMemo(() => criarPainel(externo ? '— — —' : leitura?.display ?? '— — —', !externo && zerado), [leitura?.display, zerado, !!externo])
+  const display = externo ? externo.display ?? '— — —' : leitura?.display ?? '— — —'
+  const painel = useMemo(() => criarPainel(display, externo ? !!externo.display : zerado), [display, zerado, !!externo, externo?.display])
   useEffect(() => () => painel.dispose(), [painel])
   const cabos = useMemo(() => [ponto.posOrigem, ponto.pos].map((alvo, lado) => {
     const zBase = lado ? 0.0265 : -0.0629
@@ -166,6 +168,13 @@ export function Inbrat({ externo }: { externo?: { ponto: PontoSPDA; pos: Vec3; r
     }
     return { pontos: [...rota, aproxima, traseira], vias, alvo, traseira, cor: lado ? color.inbrat.maleta : color.inbrat.borracha }
   }), [ponto, pos[0], pos[1], pos[2], externo])
+  const curvasExternas = useMemo(() => cabos.map(c => {
+    const curva = new THREE.CurvePath<THREE.Vector3>()
+    curva.add(new THREE.CatmullRomCurve3(c.vias[1].pontos.map(p => new THREE.Vector3(...p)), false, 'centripetal'))
+    curva.add(new CurvaCaboPP(c.pontos))
+    curva.add(new THREE.LineCurve3(new THREE.Vector3(...c.traseira), new THREE.Vector3(...c.alvo)))
+    return curva
+  }), [cabos])
   if (!['spda-zerar', 'spda-medir', 'spda-laudo'].includes(passo)) return null
   return <group>
     <group position={pos} rotation={[0, Math.PI, 0]} scale={ESCALA_INBRAT} onClick={e => { e.stopPropagation(); useView.getState().pedir('foco') }}>
@@ -193,9 +202,10 @@ export function Inbrat({ externo }: { externo?: { ponto: PontoSPDA; pos: Vec3; r
     </group>
     {passo === 'spda-medir' && cabos.map((c, i) => <group key={i}>
       {c.vias.map((via, j) => <CaboKelvin key={j} pontos={via.pontos} cor={via.cor} baixo={baixo} />)}
-      <CaboKelvin pontos={c.pontos} cor={color.inbrat.borracha} baixo={baixo} raio={0.01} />
+      <CaboKelvin pontos={c.pontos} cor={color.inbrat.borracha} baixo={baixo} raio={0.01} apoiado />
       <GarraKelvin alvo={c.alvo} origem={c.traseira} cor={c.cor} baixo={baixo} />
     </group>)}
     {!externo && passo === 'spda-medir' && <SpdaFluxo ponto={ponto} cabos={cabos} baixo={baixo} />}
+    {externo?.fluxo && passo === 'spda-medir' && curvasExternas.map((curva,i) => <SetasCorrente key={i} curva={curva} cor={i ? color.accentCool : color.accent} baixo={baixo} reverso={i === 1} />)}
   </group>
 }

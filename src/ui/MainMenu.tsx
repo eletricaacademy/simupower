@@ -34,7 +34,7 @@ const MODULOS: Modulo[] = [
   {
     id: 'spda-estrutural', titulo: 'SPDA natural / estrutural', equipamento: 'Galpão industrial',
     instrumento: 'Inbrat · conexões nas ferragens e Aterrinsert', norma: 'ABNT NBR 5419-3:2026',
-    descricao: 'Ambiente em desenvolvimento: explore as ferragens, revele a estrutura interna e conecte as garras nos pontos de acesso.',
+    descricao: 'Ensaie as armaduras do galpão pelos Aterrinsert: primeira verificação cruzada e comprobatória entre captação e BEP, com corrente visível.',
     disponivel: true, par: PAR_ESTRUTURAL,
   },
   {

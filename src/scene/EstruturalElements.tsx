@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { Html } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import { GALPAO, PILARES, contatoEstrutural, PARES_ESTRUTURAIS, BEP_ESTRUTURAL } from '../catalog/estruturalPontos'
+import { GALPAO, PILARES, contatoEstrutural, PARES_ESTRUTURAIS, BEP_ESTRUTURAL, POS_CAPTACAO, redeEstrutural } from '../catalog/estruturalPontos'
 import type { PontoSPDA } from '../catalog/spdaPontos'
 import type { Vec3 } from '../catalog/types'
 import { useEstrutural } from '../sim/estruturalStore'
@@ -11,6 +11,7 @@ import { useView } from '../sim/viewStore'
 import { color } from '../design/tokens'
 import { resolverQualidade } from './quality'
 import { Inbrat } from './Inbrat'
+import { SetasCorrente } from './SpdaFluxo'
 
 function Bloco({ pos, tamanho, cor, opacidade = 1 }: { pos: Vec3; tamanho: Vec3; cor: string; opacidade?: number }) {
   return <mesh position={pos} castShadow={opacidade === 1} receiveShadow>
@@ -24,9 +25,10 @@ function Barra({ a, b, raio = 0.025, cor = color.spda.metal }: { a: Vec3; b: Vec
     const vetor = fim.clone().sub(inicio)
     return { meio: inicio.add(fim).multiplyScalar(0.5), comprimento: vetor.length(), orientacao: new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), vetor.normalize()) }
   }, [a, b])
-  return <mesh position={meio} quaternion={orientacao}>
+  const enterrado = a[1] < 0 && b[1] < 0
+  return <mesh position={meio} quaternion={orientacao} renderOrder={enterrado ? 5 : 0}>
     <cylinderGeometry args={[raio, raio, comprimento, 6]} />
-    <meshStandardMaterial color={cor} metalness={0.55} roughness={0.6} />
+    <meshStandardMaterial color={cor} metalness={0.55} roughness={0.6} depthTest={!enterrado} />
   </mesh>
 }
 function Etiqueta({ pos, texto }: { pos: Vec3; texto: string }) {
@@ -54,7 +56,15 @@ function ArmaduraViga({ a, b, baixo }: { a: Vec3; b: Vec3; baixo: boolean }) {
 }
 
 export function EstruturalElements() {
-  const { fase, revelar, par, garras } = useEstrutural()
+  const { fase, revelar, par, garras, leituras, fluxo, defeito } = useEstrutural()
+  const leitura = leituras[par]
+  const selecao = PARES_ESTRUTURAIS.find(p => p.id === par)!
+  const rede = useMemo(() => redeEstrutural(fase, selecao.tipo, defeito), [fase, selecao.tipo, defeito])
+  const curvas = useMemo(() => rede.map(ramo => {
+    const curva = new THREE.CurvePath<THREE.Vector3>()
+    for (let i=1; i<ramo.pontos.length; i++) curva.add(new THREE.LineCurve3(new THREE.Vector3(...ramo.pontos[i-1]), new THREE.Vector3(...ramo.pontos[i])))
+    return { ramo, curva }
+  }), [rede])
   const pref = useSim(s => s.qualidadePref)
   const baixo = resolverQualidade(pref).tier === 'baixo'
   const camera = useThree(s => s.camera)
@@ -64,7 +74,7 @@ export function EstruturalElements() {
   const comando = useView(s => s.comando), nonce = useView(s => s.nonce)
   const ponto = useMemo(() => {
     const p = PARES_ESTRUTURAIS.find(p => p.id === par)!
-    return { id: p.id, nome: p.nome, posOrigem: contatoEstrutural(p.a, p.vertical, fase),
+    return { id: p.id, nome: p.nome, posOrigem: p.tipo === 'comprobatoria' ? POS_CAPTACAO : contatoEstrutural(p.a, true, fase),
       pos: p.b === 'BEP' ? BEP_ESTRUTURAL : contatoEstrutural(p.b, false, fase),
       de: p.a, ate: p.b, norma: 'ABNT NBR 5419-3:2026', subsistema: 'descida',
       comprimentoM: 0, material: 'aco-galvanizado', secaoMm2: 0, conexoes: 0,
@@ -73,9 +83,9 @@ export function EstruturalElements() {
   const instrumento = useMemo(() => {
     const origem = ponto.posOrigem
     const pos: Vec3 = [origem[0] + (origem[0] < 0 ? 1.5 : -1.5), 0.14, origem[2] + 1.5]
-    return { ponto, pos, conectado: garras,
+    return { ponto, pos, conectado: garras, display: leitura ? (Number.isFinite(leitura.r) ? leitura.r.toFixed(3) : 'OL') : undefined, fluxo,
       rotas: [ponto.posOrigem, ponto.pos].map(alvo => [[pos[0], 0.18, pos[2] + 0.5], [alvo[0], 0.18, pos[2] + 0.5], [alvo[0], 0.18, alvo[2] + 0.8]] as Vec3[]) }
-  }, [ponto, garras])
+  }, [ponto, garras, leitura, fluxo])
   const enquadrar = (tipo: string | null) => {
     if (!controls) return
     const alvo = tipo === 'origem' ? ponto.posOrigem : tipo === 'quadro' ? ponto.pos : tipo === 'foco' ? instrumento.pos : null
@@ -102,11 +112,11 @@ export function EstruturalElements() {
     <Bloco pos={[0, 0.06, 0]} tamanho={[17.6, 0.12, 25.6]} cor={color.spda.concreto} opacidade={mostrarAco ? 0.16 : 1} />
     {PILARES.map(p => <group key={p.id}>
       {concreto && <Bloco pos={[p.x, GALPAO.altura / 2, p.z]} tamanho={[0.5, GALPAO.altura, 0.5]} cor={color.spda.concreto} opacidade={revelar ? 0.13 : 1} />}
-      <Bloco pos={[p.x, 0.15, p.z]} tamanho={[1.3, 0.3, 1.3]} cor={color.spda.concreto} opacidade={mostrarAco ? 0.14 : 1} />
+      <Bloco pos={[p.x, -0.45, p.z]} tamanho={[1.3, 0.7, 1.3]} cor={color.spda.concreto} opacidade={mostrarAco ? 0.14 : 1} />
       {mostrarAco && <>
         {[-0.16, 0.16].flatMap(dx => [-0.16, 0.16].map(dz => <Barra key={`${dx}-${dz}`} a={[p.x + dx, 0.15, p.z + dz]} b={[p.x + dx, 7, p.z + dz]} />))}
         {/* Rebar de continuidade destacada; não confundir todos os cruzamentos com conexão elétrica. */}
-        <Barra a={[p.x + (p.x < 0 ? 0.16 : -0.16), 0.15, p.z]} b={[p.x + (p.x < 0 ? 0.16 : -0.16), 7, p.z]} raio={0.03} cor={color.spda.aluminio} />
+        <Barra a={[p.x + (p.x < 0 ? 0.16 : -0.16), -0.6, p.z]} b={[p.x + (p.x < 0 ? 0.16 : -0.16), 7, p.z]} raio={0.03} cor={color.spda.aluminio} />
         {Array.from({ length: baixo ? 10 : 20 }, (_, i) => {
           const y = 0.35 + i * (baixo ? 0.66 : 0.33)
           return <group key={i}>{[-1, 1].flatMap(s => [
@@ -135,10 +145,10 @@ export function EstruturalElements() {
         <Bloco pos={[x, 6.9, 0]} tamanho={[0.5, 0.6, 24]} cor={color.spda.concreto} opacidade={revelar ? 0.13 : 1} />
         <Bloco pos={[x, 3.2, 0]} tamanho={[0.13, 5.8, 24]} cor={color.spda.aluminio} opacidade={revelar ? 0.045 : 1} />
       </>}
-      {mostrarAco && [0.2, 6.8].map(y => <ArmaduraViga key={y} a={[x, y, -12]} b={[x, y, 12]} baixo={baixo} />)}
+      {mostrarAco && [-0.6, 6.8].map(y => <ArmaduraViga key={y} a={[x, y, -12]} b={[x, y, 12]} baixo={baixo} />)}
     </group>)}
-    {[-12, -4, 4, 12].map(z => <group key={z}>
-      {mostrarAco && [0.2, 6.8].map(y => <ArmaduraViga key={y} a={[-8, y, z]} b={[8, y, z]} baixo={baixo} />)}
+    {[-12, -8, 8, 12].map(z => <group key={z}>
+      {mostrarAco && [-0.6, 6.8].map(y => <ArmaduraViga key={y} a={[-8, y, z]} b={[8, y, z]} baixo={baixo} />)}
       {concreto && <>
         <Barra a={[-8, 7, z]} b={[0, 9, z]} raio={0.09} />
         <Barra a={[0, 9, z]} b={[8, 7, z]} raio={0.09} />
@@ -161,10 +171,11 @@ export function EstruturalElements() {
     <Bloco pos={[6.8, 1.8, -9.98]} tamanho={[0.4, 0.25, 0.03]} cor={color.spda.vidro} />
     <Bloco pos={[5.5, 1.2, -10.09]} tamanho={[1, 0.5, 0.12]} cor={color.spda.metal} />
     <Bloco pos={[5.5, 1.2, -10.015]} tamanho={[0.85, 0.1, 0.03]} cor={color.spda.cobre} />
-    <Barra a={[7.6, 1.2, -12]} b={[7.6, 0.2, -12]} cor={color.spda.cobre} />
-    <Barra a={[7.6, 0.2, -12]} b={[5.5, 0.2, -12]} cor={color.spda.cobre} />
-    <Barra a={[5.5, 0.2, -12]} b={[5.5, 0.2, -10]} cor={color.spda.cobre} />
-    <Barra a={[5.5, 0.2, -10]} b={BEP_ESTRUTURAL} cor={color.spda.cobre} />
+    {rede.filter(r => r.id === 'ligacao-bep' || r.id.startsWith('cap-') || r.id.endsWith('-cap-ligacao')).map(r => <group key={r.id}>
+      {r.pontos.slice(1).map((p,i) => <Barra key={i} a={r.pontos[i]} b={p} cor={color.spda.cobre} />)}
+    </group>)}
+    {fluxo && leitura && curvas.filter(({ramo,curva}) => curva.getLength() > 0.00001 && Math.abs(leitura.correntes[ramo.id] ?? 0) > 0.00001).map(({ramo,curva}) =>
+      <SetasCorrente key={ramo.id} curva={curva} cor={color.accent} baixo={baixo} reverso={leitura.correntes[ramo.id] < 0} />)}
     <Etiqueta pos={[6.8, 2.7, -10]} texto="QGBT" /><Etiqueta pos={[5.5, 1.7, -10]} texto="BEP" />
     {[ponto.posOrigem, ponto.pos].map((p, i) => <Html key={i} position={[p[0], p[1] + 0.35, p[2] + 0.2]} center>
       <button onClick={() => useView.getState().pedir(i ? 'quadro' : 'origem')} style={{ background:color.surface, color:i ? color.accentCool : color.accent, border:`1px solid ${color.hairline}`, borderRadius:5, padding:'4px 8px', whiteSpace:'nowrap', fontSize:12 }}>

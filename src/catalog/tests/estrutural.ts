@@ -1,10 +1,10 @@
 import type { TestProcedure } from '../types'
 export const estruturalProcedure: TestProcedure = {
   id: 'spda-estrutural', nome: 'SPDA natural / estrutural',
-  norma: 'ABNT NBR 5419-3:2026 · ambiente em desenvolvimento',
+  norma: 'ABNT NBR 5419-3:2026 · Anexo F',
   instrumento: 'terrometro', engineRef: 'spda', modo: 'spda-estrutural',
   tensoes: [], tensaoPadrao: 0, duracaoS: 0,
-  // ⚠ REVISAR COM O PABLO: validar método e limites na edição 2026 antes de liberar medições.
+  // Fonte: PDF de 2026 fornecido por Pablo, páginas impressas 77–82; F.1 e F.4.
   steps: [{ id: 'estrutural-explorar', titulo: 'Explorar a estrutura e conectar o instrumento',
     descricao: 'Compare ferragens expostas e acesso pelos Aterrinsert no galpão pronto.',
     acao: 'Explorar', norma: 'ABNT NBR 5419-3:2026' }],

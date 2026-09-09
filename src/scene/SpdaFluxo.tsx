@@ -7,12 +7,13 @@ import { percursosCorrenteSPDA } from '../catalog/spdaFluxo'
 import type { PontoSPDA } from '../catalog/spdaPontos'
 import type { Vec3 } from '../catalog/types'
 import { color } from '../design/tokens'
+import { CurvaCaboPP } from './curvaCaboPP'
 
 type Cabo = { pontos: Vec3[]; vias: { pontos: Vec3[] }[]; alvo: Vec3 }
 const suave = (pontos: Vec3[]) => new THREE.CatmullRomCurve3(pontos.map(p => new THREE.Vector3(...p)), false, 'centripetal')
 
 /** Sobreposição didática sem bloom: setas indicam sentido, não velocidade/magnitude real. */
-function SetasCorrente({ curva, cor, baixo, reverso = false }: { curva: THREE.Curve<THREE.Vector3>; cor: string; baixo: boolean; reverso?: boolean }) {
+export function SetasCorrente({ curva, cor, baixo, reverso = false }: { curva: THREE.Curve<THREE.Vector3>; cor: string; baixo: boolean; reverso?: boolean }) {
   const setas = useRef<THREE.InstancedMesh>(null)
   const reduzido = useSim(s => s.reducedMotion)
   const invalidate = useThree(s => s.invalidate)
@@ -52,7 +53,7 @@ export function SpdaFluxo({ ponto, cabos, baixo }: { ponto: PontoSPDA; cabos: Ca
     const fios = cabos.map(c => {
       const caminho = new THREE.CurvePath<THREE.Vector3>()
       // Corrente entra por C1 e retorna por C2. P1/P2 são somente leitura de tensão.
-      caminho.add(suave(c.vias[1].pontos)); caminho.add(suave(c.pontos))
+      caminho.add(suave(c.vias[1].pontos)); caminho.add(new CurvaCaboPP(c.pontos))
       caminho.add(new THREE.LineCurve3(new THREE.Vector3(...c.pontos[c.pontos.length - 1]), new THREE.Vector3(...c.alvo)))
       return caminho
     })

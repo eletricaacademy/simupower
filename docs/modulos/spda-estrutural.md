@@ -30,14 +30,61 @@ procedimentos de 2005/2015 apenas substituindo o ano.
 - Mudanças mínimas em catálogo, HUD e estado necessárias ao novo módulo estão
   autorizadas pelo pedido de implementação. Um agente por arquivo.
 
-## Pendente para validação normativa
+## Fonte normativa recebida e aplicada — 09/09/2026
 
-Solicitado ao Pablo o caminho do PDF ABNT NBR 5419-3:2026 ou trechos de ensaios.
-⚠ REVISAR COM O PABLO: corrente do ensaio, método, sequência, limites e critérios
-específicos de cada verificação. Não emitir conformidade normativa sem validação.
-O desenvolvimento visual pode prosseguir independentemente dessa confirmação.
+Pablo forneceu as quatro partes em:
+`G:\Outros computadores\Nitro e LOQ Pablo 2026\1- PABLO Backup\01- ONLINE\01 -Cursos\7-SPDA\Curso Novo 2026\NBR 5419 2026\`.
+Lida a Parte 3, `NBR_5419_3_2026.pdf`, segunda edição de 10/03/2026, 97 páginas
+do PDF (87 numeradas). Texto e imagens do Anexo F conferidos. O PDF original não
+foi alterado nem incorporado ao repositório; extrações ficam em `.sim-shots/` ignorada.
+As demais partes foram indicadas pelo usuário, mas não foram auditadas nesta etapa.
 
-## Primeira implementação
+Critérios aplicados, em paráfrase:
+
+- F.1, páginas impressas 77–79: conjunto pilar/fundação em concreto moldado no
+  local; cruzadas topo–base de pilares diferentes. Cobrir todos os topos e as bases
+  selecionadas, incluindo a base de ligação ao BEP. Limite inclusivo de 1 Ω.
+- F.1.3: quatro terminais; corrente entre 1 e 5 A, com CC permitida. Usamos 1 A CC
+  simulada. P1/P2 medem potencial; resistência dos cabos não é somada ao resultado
+  Kelvin ideal. O visual Inbrat não certifica ou emula faixas específicas do firmware.
+- F.1.2.2: acompanhamento documentado da construção pode dispensar a primeira
+  verificação. No modo obra as medições são demonstrativas, explicitadas na UI.
+- F.2, páginas 79–80: verificação vertical de pilar é outra aplicação; pré-moldados
+  não são tratados como conjunto F.1. Não incluímos F.2 como aprovação deste galpão.
+- F.3, páginas 80–81: fundação isolada requer ausência de caminhos pelos demais
+  elementos. Não é aplicável à rede interligada do cenário, portanto não oferecida.
+- F.4.4, página 82: comprobatória entre captação e BEP, limite inclusivo de 0,2 Ω.
+  A etapa representa conclusão da instalação; não automatiza condições periódicas.
+
+## Ensaios implementados
+
+Validação automatizada: 86 testes aprovados, incluindo solução série/paralelo,
+conservação de corrente, limites inclusivos, cobertura de pontos, defeitos,
+travas de preparação/relatório e cabo PP acima do solo. Build aprovado.
+No navegador: nove leituras concluídas e relatório consolidado no cenário íntegro;
+conferidos primeira verificação, comprobatória no BEP, setas e cabo físico com
+fluxo oculto. A primeira leitura exibiu 0,020 Ω e a comprobatória 0,025 Ω.
+São resultados do modelo didático. O painel mobile da versão visual foi conferido
+anteriormente; esta rodada completa dos ensaios foi exercitada no desktop.
+
+- Oito cruzadas F.1, uma por topo, mais uma captação–BEP F.4. Nove registros.
+- Bases P1, P5, P8 e P4 a cada 20 m no perímetro de 80 m; BEP ligado à base P4.
+  Coordenadas dos pilares e vigas atualizadas juntas. Os oito pilares incluem quinas.
+- Engine nodal pura resolve resistências em paralelo e sentido da corrente em cada
+  ramo. Parâmetros de aço/seção equivalente/contato são didáticos, não dados medidos
+  de obra ou valores normativos de dimensionamento. As garras usam os contatos da cena.
+- Defeitos didáticos: contato superior P1 deteriorado e ligação BEP deteriorada.
+- Preparação, conexão, leitura, corrente animada e relatório CSV com referência por
+  trecho. Não confundir resultado dos ensaios simulados com conformidade global do SPDA.
+- A ligação da captação é acrescentada na comprobatória; não participa como caminho
+  paralelo da primeira verificação. Fluxo reutiliza a rede calculada e os cabos PP.
+- Correção adicional solicitada por Pablo: interpolação do PP não ultrapassa a
+  altura dos apoios. A capa não afunda antes das subidas; setas seguem a mesma curva.
+- Mudanças autorizadas em engine/store/HUD/catálogo registradas neste contrato;
+  módulo convencional preservado. Sua revisão técnica para 2026 é tarefa separada:
+  F.5–F.7 não autorizam assumir indiscriminadamente 0,2 Ω/1 Ω para cabos não naturais.
+
+## Histórico — primeira implementação visual (superado pelos ensaios acima)
 
 - Catálogo `estruturalPontos.ts` orienta galpão procedural de 16 × 24 m, oito pilares
   de 7 m e cumeeira de 9 m; cenas e contatos derivam dessas dimensões.

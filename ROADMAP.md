@@ -1,5 +1,15 @@
 # SimuPower — Módulo NR-10 · Roadmap & Status
 
+### 09/09/2026 — Ensaios estruturais conforme fonte 2026 fornecida
+
+Parte 3 fornecida pelo Pablo lida no Anexo F: oito cruzadas F.1 (≤1 Ω) e uma
+comprobatória captação–BEP F.4 (≤0,2 Ω), 1 A CC Kelvin. Engine de rede resistiva
+com caminhos paralelos, corrente animada, defeitos, nove registros independentes
+e relatório CSV. O galpão representa concreto moldado no local; F.2/F.3 não são
+misturados à aprovação desse conjunto. Ver contrato para fonte e escopo.
+Corrigido cabo do miliohmímetro abaixo do solo: curva PP compartilhada pela capa
+e animação, com altura limitada entre apoios. Build e 86 testes aprovados.
+
 ### 09/09/2026 — Início do SPDA natural/estrutural (edição 2026)
 
 Novo ambiente explorável no menu: galpão industrial procedural 16 × 24 m, oito
