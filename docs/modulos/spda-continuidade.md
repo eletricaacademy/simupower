@@ -279,6 +279,40 @@ simulação fiel ao instrumento real. Nenhuma faixa foi inventada ou substituíd
 - Marcadores das caixas deslocados lateralmente para não cobrir as conexões,
   conforme autorização explícita do Pablo para esse ajuste em `Marcador`.
 
+### Tour de diagnóstico por fotografias — 09/09/2026
+
+Pablo forneceu quatro fotografias de campo e autorizou incorporá-las à simulação
+de continuidade como um tour complementar. O botão **“Diagnóstico por fotos”**
+abre um painel responsivo, pausa visualmente os painéis normais do ensaio e conduz
+a câmera por quatro pontos do prédio. Cada parada apresenta a evidência, uma
+pergunta de observação e, sob demanda, diagnóstico, risco, ação recomendada e
+referência normativa por assunto:
+
+1. contato direto entre cobre e alumínio sem conector bimetálico, junto à D4;
+2. DPS sem funcionamento, no QGBT da sala elétrica;
+3. instalações próximas da descida, abaixo da distância de segurança, junto à D2;
+4. ensaio de continuidade na cobertura, classificado como **verificação em campo**,
+   não como defeito.
+
+As imagens estão em `public/images/diagnostico-spda/`; os textos, âncoras e vistas
+ficam no catálogo `catalog/spdaDiagnostico.ts`. O marcador 3D é apenas didático e
+não altera medições, defeitos, cálculos ou laudo. As referências usam a série
+ABNT NBR 5419:2026 por tema. **⚠ REVISAR COM O PABLO** os itens exatos antes de
+publicar o material didático externamente.
+
+Mudanças mínimas fora da cena, necessárias para o recurso autorizado:
+
+- `ui/SpdaHud.tsx`: painel e navegação do tour, em desktop e mobile;
+- `sim/spdaDiagnosticoStore.ts`: somente o id do marcador fotográfico ativo;
+- `sim/viewStore.ts`: aceita uma pose direta de câmera além dos comandos existentes;
+- `catalog/spdaDiagnostico.ts`: dados editoriais e posições do tour.
+
+Validação local desta entrega: build de produção aprovado e **91 testes Vitest**
+aprovados, incluindo três contratos específicos do tour (paradas, arquivos e
+poses 3D). A inspeção visual automatizada no navegador não ficou disponível no
+ambiente desta sessão; os enquadramentos devem receber a conferência final do
+Pablo antes de uma publicação.
+
 ### Verificação
 
 - Build de produção e **69 testes Vitest aprovados** (66 existentes e três de geometria).

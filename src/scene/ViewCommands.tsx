@@ -28,6 +28,7 @@ export function ViewCommands({
   const controls = useThree((s) => s.controls) as { target: THREE.Vector3; update: () => void } | null
   const invalidate = useThree((s) => s.invalidate)
   const comando = useView((s) => s.comando)
+  const pose = useView((s) => s.pose)
   const nonce = useView((s) => s.nonce)
   const limpar = useView((s) => s.limpar)
   const marcarInteragiu = useSim((s) => s.marcarInteragiu)
@@ -41,7 +42,7 @@ export function ViewCommands({
   } | null>(null)
 
   useEffect(() => {
-    if (!comando || !controls) return
+    if ((!comando && !pose) || !controls) return
     const m = 0.8
     const clampBox = (v: THREE.Vector3) => {
       v.x = THREE.MathUtils.clamp(v.x, -half + m, half - m)
@@ -51,7 +52,7 @@ export function ViewCommands({
     }
 
     // vista fixa calibrada (ex.: 'quadro') — usa pose pronta, sem clamp.
-    const extra = extraViews?.[comando]
+    const extra = pose ?? (comando ? extraViews?.[comando] : undefined)
     if (extra) {
       anim.current = {
         fromP: camera.position.clone(),

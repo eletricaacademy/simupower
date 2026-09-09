@@ -9,6 +9,7 @@ import {
   type CenarioSPDA,
 } from '../engine/spda'
 import { SPDA_PONTOS, ROTULO_SUBSISTEMA, getPontoSPDA } from '../catalog/spdaPontos'
+import { SPDA_DIAGNOSTICOS } from '../catalog/spdaDiagnostico'
 import { ambiente } from './sons'
 import { QualityPicker } from './QualityPicker'
 import { SoundControl } from './SoundControl'
@@ -20,6 +21,7 @@ import { Detalhes } from './Detalhes'
 import { color } from '../design/tokens'
 import { SpdaCalibracao } from '../scene/SpdaCalibracao'
 import { useView } from '../sim/viewStore'
+import { useSpdaDiagnostico } from '../sim/spdaDiagnosticoStore'
 
 const CORV: Record<'pass' | 'marginal' | 'fail', string> = {
   pass: color.status.pass,
@@ -35,6 +37,7 @@ export function SpdaHud() {
   const [configAberto, setConfigAberto] = useState(false)
   const [aba, setAba] = useState<'procedimento' | 'medicao'>('procedimento')
   const [laudoFechado, setLaudoFechado] = useState(false)
+  const [diagnosticoAberto, setDiagnosticoAberto] = useState(false)
   const laudo = useSpda((s) => s.laudo)
   const stepAtual = useSim((s) => s.ensaio.steps[s.passoIndex]?.id)
   // o instrumento aparece a partir da preparação (zerar pontas)
@@ -49,6 +52,8 @@ export function SpdaHud() {
     useSim.getState().reset()
     setTour(true)
     setLaudoFechado(false)
+    setDiagnosticoAberto(false)
+    useSpdaDiagnostico.getState().setAtivo(null)
     setConfigAberto(false)
   }
 
@@ -92,6 +97,19 @@ export function SpdaHud() {
     <div className="pointer-events-none absolute inset-0 select-none">
       <HudTopBar onConfig={() => setConfigAberto((v) => !v)} configAberto={configAberto} right={<SoundControl />} />
 
+      {!diagnosticoAberto && (
+        <button
+          onClick={() => {
+            setConfigAberto(false)
+            setDiagnosticoAberto(true)
+          }}
+          className="absolute left-1/2 -translate-x-1/2 z-40 pointer-events-auto rounded-[9px] px-3 py-2 text-[12px] font-display font-semibold"
+          style={{ top: 68, background: color.surface, color: color.accent, border: `1px solid ${color.accent}` }}
+        >
+          Diagnóstico por fotos
+        </button>
+      )}
+
       {configAberto && (
         <div className="absolute right-3 z-50 pointer-events-auto" style={{ top: 72 }}>
           <div className="hud-glass rounded-[14px] p-4 w-[280px] max-h-[80vh] overflow-y-auto hud-scroll" style={cfgDrag.style}>
@@ -121,18 +139,18 @@ export function SpdaHud() {
       )}
 
       {/* DESKTOP */}
-      <div className="hidden md:block absolute left-4 bottom-4 pointer-events-auto">
+      <div className={`${diagnosticoAberto ? 'hidden' : 'hidden md:block'} absolute left-4 bottom-4 pointer-events-auto`}>
         <GuidedCard />
       </div>
 
-      {mostrarPainel && (
+      {mostrarPainel && !diagnosticoAberto && (
         <div className="hidden md:block absolute right-4 bottom-4 pointer-events-auto">
           <Miliohmimetro />
         </div>
       )}
 
       {/* MOBILE */}
-      <MobileSheet
+      {!diagnosticoAberto && <MobileSheet
         onReiniciar={reiniciar}
         tabs={
           <>
@@ -150,13 +168,15 @@ export function SpdaHud() {
             O instrumento fica disponível na etapa “Preparar o instrumento”.
           </div>
         )}
-      </MobileSheet>
+      </MobileSheet>}
 
       <div className="hidden md:block">
         <Creditos />
       </div>
 
-      {laudo && !laudoFechado && (
+      {diagnosticoAberto && <DiagnosticoFotografico onClose={() => setDiagnosticoAberto(false)} />}
+
+      {laudo && !laudoFechado && !diagnosticoAberto && (
         <ResumoLaudo onClose={() => setLaudoFechado(true)} onMenu={() => setView('menu')} onNova={reiniciar} />
       )}
     </div>
@@ -423,6 +443,94 @@ function Miliohmimetro() {
       )}
     </div>
   )
+}
+
+/** Tour complementar com evidências fotográficas posicionadas no prédio. */
+function DiagnosticoFotografico({ onClose }: { onClose: () => void }) {
+  const [indice, setIndice] = useState(0)
+  const [revelado, setRevelado] = useState(false)
+  const item = SPDA_DIAGNOSTICOS[indice]
+  const cor = item.tipo === 'verificacao' ? color.accentCool : color.status.marginal
+
+  useEffect(() => {
+    useSpdaDiagnostico.getState().setAtivo(item.id)
+    useView.getState().pedirPose(item.vista)
+    setRevelado(false)
+  }, [item])
+
+  useEffect(() => () => {
+    useSpdaDiagnostico.getState().setAtivo(null)
+    useView.getState().pedir('reset')
+  }, [])
+
+  const fechar = () => {
+    useSpdaDiagnostico.getState().setAtivo(null)
+    onClose()
+  }
+
+  const ir = (proximo: number) => {
+    setIndice(Math.max(0, Math.min(SPDA_DIAGNOSTICOS.length - 1, proximo)))
+  }
+
+  return (
+    <div className="absolute inset-x-2 top-[68px] bottom-2 md:left-auto md:right-4 md:w-[520px] z-[60] pointer-events-auto">
+      <div className="hud-glass rounded-[16px] p-4 h-full overflow-y-auto hud-scroll" style={{ border: `1px solid ${cor}66` }}>
+        <div className="flex items-start gap-3 mb-3">
+          <div className="min-w-0 flex-1">
+            <div className="font-mono text-[10px] uppercase tracking-[0.16em]" style={{ color: cor }}>
+              Tour de diagnóstico — {indice + 1}/{SPDA_DIAGNOSTICOS.length}
+            </div>
+            <h2 className="font-display font-bold text-[19px] leading-tight mt-1" style={{ color: color.text }}>{item.titulo}</h2>
+            <div className="text-[11px] mt-1" style={{ color: color.textMuted }}>{item.local}</div>
+          </div>
+          <button onClick={fechar} aria-label="Fechar diagnóstico" className="w-8 h-8 rounded-full shrink-0 text-[18px]" style={{ background: color.surface, color: color.text, border: `1px solid ${color.hairline}` }}>×</button>
+        </div>
+
+        <div className="rounded-[12px] overflow-hidden grid place-items-center" style={{ background: color.viewport, border: `1px solid ${color.hairline}` }}>
+          <img src={item.imagem} alt={item.alt} className="block w-full max-h-[36dvh] md:max-h-[38vh] object-contain" />
+        </div>
+
+        <div className="flex items-center justify-between gap-2 mt-2">
+          <span className="font-mono text-[9px] uppercase tracking-wider rounded-full px-2 py-1" style={{ color: cor, border: `1px solid ${cor}66`, background: color.surface }}>
+            {item.tipo === 'verificacao' ? 'Verificação em campo' : 'Não conformidade'}
+          </span>
+          <button onClick={() => useView.getState().pedirPose(item.vista)} className="text-[11px]" style={{ color: color.accentCool }}>Reenquadrar ponto 3D</button>
+        </div>
+
+        <div className="rounded-[11px] p-3 mt-3" style={{ background: color.surface, border: `1px solid ${color.hairline}` }}>
+          <div className="text-[10px] uppercase tracking-wider mb-1" style={{ color: color.textFaint }}>Observe e responda</div>
+          <p className="text-[13px] leading-snug" style={{ color: color.text }}>{item.pergunta}</p>
+        </div>
+
+        {!revelado ? (
+          <button onClick={() => setRevelado(true)} className="w-full rounded-[10px] py-2.5 mt-3 font-display font-semibold text-[13px]" style={{ background: cor, color: color.viewport }}>
+            Revelar {item.tipo === 'verificacao' ? 'explicação' : 'diagnóstico'}
+          </button>
+        ) : (
+          <div className="mt-3 space-y-2">
+            <BlocoDiagnostico rotulo="Diagnóstico" texto={item.diagnostico} cor={cor} />
+            <BlocoDiagnostico rotulo="Risco" texto={item.risco} cor={color.status.fail} />
+            <BlocoDiagnostico rotulo="Ação recomendada" texto={item.acao} cor={color.status.pass} />
+            <div className="text-[10.5px] leading-snug px-1" style={{ color: color.textFaint }}>{item.referencia}</div>
+          </div>
+        )}
+
+        <div className="flex gap-2 mt-4">
+          <button onClick={() => ir(indice - 1)} disabled={indice === 0} className="px-4 py-2 rounded-[10px] text-[12px]" style={{ background: color.surface, color: indice === 0 ? color.textFaint : color.textMuted, border: `1px solid ${color.hairline}` }}>‹ Anterior</button>
+          <button onClick={() => indice === SPDA_DIAGNOSTICOS.length - 1 ? fechar() : ir(indice + 1)} className="flex-1 py-2 rounded-[10px] font-display font-semibold text-[13px]" style={{ background: color.accent, color: color.viewport }}>
+            {indice === SPDA_DIAGNOSTICOS.length - 1 ? 'Concluir tour' : 'Próxima parada ›'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function BlocoDiagnostico({ rotulo, texto, cor }: { rotulo: string; texto: string; cor: string }) {
+  return <div className="rounded-[10px] px-3 py-2" style={{ background: color.surface, borderLeft: `3px solid ${cor}` }}>
+    <div className="text-[9px] uppercase tracking-wider mb-0.5" style={{ color: cor }}>{rotulo}</div>
+    <p className="text-[11.5px] leading-snug" style={{ color: color.textMuted }}>{texto}</p>
+  </div>
 }
 
 /** Laudo final de continuidade do SPDA. */

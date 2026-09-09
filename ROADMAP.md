@@ -234,6 +234,11 @@ mede a **continuidade** dos trechos do SPDA (captação → descidas → caixas 
   Anel calculado por ramos em paralelo. BEP transferido para sala interna ao lado
   do QGBT fechado, com porta aberta e entrada guiada. Cabos externos contornam o
   prédio e o cabo até D1 passa pela porta. Catálogo antigo preservado como legado.
+- **Diagnóstico por fotos (09/09):** tour complementar responsivo com quatro
+  evidências reais posicionadas no prédio: união Cu-Al sem conector bimetálico,
+  DPS inoperante, distância de segurança insuficiente e ensaio de continuidade
+  na cobertura. A última é uma verificação em campo, não uma não conformidade.
+  O tour apenas orienta a inspeção; não altera a engine, as leituras ou o laudo.
 
 ## 6. Comandos
 ```

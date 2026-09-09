@@ -7,6 +7,7 @@ import { useSim } from '../sim/store'
 import { useView } from '../sim/viewStore'
 import { SPDA_PONTOS, PREDIO, type PontoSPDA } from '../catalog/spdaPontos'
 import { color } from '../design/tokens'
+import { SpdaDiagnostico } from './SpdaDiagnostico'
 
 /**
  * SpdaElements — elementos 3D do ensaio de continuidade do SPDA.
@@ -62,6 +63,7 @@ export function SpdaElements() {
       </Html>}
       <FocoSpda />
       <SalaEletrica />
+      <SpdaDiagnostico />
       <EnquadramentoSpda />
       {modelPath && <DefeitosVisuais />}
     </>
