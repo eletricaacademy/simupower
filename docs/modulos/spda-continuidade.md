@@ -1,5 +1,14 @@
 # Módulo 7 — Continuidade do SPDA (NBR 5419-3)
 
+### Corrente de ensaio — 09/09/2026
+
+- Ao medir, setas ilustram C1 → condutores → C2, reutilizando os dois cabos PP e as garras. P1/P2 permanecem identificados como leitura de tensão.
+- Os ensaios superiores/inferiores mostram os dois ramos do anel; D1–BEP acompanha a ligação até a sala interna. O anel enterrado usa profundidade esquemática de 0,35 m, sem alterar o cálculo.
+- Sobreposição visível através das superfícies, sem bloom. Sentido ilustrativo, sem representar intensidade ou velocidade física. Movimento reduzido usa setas estáticas; qualidade baixa reduz instâncias.
+- Controles desktop/mobile: mostrar/ocultar fluxo e vista do percurso completo. Selecionar outro trecho, apagar a leitura ou reiniciar interrompe a animação; fora do passo de medição ela não aparece.
+- Fronteira entre agentes: ajustes mínimos autorizados pelo pedido do Pablo em `sim/spdaStore.ts`, `sim/viewStore.ts` e `ui/SpdaHud.tsx`, exclusivamente para estado visual e comandos. Engine e valores medidos preservados.
+- Build aprovado e 75 testes aprovados, incluindo topologia dos dois ramos e ciclo de ativação do fluxo.
+
 **Contrato Claude × Codex.** Estado em 2026-09-09: **roteiro entre descidas e sala elétrica interna**.
 Prédio GLB com SPDA, contatos calibrados e reprodução visual do Inbrat INMD1 PRO.
 

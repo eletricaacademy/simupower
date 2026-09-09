@@ -283,6 +283,8 @@ function Miliohmimetro() {
   const setPontoAtivo = useSpda((s) => s.setPontoAtivo)
   const medir = useSpda((s) => s.medir)
   const limparMedicao = useSpda((s) => s.limparMedicao)
+  const fluxoAtivo = useSpda((s) => s.fluxoAtivo)
+  const setFluxoAtivo = useSpda((s) => s.setFluxoAtivo)
   const stepAtual = useSim((s) => s.ensaio.steps[s.passoIndex]?.id)
 
   const ponto = getPontoSPDA(pontoAtivo)
@@ -309,6 +311,15 @@ function Miliohmimetro() {
         </button>}
         <button onClick={() => { if (pontoAtivo === 'eq-bep') useView.getState().pedir('quadro'); else setPontoAtivo('eq-bep') }}>Entrar na sala elétrica · BEP</button>
       </div>
+      {stepAtual === 'spda-medir' && leitura && Number.isFinite(leitura.r) && <div className="rounded p-2 mb-2 text-[11px]" style={{ background: color.surface, color: color.textMuted }}>
+        <div className="flex flex-wrap gap-3 mb-1" style={{ color: color.accentCool }}>
+          <button onClick={() => setFluxoAtivo(!fluxoAtivo)} aria-pressed={fluxoAtivo}>{fluxoAtivo ? 'Ocultar fluxo' : 'Mostrar fluxo'}</button>
+          <button onClick={() => useView.getState().pedir('fluxo')}>Ver percurso completo</button>
+        </div>
+        <p><span style={{ color: color.accent }}>C1 → condutores</span> → <span style={{ color: color.accentCool }}>C2 · retorno</span></p>
+        <p>P1/P2: leitura de tensão. Animação ilustrativa da medição; setas indicam sentido, não intensidade.</p>
+        <p>{ponto?.nivel === 'inferior' ? 'Anel enterrado esquemático, visível através do solo.' : 'Percurso visível através das superfícies.'}</p>
+      </div>}
       <div className="flex items-center justify-between mb-2">
         <span className="text-[10px] uppercase tracking-[0.18em]" style={{ color: color.textFaint }}>
           Continuidade · RLO

@@ -26,6 +26,8 @@ interface SpdaState {
   medicoes: Record<string, LeituraContinuidade>
   /** Leitura em andamento (visor "ao vivo" antes de registrar). */
   lendo: boolean
+  fluxoAtivo: boolean
+  setFluxoAtivo: (ativo: boolean) => void
   laudo: LaudoSPDA | null
 
   setCenario: (c: CenarioSPDA) => void
@@ -45,6 +47,7 @@ const inicial = {
   pontoAtivo: SPDA_PONTOS[0].id,
   medicoes: {} as Record<string, LeituraContinuidade>,
   lendo: false,
+  fluxoAtivo: false,
   laudo: null as LaudoSPDA | null,
 }
 
@@ -52,24 +55,28 @@ export const useSpda = create<SpdaState>((set, get) => ({
   ...inicial,
 
   // trocar de cenário invalida tudo que já foi medido
-  setCenario: (cenario) => set({ cenario, medicoes: {}, laudo: null }),
+  setCenario: (cenario) => set({ cenario, medicoes: {}, laudo: null, fluxoAtivo: false }),
 
   zerarPontas: () => set({ pontasZeradas: true }),
 
-  setPontoAtivo: (pontoAtivo) => set({ pontoAtivo }),
+  setPontoAtivo: (pontoAtivo) => set({ pontoAtivo, fluxoAtivo: false }),
+  setFluxoAtivo: (ativo) => {
+    const leitura = get().medicoes[get().pontoAtivo]
+    set({ fluxoAtivo: ativo && !!leitura && Number.isFinite(leitura.r) })
+  },
 
   medir: () => {
     const { pontoAtivo, cenario, pontasZeradas, medicoes } = get()
     const ponto = getPontoSPDA(pontoAtivo)
     if (!ponto) return
     const leitura = medirContinuidade(ponto, cenario, pontasZeradas)
-    set({ medicoes: { ...medicoes, [ponto.id]: leitura }, laudo: null })
+    set({ medicoes: { ...medicoes, [ponto.id]: leitura }, laudo: null, fluxoAtivo: Number.isFinite(leitura.r) })
   },
 
   limparMedicao: (id) => {
     const medicoes = { ...get().medicoes }
     delete medicoes[id]
-    set({ medicoes, laudo: null })
+    set({ medicoes, laudo: null, fluxoAtivo: id === get().pontoAtivo ? false : get().fluxoAtivo })
   },
 
   emitir: () => set({ laudo: emitirLaudo(SPDA_PONTOS, get().medicoes) }),

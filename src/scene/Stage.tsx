@@ -263,6 +263,7 @@ export function Stage() {
         extraViews={ehHosp ? { quadro: QUADRO_VIEW, foco: focoView } : ehSpda ? {
           foco: vistaInbrat(pontoSpda), quadro: pontoSpda.vista,
           origem: { pos: [pontoSpda.posOrigem[0] + Math.sign(pontoSpda.posOrigem[0]) * 1.25, 1.5, pontoSpda.posOrigem[2] + Math.sign(pontoSpda.posOrigem[2]) * 2.65], target: pontoSpda.posOrigem },
+          fluxo: { pos: [18, 15, -20], target: [0, pontoSpda.nivel === 'superior' ? 4 : 0.5, 0] },
         } : undefined}
       />
       <PoseCapturer />

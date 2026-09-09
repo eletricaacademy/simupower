@@ -8,6 +8,7 @@ import { getPontoSPDA, type PontoSPDA } from '../catalog/spdaPontos'
 import { color } from '../design/tokens'
 import { resolverQualidade } from './quality'
 import type { Vec3 } from '../catalog/types'
+import { SpdaFluxo } from './SpdaFluxo'
 
 /** Ampliação didática solicitada pelo Pablo; a instalação permanece em metros. */
 const ESCALA_INBRAT = 3
@@ -191,5 +192,6 @@ export function Inbrat() {
       <CaboKelvin pontos={c.pontos} cor={color.inbrat.borracha} baixo={baixo} raio={0.01} />
       <GarraKelvin alvo={c.alvo} origem={c.traseira} cor={c.cor} baixo={baixo} />
     </group>)}
+    {passo === 'spda-medir' && <SpdaFluxo ponto={ponto} cabos={cabos} baixo={baixo} />}
   </group>
 }

@@ -1,5 +1,9 @@
 # SimuPower — Módulo NR-10 · Roadmap & Status
 
+### 09/09/2026 — Percurso da corrente no SPDA
+
+Setas animadas após medir acompanham C1, os condutores e o retorno C2, incluindo os dois ramos do anel e a ligação ao BEP interno. Anel enterrado esquemático visível através do solo; controles para ocultar/mostrar e enquadrar o percurso no desktop/mobile. Sem bloom ou alteração nos cálculos. Build e 75 testes aprovados. Contrato: `docs/modulos/spda-continuidade.md`.
+
 > Plataforma standalone de **ensaios elétricos virtuais em 3D** (PT-BR). Renomeada de "Calibra" → **SimuPower** (2026-06).
 > Stack: Vite 5 + React 18 + TypeScript · three r0.169 + @react-three/fiber v8 + drei v9 + postprocessing · zustand v4 · Tailwind v4 (@theme) · @fontsource · Vitest.
 > Padrão: **engine pura e testada** → **catálogo orientado a dados** → cena/HUD renderizam qualquer par (equipamento × ensaio).
