@@ -127,14 +127,14 @@ export function EstruturalElements() {
       </>}
       {[false, true].map(superior => {
         const alvo = contatoEstrutural(p.id, superior, fase)
-        const y = alvo[1], sentido = p.x < 0 ? 1 : -1
+        const y = alvo[1], sentidoExterno = p.x < 0 ? -1 : 1
         return <group key={String(superior)}>
           {concreto && <>
-            <mesh position={[p.x + sentido * 0.265, y, p.z]} rotation={[0, 0, Math.PI / 2]}>
+            <mesh position={[p.x + sentidoExterno * 0.265, y, p.z]} rotation={[0, 0, Math.PI / 2]}>
               <cylinderGeometry args={[0.085, 0.085, 0.03, 16]} />
               <meshStandardMaterial color={color.spda.cobre} metalness={0.7} roughness={0.35} />
             </mesh>
-            <Barra a={[p.x + sentido * 0.16, y, p.z]} b={alvo} raio={0.015} cor={color.spda.aluminio} />
+            <Barra a={[p.x - sentidoExterno * 0.16, y, p.z]} b={alvo} raio={0.015} cor={color.spda.aluminio} />
           </>}
         </group>
       })}

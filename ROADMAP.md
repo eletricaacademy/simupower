@@ -10,6 +10,12 @@ misturados à aprovação desse conjunto. Ver contrato para fonte e escopo.
 Corrigido cabo do miliohmímetro abaixo do solo: curva PP compartilhada pela capa
 e animação, com altura limitada entre apoios. Build e 86 testes aprovados.
 
+### 09/09/2026 — Aterrinsert externo no SPDA estrutural
+
+No galpão pronto, os conectores de acesso às ferragens ficam na face externa dos
+pilares. O modo obra conserva o contato direto nas armaduras expostas; a mudança
+é visual e de acessibilidade, sem alterar a topologia elétrica dos ensaios.
+
 ### 09/09/2026 — Início do SPDA natural/estrutural (edição 2026)
 
 Novo ambiente explorável no menu: galpão industrial procedural 16 × 24 m, oito

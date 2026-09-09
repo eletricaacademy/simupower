@@ -58,6 +58,14 @@ Critérios aplicados, em paráfrase:
 
 ## Ensaios implementados
 
+### Aterrinsert externo - 09/09/2026
+
+- No galpão pronto, os Aterrinserts ficam na face externa dos pilares, acessíveis
+  para inspeção e conexão das garras sem entrar na edificação.
+- No modo obra, o contato permanece diretamente na ferragem exposta. O percurso
+  interno entre a armadura e o conector foi preservado, sem alterar a topologia
+  ou os valores elétricos do ensaio.
+
 Validação automatizada: 86 testes aprovados, incluindo solução série/paralelo,
 conservação de corrente, limites inclusivos, cobertura de pontos, defeitos,
 travas de preparação/relatório e cabo PP acima do solo. Build aprovado.

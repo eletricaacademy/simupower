@@ -13,8 +13,12 @@ export const PILARES = [-12, -8, 8, 12].flatMap((z, fila) => [-8, 8].map((x, lad
 export type FaseEstrutural = 'obra' | 'pronto'
 export function contatoEstrutural(id: string, superior: boolean, fase: FaseEstrutural): Vec3 {
   const p = PILARES.find(p => p.id === id)!
-  // A face interna do insert recebe um pino M12; a garra toca a ponta do pino.
-  return [p.x + (p.x < 0 ? 1 : -1) * (fase === 'obra' ? 0.16 : 0.4), superior ? 6.6 : 1.2, p.z]
+  // Na obra a garra alcança a ferragem exposta; no galpão pronto, o Aterrinsert
+  // termina na face externa do pilar para permitir inspeção sem entrar na edificação.
+  const deslocamentoX = fase === 'obra'
+    ? (p.x < 0 ? 1 : -1) * 0.16
+    : (p.x < 0 ? -1 : 1) * 0.4
+  return [p.x + deslocamentoX, superior ? 6.6 : 1.2, p.z]
 }
 export const BEP_ESTRUTURAL: Vec3 = [5.5, 1.2, -10]
 export const PARES_ESTRUTURAIS = [
