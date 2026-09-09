@@ -188,7 +188,8 @@ mede a **continuidade** dos trechos do SPDA (captação → descidas → caixas 
 - **Inbrat INMD1 PRO**: representação 3D autoral baseada na referência oficial, quatro
   terminais, cabos e visor sincronizado com o ensaio. HUD com “Ver equipamento 3D” e
   “Ver conexão”. Ampliação didática de 3× solicitada pelo Pablo, garras jacaré nas
-  duas extremidades calibradas e controle para ocultar marcadores durante a inspeção
+  duas extremidades calibradas; dois cabos PP de duas vias (P1/C1 e P2/C2), cada um
+  com uma única garra, conforme esclarecimento do Pablo. Controle para ocultar marcadores durante a inspeção
   do contato. É referência visual; a engine didática permanece sem alterações.
 - **Autoria**: gerador e bruto em `assets-raw/models/`; controles de pick/captura em
   ⚙ → Calibração do ambiente 3D. Testes geométricos protegem escala e contatos do GLB.

@@ -68,11 +68,11 @@ function criarPainel(leitura: string, zerado: boolean) {
   return tex
 }
 
-function CaboKelvin({ pontos, cor, baixo }: { pontos: Vec3[]; cor: string; baixo: boolean }) {
+function CaboKelvin({ pontos, cor, baixo, raio = 0.006 }: { pontos: Vec3[]; cor: string; baixo: boolean; raio?: number }) {
   const geometria = useMemo(() => new THREE.TubeGeometry(
     new THREE.CatmullRomCurve3(pontos.map(p => new THREE.Vector3(...p)), false, 'centripetal'),
-    baixo ? 32 : 64, 0.006, baixo ? 4 : 6, false,
-  ), [pontos, baixo])
+    baixo ? 32 : 64, raio, baixo ? 4 : 6, false,
+  ), [pontos, baixo, raio])
   useEffect(() => () => geometria.dispose(), [geometria])
   return <mesh geometry={geometria}><meshStandardMaterial color={cor} roughness={0.7} /></mesh>
 }
@@ -106,6 +106,10 @@ function GarraKelvin({ alvo, origem, cor, baixo }: { alvo: Vec3; origem: Vec3; c
       <cylinderGeometry args={[0.013, 0.016, 0.055, 10]} />
       <meshStandardMaterial color={cor} roughness={0.7} />
     </mesh>
+    {/* As duas vias saem da mesma capa PP e entram na mesma garra. */}
+    {[-1, 1].map(lado => <CaboKelvin key={lado} baixo={baixo} raio={0.004}
+      cor={lado < 0 ? color.inbrat.borracha : color.inbrat.maleta}
+      pontos={[[0, 0, 0.275], [0, lado * 0.025, 0.24], [0, lado * 0.047, 0.195]]} />)}
   </group>
 }
 
@@ -120,24 +124,33 @@ export function Inbrat() {
   const pos = posicaoInbrat(ponto)
   const painel = useMemo(() => criarPainel(leitura?.display ?? '— — —', zerado), [leitura?.display, zerado])
   useEffect(() => () => painel.dispose(), [painel])
-  const cabos = useMemo(() => [ponto.posOrigem, ponto.pos].flatMap((alvo, lado) => [0, 1].map(tipo => {
-    const z = pos[2] + ((lado ? 0.0265 : -0.0629) + tipo * 0.0373) * ESCALA_INBRAT
-    const origem: Vec3 = [pos[0] - 0.09425 * ESCALA_INBRAT, pos[1] + 0.139 * ESCALA_INBRAT, z]
+  const cabos = useMemo(() => [ponto.posOrigem, ponto.pos].map((alvo, lado) => {
+    const zBase = lado ? 0.0265 : -0.0629
+    const z = pos[2] + (zBase + 0.0373 / 2) * ESCALA_INBRAT
+    // P1/C1 e P2/C2 permanecem separados nos bornes, mas cada par segue na mesma capa.
+    const uniao: Vec3 = [pos[0] - 0.18 * ESCALA_INBRAT, pos[1] + 0.15 * ESCALA_INBRAT, z]
+    const vias = [0, 1].map(tipo => {
+      const zBorne = pos[2] + (zBase + tipo * 0.0373) * ESCALA_INBRAT
+      return {
+        pontos: [[pos[0] - 0.09425 * ESCALA_INBRAT, pos[1] + 0.139 * ESCALA_INBRAT, zBorne],
+          [pos[0] - 0.14 * ESCALA_INBRAT, pos[1] + 0.16 * ESCALA_INBRAT, zBorne], uniao] as Vec3[],
+        cor: tipo ? color.inbrat.maleta : color.inbrat.borracha,
+      }
+    })
     const elevada = alvo[1] > pos[1] + 1
     const intermediario: Vec3 = elevada
-      ? [alvo[0] + Math.sign(alvo[0]) * (0.17 + tipo * 0.025), pos[1] + 0.18, alvo[2] + Math.sign(alvo[2]) * 0.17]
-      : [(origem[0] + alvo[0]) / 2, pos[1] + 0.16, (origem[2] + alvo[2]) / 2 + tipo * 0.05]
-    // Um par por extremidade: as garras chegam por lados distintos do mesmo contato.
-    const direcao = new THREE.Vector3(Math.sign(alvo[0]) * (tipo ? 0.35 : 1), tipo ? 0.55 : -0.5, Math.sign(alvo[2]) * (tipo ? 1 : 0.35)).normalize()
+      ? [alvo[0] + Math.sign(alvo[0]) * 0.17, pos[1] + 0.18, alvo[2] + Math.sign(alvo[2]) * 0.17]
+      : [(uniao[0] + alvo[0]) / 2, pos[1] + 0.16, (uniao[2] + alvo[2]) / 2]
+    // Uma única garra por extremidade, alimentada pelas duas vias do respectivo PP.
+    const direcao = new THREE.Vector3(Math.sign(alvo[0]), -0.5, Math.sign(alvo[2]) * 0.35).normalize()
     const traseira = new THREE.Vector3(...alvo).addScaledVector(direcao, 0.31).toArray() as Vec3
     const aproxima = new THREE.Vector3(...alvo).addScaledVector(direcao, 0.43).toArray() as Vec3
     // Os cabos saem pela lateral da maleta; pontos extras evitam a spline cruzar o visor.
-    const saida: Vec3 = [pos[0] - 0.18 * ESCALA_INBRAT, pos[1] + 0.15 * ESCALA_INBRAT, z]
-    const piso: Vec3 = [pos[0] - 0.3 * ESCALA_INBRAT - tipo * 0.025, pos[1] + 0.025, z]
-    const rota: Vec3[] = [origem, saida, piso, intermediario]
+    const piso: Vec3 = [pos[0] - 0.3 * ESCALA_INBRAT, pos[1] + 0.025, z]
+    const rota: Vec3[] = [uniao, piso, intermediario]
     if (elevada) rota.push([intermediario[0], alvo[1] - 0.18, intermediario[2]])
-    return { pontos: [...rota, aproxima, traseira], alvo, traseira, cor: tipo ? color.inbrat.maleta : color.inbrat.borracha }
-  })), [ponto, pos[0], pos[1], pos[2]])
+    return { pontos: [...rota, aproxima, traseira], vias, alvo, traseira, cor: lado ? color.inbrat.maleta : color.inbrat.borracha }
+  }), [ponto, pos[0], pos[1], pos[2]])
   if (!['spda-zerar', 'spda-medir', 'spda-laudo'].includes(passo)) return null
   return <group>
     <group position={pos} scale={ESCALA_INBRAT} onClick={e => { e.stopPropagation(); useView.getState().pedir('foco') }}>
@@ -164,7 +177,8 @@ export function Inbrat() {
       </mesh>)}
     </group>
     {passo === 'spda-medir' && cabos.map((c, i) => <group key={i}>
-      <CaboKelvin pontos={c.pontos} cor={c.cor} baixo={baixo} />
+      {c.vias.map((via, j) => <CaboKelvin key={j} pontos={via.pontos} cor={via.cor} baixo={baixo} />)}
+      <CaboKelvin pontos={c.pontos} cor={color.inbrat.borracha} baixo={baixo} raio={0.01} />
       <GarraKelvin alvo={c.alvo} origem={c.traseira} cor={c.cor} baixo={baixo} />
     </group>)}
   </group>

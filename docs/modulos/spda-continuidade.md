@@ -169,9 +169,12 @@ Modelo adotado como referência: **INMD1 PRO**, na ausência de outro código in
 `scene/Inbrat.tsx` modela maleta vermelha, borda de borracha, terminais P1/C1/P2/C2,
 painel, visor, teclas e fechos, com proporções de referência de 258 × 205 × 120 mm.
 A pedido do Pablo, a exibição usa ampliação didática de **3×**, mantendo o prédio
-em metros. O visor recebe a leitura do store; quatro cabos terminam em garras
-jacaré vermelhas e pretas, com mandíbulas metálicas, articulação e punhos isolados.
-Cada par prende a respectiva extremidade calibrada do trecho selecionado.
+em metros. O visor recebe a leitura do store. Conforme esclarecimento do Pablo,
+são **dois cabos PP retos de duas vias**, com capa externa preta: um reúne P1/C1,
+outro P2/C2. Há uma única garra por cabo, totalizando duas garras, uma em cada
+extremidade calibrada do trecho. As vias aparecem separadas apenas nas terminações,
+junto aos bornes e dentro de cada garra. As garras têm mandíbulas metálicas,
+articulação e punhos isolados. O cabo é flexível, sem espiral.
 “Ocultar marcadores” permite inspecionar as garras sem sobreposição; a seleção
 continua disponível no painel, e os marcadores podem ser reexibidos. As funções
 `Marcadores`, `Marcador` e `Trecho` permanecem intactas.
