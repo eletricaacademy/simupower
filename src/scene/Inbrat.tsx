@@ -126,14 +126,15 @@ export function Inbrat() {
   useEffect(() => () => painel.dispose(), [painel])
   const cabos = useMemo(() => [ponto.posOrigem, ponto.pos].map((alvo, lado) => {
     const zBase = lado ? 0.0265 : -0.0629
-    const z = pos[2] + (zBase + 0.0373 / 2) * ESCALA_INBRAT
+    // Rotação de 180° em Y: os bornes e a saída lateral acompanham a maleta.
+    const z = pos[2] - (zBase + 0.0373 / 2) * ESCALA_INBRAT
     // P1/C1 e P2/C2 permanecem separados nos bornes, mas cada par segue na mesma capa.
-    const uniao: Vec3 = [pos[0] - 0.18 * ESCALA_INBRAT, pos[1] + 0.15 * ESCALA_INBRAT, z]
+    const uniao: Vec3 = [pos[0] + 0.18 * ESCALA_INBRAT, pos[1] + 0.15 * ESCALA_INBRAT, z]
     const vias = [0, 1].map(tipo => {
-      const zBorne = pos[2] + (zBase + tipo * 0.0373) * ESCALA_INBRAT
+      const zBorne = pos[2] - (zBase + tipo * 0.0373) * ESCALA_INBRAT
       return {
-        pontos: [[pos[0] - 0.09425 * ESCALA_INBRAT, pos[1] + 0.139 * ESCALA_INBRAT, zBorne],
-          [pos[0] - 0.14 * ESCALA_INBRAT, pos[1] + 0.16 * ESCALA_INBRAT, zBorne], uniao] as Vec3[],
+        pontos: [[pos[0] + 0.09425 * ESCALA_INBRAT, pos[1] + 0.139 * ESCALA_INBRAT, zBorne],
+          [pos[0] + 0.14 * ESCALA_INBRAT, pos[1] + 0.16 * ESCALA_INBRAT, zBorne], uniao] as Vec3[],
         cor: tipo ? color.inbrat.maleta : color.inbrat.borracha,
       }
     })
@@ -146,14 +147,14 @@ export function Inbrat() {
     const traseira = new THREE.Vector3(...alvo).addScaledVector(direcao, 0.31).toArray() as Vec3
     const aproxima = new THREE.Vector3(...alvo).addScaledVector(direcao, 0.43).toArray() as Vec3
     // Os cabos saem pela lateral da maleta; pontos extras evitam a spline cruzar o visor.
-    const piso: Vec3 = [pos[0] - 0.3 * ESCALA_INBRAT, pos[1] + 0.025, z]
+    const piso: Vec3 = [pos[0] + 0.3 * ESCALA_INBRAT, pos[1] + 0.025, z]
     const rota: Vec3[] = [uniao, piso, intermediario]
     if (elevada) rota.push([intermediario[0], alvo[1] - 0.18, intermediario[2]])
     return { pontos: [...rota, aproxima, traseira], vias, alvo, traseira, cor: lado ? color.inbrat.maleta : color.inbrat.borracha }
   }), [ponto, pos[0], pos[1], pos[2]])
   if (!['spda-zerar', 'spda-medir', 'spda-laudo'].includes(passo)) return null
   return <group>
-    <group position={pos} scale={ESCALA_INBRAT} onClick={e => { e.stopPropagation(); useView.getState().pedir('foco') }}>
+    <group position={pos} rotation={[0, Math.PI, 0]} scale={ESCALA_INBRAT} onClick={e => { e.stopPropagation(); useView.getState().pedir('foco') }}>
       <RoundedBox args={[0.258, 0.12, 0.205]} radius={0.014} smoothness={baixo ? 1 : 3} position={[0, 0.06, 0]} castShadow>
         <meshStandardMaterial color={color.inbrat.maleta} roughness={0.65} />
       </RoundedBox>

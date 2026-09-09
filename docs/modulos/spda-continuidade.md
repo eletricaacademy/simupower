@@ -175,6 +175,8 @@ outro P2/C2. Há uma única garra por cabo, totalizando duas garras, uma em cada
 extremidade calibrada do trecho. As vias aparecem separadas apenas nas terminações,
 junto aos bornes e dentro de cada garra. As garras têm mandíbulas metálicas,
 articulação e punhos isolados. O cabo é flexível, sem espiral.
+A maleta foi girada 180° em torno do eixo vertical a pedido do Pablo; bornes e
+saídas dos cabos acompanham a rotação, mantendo as garras nos contatos calibrados.
 “Ocultar marcadores” permite inspecionar as garras sem sobreposição; a seleção
 continua disponível no painel, e os marcadores podem ser reexibidos. As funções
 `Marcadores`, `Marcador` e `Trecho` permanecem intactas.
