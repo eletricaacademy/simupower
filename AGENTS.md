@@ -106,9 +106,9 @@ arquivo**, não por tarefa:
 
 ## 5. Estado atual (2026-09)
 
-7 módulos: isolamento em motor · arco elétrico · inspeção de subestação ·
+8 módulos: isolamento em motor · arco elétrico · inspeção de subestação ·
 desenergização/LOTO · resistência de aterramento · verificação NBR 5410 §7 ·
-**continuidade do SPDA** (ferramenta e ambiente 3D implementados; atualização em 09/09/2026).
+**continuidade do SPDA** e **SPDA natural/estrutural** (atualização em 09/09/2026).
 
 Detalhes e histórico completo: **`ROADMAP.md`**.
 Contratos de módulo em construção: **`docs/modulos/`**.
@@ -170,3 +170,22 @@ a branch antes de editar; não sobrescrever trabalho de outro agente.
   conexão de automação com a aba foi perdida; não tratá-la como validada.
 - Nenhum deploy nesta entrega. Branch na gravação: `feat/spda-continuidade`.
   Revalidar branch, servidor local e estado da árvore na próxima sessão.
+
+### Publicação e continuidade — 09/09/2026
+
+- Pablo autorizou deploy e registro na memória. Código funcional `894240c`,
+  integrado com `origin/main` em `a09f05e` para preservar o controle de acesso.
+- `CurvaCaboPP` evita que a interpolação afunde os cabos no piso. Instrumento e
+  animação usam o mesmo trajeto nos dois módulos SPDA. Build e 86 testes passaram.
+- Hospedagem confirmada: GitHub Pages, branch `gh-pages` do repositório
+  `eletricaacademy/simupower`, domínio `https://simupower.eletricaacademy.com.br/`.
+  Preservar `public/CNAME` e `public/.nojekyll`. `dist/` contém um Git próprio;
+  seu HEAD local pode estar atrasado. Sempre buscar a referência remota antes
+  de publicar, usar seu commit como pai e enviar sem force push.
+- Build enviado em `39d460b` (fonte `a09f05e`). Conferir a propagação pelo arquivo
+  `assets/index-CwcKcfv3.js`; um HTTP 200 sozinho não confirma a versão nova.
+  Não publicar `.sim-shots/`, PDFs normativos ou modelos brutos.
+- Ideias propostas, ainda não autorizadas para implementação: diagnóstico de
+  falhas ocultas no SPDA, comparação visual de leituras e próxima simulação de
+  resistividade do solo pelo método de Wenner. Para SPDA, manter NBR 5419:2026;
+  para Wenner, conferir a norma específica aplicável antes de definir critérios.
