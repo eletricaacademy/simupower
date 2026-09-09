@@ -167,8 +167,8 @@ mede a **continuidade** dos trechos do SPDA (captação → descidas → caixas 
   Materiais da NBR 5419-3 (Cu/Al/aço galv.), defeitos plantados (`emenda-frouxa` +0,82 Ω,
   `corrosao` +2,6 Ω, `rompido` → **OL**) e o erro clássico de **não zerar as pontas** (+0,128 Ω em
   todas as leituras). `emitirLaudo()` devolve conformidade + causa provável + ação corretiva.
-  ⚠ **Critério de aceitação (≤0,5 Ω conforme / ≤1,0 Ω atenção) ainda precisa ser confirmado com o Pablo** —
-  a NBR 5419-3 exige "continuidade" sem fixar número.
+  **Critério de aceitação confirmado pelo Pablo (2026-09-08): ≤0,2 Ω conforme · 0,2–1,0 Ω atenção ·
+  >1,0 Ω ou OL não conforme** — a NBR 5419-3 exige "continuidade" sem fixar número, o valor é decisão dele.
 - **`catalog/spdaPontos.ts`** — 6 trechos (`capt-anel`, `desc-d1..d4`, `eq-bep`) com comprimento,
   material, seção, nº de conexões e defeito. **É o arquivo de fronteira com o Codex**: os campos
   `pos`/`posOrigem`/`vista` estão marcados `CALIBRAR (CODEX)`.

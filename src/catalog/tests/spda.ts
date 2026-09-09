@@ -90,7 +90,7 @@ export const spdaProcedure: TestProcedure = {
       detalhes: [
         'Abrir o conector desconectável da caixa de inspeção para medir a descida isolada',
         'Trecho íntegro lê alguns miliohms; conexão ruim eleva a leitura',
-        'Critério adotado: R ≤ 0,5 Ω conforme · 0,5–1,0 Ω atenção · > 1,0 Ω ou OL não conforme',
+        'Critério adotado: R ≤ 0,2 Ω conforme · 0,2–1,0 Ω atenção · > 1,0 Ω ou OL não conforme',
         'Medir TODOS os trechos previstos antes de emitir o laudo',
       ],
       cuidados: ['Refazer a medição com outra pressão de contato se a leitura oscilar muito.'],

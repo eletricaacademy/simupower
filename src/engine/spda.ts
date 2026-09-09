@@ -46,11 +46,13 @@ export const R_PONTAS = 0.128
 /**
  * Limites de aceitação da continuidade (Ω).
  *
- * A NBR 5419-3 exige "continuidade elétrica" sem fixar um número único; a
- * prática de inspeção (e a NBR 5410 para equipotencialização) adota o critério
- * de baixa resistência abaixo. ⚠ REVISAR COM O PABLO antes de travar.
+ * A NBR 5419-3 exige "continuidade elétrica" sem fixar um número único. O
+ * critério abaixo foi CONFIRMADO PELO PABLO em 2026-09-08: conforme até 0,2 Ω
+ * (limite exigente, coerente com a prática de inspeção de SPDA e com a
+ * equipotencialização da NBR 5410). Entre 0,2 e 1,0 Ω a leitura não reprova de
+ * imediato, mas denuncia conexão com resistência elevada — reapertar e remedir.
  */
-export const LIMITE_CONFORME = 0.5
+export const LIMITE_CONFORME = 0.2
 export const LIMITE_ATENCAO = 1.0
 
 export type CorVeredito = 'pass' | 'marginal' | 'fail'

@@ -26,9 +26,10 @@ R_medida = ρ·L/S + Σ R_conexões (+ R_defeito) (+ R_pontas se não compensar)
   reprova), `rompido` (circuito aberto → visor **OL**).
 - Erro didático clássico: **não zerar as pontas** soma ~0,128 Ω em todas as leituras.
 
-**Critério adotado (⚠ REVISAR COM O PABLO — a NBR 5419-3 exige "continuidade" sem fixar
-um número único):** `≤ 0,5 Ω` conforme · `0,5–1,0 Ω` atenção · `> 1,0 Ω` ou `OL` não
-conforme. Constantes `LIMITE_CONFORME` / `LIMITE_ATENCAO` no topo da engine.
+**Critério (CONFIRMADO pelo Pablo em 2026-09-08):** `≤ 0,2 Ω` conforme · `0,2–1,0 Ω`
+atenção · `> 1,0 Ω` ou `OL` não conforme. A NBR 5419-3 exige "continuidade" sem fixar um
+número único; o valor é do Pablo. Constantes `LIMITE_CONFORME` / `LIMITE_ATENCAO` no topo
+da engine.
 
 Fluxo (5 passos, `src/catalog/tests/spda.ts`): segurança/APR → inspeção visual → preparar
 instrumento (zerar pontas) → medir os 6 trechos → laudo com não conformidades, causa
@@ -115,7 +116,7 @@ Convenção: 1 unidade = 1 m, base do prédio em `y = 0`, prédio centrado na or
 ## 5. Pendências conhecidas
 
 - [ ] Modelo 3D do prédio (Codex) e calibração dos 6 pontos.
-- [ ] Confirmar com o Pablo o **critério de aceitação** (0,5 / 1,0 Ω).
+- [x] Critério de aceitação confirmado pelo Pablo em 2026-09-08: **0,2 / 1,0 Ω**.
 - [ ] Locução dos passos (padrão dos outros módulos: `public/sounds/voz/`).
 - [ ] Avaliar medir também a **resistência de aterramento de cada descida** (hoje o
       módulo é só continuidade; o módulo 5 já cobre queda de potencial).
