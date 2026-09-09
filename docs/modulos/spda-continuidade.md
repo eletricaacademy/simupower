@@ -179,7 +179,9 @@ A maleta foi girada 180° em torno do eixo vertical a pedido do Pablo; bornes e
 saídas dos cabos acompanham a rotação, mantendo as garras nos contatos calibrados.
 “Ocultar marcadores” permite inspecionar as garras sem sobreposição; a seleção
 continua disponível no painel, e os marcadores podem ser reexibidos. As funções
-`Marcadores`, `Marcador` e `Trecho` permanecem intactas.
+Após solicitação explícita do Pablo, `Marcador` recebeu apenas um deslocamento
+visual lateral nas caixas e no BEP, liberando a visão dos conectores. As posições
+calibradas, as garras, a seleção, as cores por resultado e `Trecho` foram preservados.
 “Ver equipamento 3D”
 e “Ver conexão” permitem alternar o enquadramento sem alterar a medição.
 
@@ -204,6 +206,14 @@ simulação fiel ao instrumento real. Nenhuma faixa foi inventada ou substituíd
 - `catalog/tests/spda.ts`: apenas vistas e comentário de calibração; a vista da
   preparação foi recapturada para a ampliação de 3×.
 - Nenhuma alteração em `engine/**`, `sim/**` ou nos campos elétricos dos trechos.
+
+### Ajustes visuais solicitados em 09/09
+
+- Entorno do SPDA reduzido de dez para três prédios distantes; aterramento preservado.
+- Bloom desativado no SPDA, exposição 0,78, luz solar 1,25 e ambiente 0,4;
+  céu azul uniforme sem o halo branco do shader atmosférico.
+- Marcadores das caixas deslocados lateralmente para não cobrir as conexões,
+  conforme autorização explícita do Pablo para esse ajuste em `Marcador`.
 
 ### Verificação
 

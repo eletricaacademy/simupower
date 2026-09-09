@@ -160,7 +160,9 @@ const ARVORES: [number, number][] = [
 const POSTES: [number, number][] = [[-40, -25], [40, -20], [-42, 9]]
 
 /** Cenário de fundo: edificações com fachada + árvores + postes distantes. Leve. */
-function CenarioFundo({ baseY, detail }: { baseY: number; detail: boolean }) {
+function CenarioFundo({ baseY, detail, esparso }: { baseY: number; detail: boolean; esparso: boolean }) {
+  // No SPDA, só três volumes distantes: libera a vista da edificação de estudo.
+  const edificios = esparso ? EDIFICIOS.slice(-3) : EDIFICIOS
   // 3 fachadas base (por tipo), clonadas por prédio com repeat conforme o
   // tamanho. Clones compartilham a imagem → custo desprezível.
   const bases = useMemo(
@@ -169,14 +171,14 @@ function CenarioFundo({ baseY, detail }: { baseY: number; detail: boolean }) {
   )
   const texFachada = useMemo(
     () =>
-      EDIFICIOS.map((b) => {
+      edificios.map((b) => {
         const t = bases[b.tipo].clone()
         t.needsUpdate = true
         t.wrapS = t.wrapT = THREE.RepeatWrapping
         t.repeat.set(Math.max(1, Math.round(b.w / 3.5)), Math.max(1, Math.round(b.h / 3.2)))
         return t
       }),
-    [bases],
+    [bases, esparso],
   )
   useEffect(() => () => {
     Object.values(bases).forEach((t) => t.dispose())
@@ -185,7 +187,7 @@ function CenarioFundo({ baseY, detail }: { baseY: number; detail: boolean }) {
 
   return (
     <group position={[0, baseY, 0]}>
-      {EDIFICIOS.map((b, i) => (
+      {edificios.map((b, i) => (
         <mesh key={`e${i}`} position={[b.x, b.h / 2, b.z]}>
           <boxGeometry args={[b.w, b.h, b.d]} />
           <meshLambertMaterial map={texFachada[i]} color={b.cor} />
@@ -221,11 +223,14 @@ export function Outdoor({
   sun = [14, 20, 9],
   tier,
   groundY = 0,
+  esparso = false,
 }: {
   sun?: [number, number, number]
   tier: Tier
   /** altura do chão de grama (alinha com a base visível do modelo) */
   groundY?: number
+  /** Menos construções e atmosfera sem halo intenso para a inspeção do SPDA. */
+  esparso?: boolean
 }) {
   const detail = tier !== 'baixo'
   const temSombraReal = tier === 'alto'
@@ -243,7 +248,7 @@ export function Outdoor({
   return (
     <>
       {/* céu de atmosfera só onde a GPU aguenta; no baixo o fundo do Canvas basta */}
-      {detail && (
+      {detail && !esparso && (
         <Sky
           distance={450000}
           sunPosition={sun}
@@ -267,7 +272,7 @@ export function Outdoor({
       </mesh>
 
       {/* contexto de fundo (paisagem) — leve, fora da área de trabalho */}
-      <CenarioFundo baseY={groundY} detail={detail} />
+      <CenarioFundo baseY={groundY} detail={detail} esparso={esparso} />
 
 
       {/* sombra estática (médio/baixo) — grounding sem passe de shadow map */}

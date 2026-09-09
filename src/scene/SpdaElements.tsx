@@ -21,8 +21,8 @@ import { color } from '../design/tokens'
  * ║   real via `catalog/equipment/spdaPredio.ts`) e recalibre as posições em  ║
  * ║   `catalog/spdaPontos.ts`.                                                ║
  * ║                                                                          ║
- * ║ Os marcadores leem SOMENTE `ponto.pos` — se as posições estiverem         ║
- * ║ calibradas, eles caem sozinhos no lugar certo do modelo novo.             ║
+ * ║ Marcadores usam deslocamento visual lateral solicitado pelo Pablo.       ║
+ * ║ `ponto.pos` continua sendo o contato real das garras e dos trechos.        ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
@@ -165,6 +165,12 @@ function Marcador({
   onClick: () => void
 }) {
   const ref = useRef<THREE.Mesh>(null)
+  // Pedido do Pablo: deixar o conector aparente, sem mover o contato calibrado.
+  const posMarcador: [number, number, number] = ponto.id === 'capt-anel'
+    ? ponto.pos
+    : ponto.id === 'eq-bep'
+      ? [ponto.pos[0] - 0.35, ponto.pos[1], ponto.pos[2] + 0.65]
+      : [ponto.pos[0] + Math.sign(ponto.pos[0]) * 0.65, ponto.pos[1], ponto.pos[2] + Math.sign(ponto.pos[2]) * 0.35]
   // pulso suave no ponto selecionado (chama o olho sem poluir a cena)
   useFrame(({ clock }) => {
     if (!ref.current) return
@@ -174,7 +180,7 @@ function Marcador({
   return (
     <mesh
       ref={ref}
-      position={ponto.pos}
+      position={posMarcador}
       onClick={(e) => {
         e.stopPropagation()
         onClick()

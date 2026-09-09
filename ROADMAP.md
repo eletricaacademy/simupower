@@ -195,6 +195,9 @@ mede a **continuidade** dos trechos do SPDA (captação → descidas → caixas 
 - **Autoria**: gerador e bruto em `assets-raw/models/`; controles de pick/captura em
   ⚙ → Calibração do ambiente 3D. Testes geométricos protegem escala e contatos do GLB.
   **Detalhes, fontes e limites do handoff: `docs/modulos/spda-continuidade.md`.**
+- **Legibilidade SPDA (09/09):** três prédios distantes no entorno, iluminação
+  suavizada e bloom desativado. Esferas das caixas/BEP deslocadas para o lado,
+  mantendo os contatos reais e a seleção por clique.
 
 ## 6. Comandos
 ```

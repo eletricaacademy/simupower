@@ -151,7 +151,7 @@ export function Stage() {
       onCreated={({ gl }) => {
         // reduz exposição na subestação branca (estava estourando); externo
         // ensolarado pede um pouco mais de brilho.
-        gl.toneMappingExposure = ehExterno ? 0.92 : ehHosp ? 0.84 : ehEnv ? 0.78 : 1.0
+        gl.toneMappingExposure = ehSpda ? 0.78 : ehExterno ? 0.92 : ehHosp ? 0.84 : ehEnv ? 0.78 : 1.0
       }}
       camera={{ position: camPos, fov: 42, near: 0.1, far: 100 }}
       onPointerDown={marcarInteragiu}
@@ -161,11 +161,11 @@ export function Stage() {
       <color attach="background" args={[bg]} />
 
       {/* iluminação */}
-      <ambientLight intensity={ehExterno ? 0.55 : ehHosp ? 0.42 : ehArc ? 0.8 : ehEnv ? 0.4 : 0.45} />
+      <ambientLight intensity={ehSpda ? 0.4 : ehExterno ? 0.55 : ehHosp ? 0.42 : ehArc ? 0.8 : ehEnv ? 0.4 : 0.45} />
       <hemisphereLight
         args={
           ehExterno
-            ? ['#cfe7ff', '#5f7f43', 0.95] // céu azul / reflexo da grama
+            ? ['#cfe7ff', '#5f7f43', ehSpda ? 0.7 : 0.95] // céu azul / reflexo da grama
             : ehHosp
               ? ['#e6edf4', '#8b929b', 0.55] // interior hospitalar (menos brilho, + contraste)
               : ehArc
@@ -177,7 +177,7 @@ export function Stage() {
       />
       <directionalLight
         position={ehExterno ? SUN_POS : [4, 7, 3]}
-        intensity={ehExterno ? 1.9 : ehHosp ? 1.25 : ehArc ? 1.0 : ehEnv ? 0.55 : 1.2}
+        intensity={ehSpda ? 1.25 : ehExterno ? 1.9 : ehHosp ? 1.25 : ehArc ? 1.0 : ehEnv ? 0.55 : 1.2}
         color={ehExterno ? '#fff3df' : '#ffffff'}
         // sombra real do sol SÓ no nível 'alto' (GPU dedicada); médio/baixo usam
         // o blob estático do Outdoor — evita o passe de shadow map por quadro.
@@ -194,7 +194,7 @@ export function Stage() {
       </directionalLight>
       {!ehEnv && <directionalLight position={[-5, 3, -2]} intensity={0.35} color="#9fb4d0" />}
       {ehAter && <Outdoor sun={SUN_POS} tier={cfg.tier} groundY={ATER_GROUND_Y} />}
-      {ehSpda && <Outdoor sun={SUN_POS} tier={cfg.tier} groundY={0} />}
+      {ehSpda && <Outdoor sun={SUN_POS} tier={cfg.tier} groundY={0} esparso />}
 
       {walkIn ? null : ehArc ? (
         <Substation detail={detail} />
@@ -270,7 +270,7 @@ export function Stage() {
 
       {cfg.postprocessing && (
         <EffectComposer enableNormalPass={false} multisampling={cfg.antialias ? 2 : 0}>
-          {cfg.bloom ? (
+          {cfg.bloom && !ehSpda ? (
             <Bloom
               intensity={0.7}
               luminanceThreshold={0.6}
