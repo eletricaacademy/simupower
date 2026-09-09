@@ -1,12 +1,60 @@
 # Módulo 7 — Continuidade do SPDA (NBR 5419-3)
 
-**Contrato Claude × Codex.** Estado em 2026-09-08: **ferramenta e ambiente 3D integrados**.
+**Contrato Claude × Codex.** Estado em 2026-09-09: **roteiro entre descidas e sala elétrica interna**.
 Prédio GLB com SPDA, contatos calibrados e reprodução visual do Inbrat INMD1 PRO.
 
 Abrir pelo menu → card "Continuidade do SPDA" (senha de acesso das ferramentas: a mesma
 dos demais módulos, em `MainMenu.tsx`).
 
 ---
+
+## Revisão vigente — pares de descidas e BEP interno (09/09)
+
+Esta revisão, explicitamente solicitada e confirmada por Pablo, substitui o roteiro
+de seis trechos descrito no histórico abaixo. São **13 registros independentes**:
+
+- D1–D2, D2–D3, D3–D4 e D4–D1: superior e inferior em cada par (8).
+- Cruzadas D1–D3 e D2–D4: superior e inferior em cada par (4).
+- D1 inferior até o BEP interno, ao lado do QGBT fechado (1).
+
+As caixas mostram os dois terminais separados, em y=0,84 e y=0,56. O comando
+“Mover as duas garras” alterna o nível mantendo o par e a posição do instrumento.
+P1/C1 e P2/C2 seguem em dois cabos PP, cada qual terminado em uma garra. Cabos
+cruzados contornam a edificação; no BEP, o cabo de D1 passa pela porta norte.
+As duas esferas indicam as extremidades ativas fora das conexões.
+
+O térreo do GLB agora é oco e tem sala elétrica com piso, divisórias, porta aberta,
+QGBT, BEP e ligação equipotencial. “Entrar na sala elétrica” leva à porta e anima
+a entrada. Vistas individuais de P1/C1 e P2/C2 permitem conferir as duas garras.
+O fallback procedural também contém sala e contatos superiores/inferiores.
+
+**Modelo elétrico didático:** anel retangular de 42 m, com os dois percursos em
+paralelo; as duas descidas (superior) ou ligações ao anel (inferior) estão em série.
+Os ramos incluem resistências de conexão. Defeito de D3 aplicado aos percursos
+superiores que o incluem; corrosão de D4 aos inferiores que o incluem. A leitura
+inferior é continuidade metálica, não resistência em relação ao solo. O anel
+enterrado é representado no modelo elétrico; o terreno permanece opaco.
+⚠ REVISAR COM O PABLO: seções, resistências de contato e topologia são parâmetros
+didáticos do cenário, não dimensionamento executivo ou reprodução de uma obra.
+Critérios de aceitação previamente aprovados foram preservados.
+
+**Fronteira autorizada:** catálogo ativo, textos de procedimento, engine para os
+ramos em paralelo, comandos de câmera e HUD foram alterados para atender ao novo
+fluxo confirmado. Os registros antigos ficam em `SPDA_PONTOS_LEGADO` para consulta;
+seus ids não foram reaproveitados para medições diferentes. `eq-bep` mantém sua
+identidade com novo contato interno. A linha reta de `Trecho` foi retirada para
+não sugerir um caminho atravessando a construção.
+
+**Validação:** testes de 13 registros, independência superior/inferior, anel em
+paralelo, contato geométrico com o cobre e laudo completo. A sequência de 72 testes
+inclui os testes existentes de todos os demais módulos.
+Os oito terminais e o BEP foram recapturados pelo modo Identificar ponto no GLB.
+Vista de entrada capturada no HUD: posição [-3,70; 1,80; -3,40], alvo [-3,70; 1,30; 0,50].
+Fluxo desktop executado até o laudo: 13/13 medições, sete aprovadas e seis apontamentos
+no cenário com defeitos. Em 390 × 844, conferidos painel de medição e alternância
+superior/inferior preservando as leituras já registradas.
+
+## Histórico da implementação anterior (08/09)
 
 ## 1. O que o módulo ensina
 

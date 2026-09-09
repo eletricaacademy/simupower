@@ -17,8 +17,8 @@ const ESCALA_INBRAT = 3
  */
 export function posicaoInbrat(ponto: PontoSPDA): Vec3 {
   if (ponto.id === 'capt-anel') return [5.4, 9.005, -3.3]
-  if (ponto.id === 'eq-bep') return [-6.9, 0.01, 1.8]
-  return [ponto.pos[0] + Math.sign(ponto.pos[0]) * 0.65, 0.01, ponto.pos[2] + Math.sign(ponto.pos[2]) * 0.65]
+  if (ponto.id === 'eq-bep') return [-3.65, 0.35, -0.85]
+  return [ponto.posOrigem[0] + Math.sign(ponto.posOrigem[0]) * 0.9, 0.01, ponto.posOrigem[2] + Math.sign(ponto.posOrigem[2]) * 0.9]
 }
 
 export function vistaInbrat(ponto: PontoSPDA) {
@@ -120,7 +120,7 @@ export function Inbrat() {
   const passo = useSim(s => s.ensaio.steps[s.passoIndex]?.id)
   const pref = useSim(s => s.qualidadePref)
   const baixo = resolverQualidade(pref).tier === 'baixo'
-  const ponto = getPontoSPDA(passo === 'spda-zerar' ? 'eq-bep' : id)!
+  const ponto = getPontoSPDA(passo === 'spda-zerar' ? 'd1-d2-sup' : id)!
   const pos = posicaoInbrat(ponto)
   const painel = useMemo(() => criarPainel(leitura?.display ?? '— — —', zerado), [leitura?.display, zerado])
   useEffect(() => () => painel.dispose(), [painel])
@@ -138,18 +138,27 @@ export function Inbrat() {
         cor: tipo ? color.inbrat.maleta : color.inbrat.borracha,
       }
     })
-    const elevada = alvo[1] > pos[1] + 1
-    const intermediario: Vec3 = elevada
-      ? [alvo[0] + Math.sign(alvo[0]) * 0.17, pos[1] + 0.18, alvo[2] + Math.sign(alvo[2]) * 0.17]
-      : [(uniao[0] + alvo[0]) / 2, pos[1] + 0.16, (uniao[2] + alvo[2]) / 2]
     // Uma única garra por extremidade, alimentada pelas duas vias do respectivo PP.
-    const direcao = new THREE.Vector3(Math.sign(alvo[0]), -0.5, Math.sign(alvo[2]) * 0.35).normalize()
+    const direcao = ponto.nivel === 'bep' && lado === 1
+      ? new THREE.Vector3(0, -0.5, -1).normalize()
+      : new THREE.Vector3(Math.sign(alvo[0]), -0.5, Math.sign(alvo[2]) * 0.35).normalize()
     const traseira = new THREE.Vector3(...alvo).addScaledVector(direcao, 0.31).toArray() as Vec3
     const aproxima = new THREE.Vector3(...alvo).addScaledVector(direcao, 0.43).toArray() as Vec3
     // Os cabos saem pela lateral da maleta; pontos extras evitam a spline cruzar o visor.
     const piso: Vec3 = [pos[0] + 0.3 * ESCALA_INBRAT, pos[1] + 0.025, z]
-    const rota: Vec3[] = [uniao, piso, intermediario]
-    if (elevada) rota.push([intermediario[0], alvo[1] - 0.18, intermediario[2]])
+    const rota: Vec3[] = [uniao, piso]
+    if (ponto.nivel === 'bep') {
+      if (lado === 0) rota.push([-3.5, 0.39, -2.5], [-3.7, 0.39, -3.7], [-3.7, 0.06, -5.5], [-7.5, 0.06, -5.5])
+      else rota.push([-4.7, 0.39, -0.6])
+    } else {
+      // Percurso externo, inclusive nos pares cruzados: nunca atravessa o prédio.
+      const cantos: Vec3[] = [[-7.5, 0.04, -5.5], [7.5, 0.04, -5.5], [7.5, 0.04, 5.5], [-7.5, 0.04, 5.5]]
+      const indice = (p: Vec3) => p[2] < 0 ? (p[0] < 0 ? 0 : 1) : (p[0] < 0 ? 3 : 2)
+      const a = indice(ponto.posOrigem), b = indice(alvo)
+      rota.push(cantos[a])
+      const sentido = (b - a + 4) % 4 <= 2 ? 1 : -1
+      for (let atual = a; atual !== b;) { atual = (atual + sentido + 4) % 4; rota.push(cantos[atual]) }
+    }
     return { pontos: [...rota, aproxima, traseira], vias, alvo, traseira, cor: lado ? color.inbrat.maleta : color.inbrat.borracha }
   }), [ponto, pos[0], pos[1], pos[2]])
   if (!['spda-zerar', 'spda-medir', 'spda-laudo'].includes(passo)) return null

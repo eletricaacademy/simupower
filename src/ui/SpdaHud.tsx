@@ -206,7 +206,7 @@ function GuidedCard() {
   }
 
   return (
-    <div className="hud-glass rounded-[12px] p-3 w-[330px] max-w-[88vw]">
+    <div className="hud-glass rounded-[12px] p-3 w-[330px] max-w-[88vw] max-h-[calc(100dvh-88px)] overflow-y-auto hud-scroll">
       <div className="flex items-center gap-1.5 mb-2">
         {ensaio.steps.map((s, i) => {
           const done = !!cumpridos[s.id]
@@ -300,6 +300,15 @@ function Miliohmimetro() {
         <span>Simulação didática · Continuidade</span>
         <button onClick={() => useView.getState().pedir('quadro')} style={{ color: color.accentCool }}>Ver conexão</button>
       </div>
+      <div className="flex flex-wrap gap-2 mb-2 text-[11px]" style={{ color: color.accentCool }}>
+        <button onClick={() => useView.getState().pedir('origem')}>Ver garra P1/C1</button>
+        <button onClick={() => useView.getState().pedir('quadro')}>Ver garra P2/C2</button>
+        {ponto?.nivel && ponto.nivel !== 'bep' && <button className="w-full rounded px-2 py-2" style={{ background: color.surface, border: `1px solid ${color.hairline}` }}
+          onClick={() => { const outro = SPDA_PONTOS.find(p => p.par === ponto.par && p.nivel !== ponto.nivel); if (outro) setPontoAtivo(outro.id) }}>
+          Mover as duas garras para {ponto.nivel === 'superior' ? 'baixo · Inferior' : 'cima · Superior'}
+        </button>}
+        <button onClick={() => { if (pontoAtivo === 'eq-bep') useView.getState().pedir('quadro'); else setPontoAtivo('eq-bep') }}>Entrar na sala elétrica · BEP</button>
+      </div>
       <div className="flex items-center justify-between mb-2">
         <span className="text-[10px] uppercase tracking-[0.18em]" style={{ color: color.textFaint }}>
           Continuidade · RLO
@@ -328,7 +337,7 @@ function Miliohmimetro() {
           </div>
           <div>{ponto.de} → {ponto.ate}</div>
           <div className="font-mono text-[10px] mt-1" style={{ color: color.textFaint }}>
-            {ponto.comprimentoM} m · {ponto.material} {ponto.secaoMm2} mm² · {ponto.conexoes} conexões
+            {ponto.ramos ? `Série ${ponto.comprimentoM.toFixed(2)} m + anel em paralelo` : `${ponto.comprimentoM} m`} · {ponto.material} {ponto.secaoMm2} mm²
             {leitura && ` · R teórica ${formatarLeitura(leitura.rTeorica)} Ω`}
           </div>
         </div>
@@ -351,7 +360,7 @@ function Miliohmimetro() {
             >
               <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: l ? CORV[l.cor] : '#2a3340' }} />
               <span className="flex-1 text-[11.5px] truncate" style={{ color: ativo ? color.text : color.textMuted }}>
-                {p.nome}
+                {p.grupo === 'Cruzadas' ? 'Cruzada · ' : ''}{p.nome}
               </span>
               <span className="font-mono text-[11px]" style={{ color: l ? CORV[l.cor] : color.textFaint }}>
                 {l ? l.display : '—'}

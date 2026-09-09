@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Html } from '@react-three/drei'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { useSpda } from '../sim/spdaStore'
 import { useSim } from '../sim/store'
+import { useView } from '../sim/viewStore'
 import { SPDA_PONTOS, PREDIO, type PontoSPDA } from '../catalog/spdaPontos'
 import { color } from '../design/tokens'
 
@@ -60,6 +61,7 @@ export function SpdaElements() {
         </button>
       </Html>}
       <FocoSpda />
+      <SalaEletrica />
       <EnquadramentoSpda />
       {modelPath && <DefeitosVisuais />}
     </>
@@ -68,6 +70,7 @@ export function SpdaElements() {
 
 /** Em retrato, preserva o campo horizontal para não cortar o prédio nas laterais. */
 function EnquadramentoSpda() {
+  const interno = useSpda(s => s.pontoAtivo === 'eq-bep')
   const camera = useThree(s => s.camera)
   const largura = useThree(s => s.size.width)
   const altura = useThree(s => s.size.height)
@@ -75,10 +78,10 @@ function EnquadramentoSpda() {
   useEffect(() => {
     if (!(camera instanceof THREE.PerspectiveCamera)) return
     const aspecto = largura / Math.max(1, altura)
-    camera.fov = THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(42 / 2)) / Math.min(1, aspecto)))
+    camera.fov = THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(THREE.MathUtils.degToRad((interno ? 55 : 42) / 2)) / Math.min(1, aspecto)))
     camera.updateProjectionMatrix()
     invalidate()
-  }, [camera, largura, altura, invalidate])
+  }, [camera, largura, altura, invalidate, interno])
   return null
 }
 
@@ -89,17 +92,50 @@ function FocoSpda() {
   const controls = useThree(s => s.controls) as { target: THREE.Vector3; update: () => void } | null
   const invalidate = useThree(s => s.invalidate)
   const anterior = useRef(id)
+  const entrada = useRef<{ tempo: number; origem: THREE.Vector3 } | null>(null)
   useEffect(() => {
     if (anterior.current === id || !controls) return
     anterior.current = id
     const ponto = SPDA_PONTOS.find(p => p.id === id)
     if (!ponto?.vista) return
+    if (id === 'eq-bep') {
+      // Entrada guiada pelo vão aberto, à altura do observador.
+      camera.position.set(-3.7, 1.7, -5.8)
+      controls.target.set(-3.7, 1.5, -1.5)
+      entrada.current = { tempo: 0, origem: camera.position.clone() }
+      controls.update(); invalidate(); return
+    }
+    entrada.current = null
     camera.position.set(...ponto.vista.pos)
     controls.target.set(...ponto.vista.target)
     controls.update()
     invalidate()
   }, [id, camera, controls, invalidate])
+  useFrame((_estado, dt) => {
+    if (!entrada.current || !controls) return
+    entrada.current.tempo += dt
+    const t = Math.min(1, entrada.current.tempo / 2.4)
+    const suave = t * t * (3 - 2 * t)
+    camera.position.lerpVectors(entrada.current.origem, new THREE.Vector3(-3.7, 1.8, -3.4), suave)
+    controls.target.set(-3.7, 1.5 - 0.2 * suave, -1.5 + 2 * suave)
+    controls.update(); invalidate()
+    if (t === 1) entrada.current = null
+  })
   return null
+}
+
+/** Identificação da sala e luz local; QGBT permanece fechado durante a continuidade. */
+function SalaEletrica() {
+  return <group>
+    <pointLight position={[-3.4, 2.7, -1.3]} intensity={6} distance={7} decay={2} color={color.inbrat.tecla} />
+    <Html position={[-3.7, 2.55, -4.08]} center occlude>
+      <button style={{ background: color.inbrat.borracha, color: color.inbrat.tecla, padding: '6px 10px', borderRadius: 5, whiteSpace: 'nowrap', fontSize: 12 }} onClick={() => { if (useSpda.getState().pontoAtivo === 'eq-bep') useView.getState().pedir('quadro'); else useSpda.getState().setPontoAtivo('eq-bep') }}>Entrar · Sala elétrica</button>
+    </Html>
+    {[['QGBT', -2.6, 2.55, -0.05], ['BEP', -4.8, 1.67, 0.48]].map(([texto, x, y, z]) =>
+      <Html key={texto} position={[Number(x), Number(y), Number(z)]} center occlude>
+        <span style={{ background: color.inbrat.borracha, color: color.inbrat.tecla, padding: '3px 9px', fontSize: 12 }}>{texto}</span>
+      </Html>)}
+  </group>
 }
 
 /** Defeitos acompanham o cenário elétrico; nunca aparecem na instalação íntegra. */
@@ -118,7 +154,7 @@ function DefeitosVisuais() {
         <meshStandardMaterial color={color.spda.aluminio} metalness={0.7} roughness={0.4} />
       </mesh>
     </group>
-    <mesh position={[-6.25, 0.7, 4.353]}>
+    <mesh position={[-6.25, 0.56, 4.353]}>
       <boxGeometry args={[0.17, 0.22, 0.012]} />
       <meshStandardMaterial color={color.spda.oxidacao} roughness={0.95} />
     </mesh>
@@ -137,15 +173,14 @@ function Marcadores() {
 
   return (
     <>
-      {SPDA_PONTOS.map((p) => {
+      {SPDA_PONTOS.filter(p => p.id === pontoAtivo).map((p) => {
         const leitura = medicoes[p.id]
         const cor = leitura ? CORES[leitura.cor] : color.accentCool
         const ativo = p.id === pontoAtivo
         return (
           <group key={p.id}>
             <Marcador ponto={p} cor={cor} ativo={ativo} onClick={() => setPontoAtivo(p.id)} />
-            {/* traço do trecho medido (da garra fixa à ponta de prova) */}
-            <Trecho de={p.posOrigem} para={p.pos} cor={leitura ? cor : COR_CONDUTOR} destacado={ativo} />
+            <Marcador ponto={{ ...p, id: `${p.id}-origem`, pos: p.posOrigem }} cor={cor} ativo={ativo} onClick={() => setPontoAtivo(p.id)} />
           </group>
         )
       })}
@@ -169,7 +204,7 @@ function Marcador({
   const posMarcador: [number, number, number] = ponto.id === 'capt-anel'
     ? ponto.pos
     : ponto.id === 'eq-bep'
-      ? [ponto.pos[0] - 0.35, ponto.pos[1], ponto.pos[2] + 0.65]
+      ? [ponto.pos[0] - 0.65, ponto.pos[1], ponto.pos[2] - 0.3]
       : [ponto.pos[0] + Math.sign(ponto.pos[0]) * 0.65, ponto.pos[1], ponto.pos[2] + Math.sign(ponto.pos[2]) * 0.35]
   // pulso suave no ponto selecionado (chama o olho sem poluir a cena)
   useFrame(({ clock }) => {
@@ -199,31 +234,6 @@ function Marcador({
   )
 }
 
-/** Linha do trecho ensaiado entre as duas extremidades. */
-function Trecho({
-  de,
-  para,
-  cor,
-  destacado,
-}: {
-  de: [number, number, number]
-  para: [number, number, number]
-  cor: string
-  destacado: boolean
-}) {
-  const geo = useMemo(() => {
-    const a = new THREE.Vector3(...de)
-    const b = new THREE.Vector3(...para)
-    return new THREE.BufferGeometry().setFromPoints([a, b])
-  }, [de, para])
-  return (
-    <line>
-      <primitive object={geo} attach="geometry" />
-      <lineBasicMaterial color={cor} transparent opacity={destacado ? 0.95 : 0.35} />
-    </line>
-  )
-}
-
 // ─────────────────────────────────────────────────────────────────────────────
 // PRÉDIO PROCEDURAL — placeholder do CODEX (substituir por GLB)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -247,10 +257,25 @@ function PredioProcedural() {
   return (
     <group>
       {/* corpo do prédio */}
-      <mesh position={[0, H / 2, 0]} castShadow receiveShadow>
-        <boxGeometry args={[L, H, P]} />
+      <mesh position={[0, (H + 3) / 2, 0]} castShadow receiveShadow>
+        <boxGeometry args={[L, H - 3, P]} />
         <meshStandardMaterial color={COR_PREDIO} roughness={0.9} metalness={0} />
       </mesh>
+      {/* Sala simplificada também fica acessível quando o GLB está indisponível. */}
+      {[
+        { pos: [-5.9, 1.5, 0], tamanho: [0.2, 3, 8] },
+        { pos: [5.9, 1.5, 0], tamanho: [0.2, 3, 8] },
+        { pos: [0, 1.5, 3.9], tamanho: [12, 3, 0.2] },
+        { pos: [-5.15, 1.5, -3.9], tamanho: [1.7, 3, 0.2] },
+        { pos: [1.45, 1.5, -3.9], tamanho: [9.1, 3, 0.2] },
+        { pos: [-3.3, 1.5, 0.8], tamanho: [5, 3, 0.16] },
+        { pos: [-3.3, 0.33, -1.5], tamanho: [5, 0.04, 4.5] },
+      ].map((b, i) => <mesh key={i} position={b.pos as [number, number, number]}>
+        <boxGeometry args={b.tamanho as [number, number, number]} />
+        <meshStandardMaterial color={COR_PREDIO} roughness={0.9} />
+      </mesh>)}
+      <mesh position={[-2.6, 1.4, 0.33]}><boxGeometry args={[1.6, 2.1, 0.6]} /><meshStandardMaterial color={color.spda.metal} /></mesh>
+      <mesh position={[-4.8, 1.2, 0.67]}><boxGeometry args={[1.15, 0.65, 0.1]} /><meshStandardMaterial color={color.spda.metal} /></mesh>
 
       {/* platibanda / laje de cobertura */}
       <mesh position={[0, H + 0.15, 0]} castShadow receiveShadow>
@@ -269,18 +294,18 @@ function PredioProcedural() {
       {/* descidas nas 4 quinas + caixa de inspeção na base */}
       {quinas.map(([x, z], i) => (
         <group key={i}>
-          <mesh position={[x, H / 2 + 0.2, z]} castShadow>
-            <cylinderGeometry args={[0.035, 0.035, H + 0.4, 8]} />
+          <mesh position={[x, (H + 0.35 + 0.79) / 2, z]} castShadow>
+            <cylinderGeometry args={[0.035, 0.035, H + 0.35 - 0.79, 8]} />
             <meshStandardMaterial color={COR_CONDUTOR} metalness={0.75} roughness={0.4} />
           </mesh>
+          <mesh position={[x, 0.305, z]}><cylinderGeometry args={[0.035, 0.035, 0.61, 8]} /><meshStandardMaterial color={COR_CONDUTOR} /></mesh>
           <CaixaInspecao pos={[x, alturaCaixa, z]} />
         </group>
       ))}
 
-      {/* BEP — barramento de equipotencialização principal (parede externa) */}
-      <mesh position={[-6.28, 0.92, 1.49]} castShadow>
-        <boxGeometry args={[0.28, 0.36, 0.12]} />
-        <meshStandardMaterial color={color.spda.oxidacao} roughness={0.6} metalness={0.2} />
+      <mesh position={[-4.8, 1.2, 0.57]} castShadow>
+        <boxGeometry args={[0.95, 0.14, 0.07]} />
+        <meshStandardMaterial color={COR_CONDUTOR} roughness={0.6} metalness={0.2} />
       </mesh>
     </group>
   )
@@ -340,14 +365,14 @@ function Captor({ pos }: { pos: [number, number, number] }) {
 function CaixaInspecao({ pos }: { pos: [number, number, number] }) {
   return (
     <group position={pos}>
-      <mesh castShadow receiveShadow>
-        <boxGeometry args={[0.3, 0.4, 0.16]} />
+      <mesh position={[0, 0, -Math.sign(pos[2]) * 0.06]} castShadow receiveShadow>
+        <boxGeometry args={[0.46, 0.58, 0.1]} />
         <meshStandardMaterial color={color.spda.metal} roughness={0.7} metalness={0.35} />
       </mesh>
-      <mesh position={[0, 0, 0.09]}>
-        <boxGeometry args={[0.22, 0.3, 0.02]} />
-        <meshStandardMaterial color={color.accent} roughness={0.5} metalness={0.2} />
-      </mesh>
+      {[-0.14, 0.14].map(y => <mesh key={y} position={[0, y, Math.sign(pos[2]) * 0.065]}>
+        <boxGeometry args={[0.17, 0.1, 0.065]} />
+        <meshStandardMaterial color={COR_CONDUTOR} roughness={0.5} metalness={0.2} />
+      </mesh>)}
     </group>
   )
 }

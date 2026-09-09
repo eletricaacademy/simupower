@@ -30,7 +30,11 @@ function fio(nome, a, b, raio = 0.025, mat = 'cobre') {
 
 // Fachadas com pilares, juntas, esquadrias e acesso de manutenção; sem piso/céu duplicados.
 // Corpo termina sob a laje: superfícies coplanares produzem cintilação na cobertura.
-caixa('Nucleo_edificacao', [0, 4.4, 0], [11.48, 8.8, 7.48], 'concreto')
+// Térreo oco: sala acessível pela porta norte; pavimentos superiores preservados.
+caixa('Nucleo_edificacao', [0, 5.9, 0], [11.48, 5.8, 7.48], 'concreto')
+caixa('Divisoria_sala_leste', [-0.8, 1.65, -1.5], [0.16, 2.7, 4.5], 'concreto')
+caixa('Divisoria_sala_fundo', [-3.3, 1.65, 0.8], [5, 2.7, 0.16], 'concreto')
+caixa('Piso_sala', [-3.3, 0.33, -1.5], [5, 0.04, 4.5], 'cobertura')
 caixa('Embasamento', [0, 0.16, 0], [12.4, 0.32, 8.4], 'metal')
 caixa('Laje', [0, 8.85, 0], [12.4, 0.3, 8.4], 'cobertura')
 for (const z of [-4.1, 4.1]) {
@@ -67,9 +71,14 @@ for (const z of [-4.1, 4.1]) {
   caixa('Portao_servico', [1.8, 1.35, s * 3.87], [3.8, 2.7, 0.1], 'metal')
   for (let y = 0.12; y < 2.7; y += 0.12) caixa('Lamina_portao', [1.8, y, s * 3.94], [3.68, 0.085, 0.035], 'aluminio')
   for (const x of [-0.12, 3.72]) caixa('Guia_portao', [x, 1.375, s * 4.01], [0.08, 2.75, 0.12], 'metal')
-  caixa('Porta_pedestre', [-3.7, 1.15, s * 3.87], [1.1, 2.3, 0.1], 'metal')
-  caixa('Visor_porta', [-3.7, 1.65, s * 3.93], [0.65, 0.55, 0.02], 'vidro')
-  fio('Puxador_porta', [-3.34, 0.93, s * 4.02], [-3.34, 1.23, s * 4.02], 0.018, 'aluminio')
+  if (s < 0) {
+    caixa('Porta_sala_aberta', [-4.25, 1.48, -3.3], [0.1, 2.3, 1.1], 'metal')
+    fio('Puxador_sala', [-4.18, 1.2, -2.95], [-4.18, 1.5, -2.95], 0.018, 'aluminio')
+  } else {
+    caixa('Porta_pedestre', [-3.7, 1.15, s * 3.87], [1.1, 2.3, 0.1], 'metal')
+    caixa('Visor_porta', [-3.7, 1.65, s * 3.93], [0.65, 0.55, 0.02], 'vidro')
+    fio('Puxador_porta', [-3.34, 0.93, s * 4.02], [-3.34, 1.23, s * 4.02], 0.018, 'aluminio')
+  }
   caixa('Soleira_porta', [-3.7, 0.035, s * 4.04], [1.25, 0.07, 0.25], 'cobertura')
   caixa('Marquise', [-0.8, 2.95, s * 4.16], [8.5, 0.09, 0.72], 'metal')
   for (const x of [-4.7, 3.1]) fio('Tirante_marquise', [x, 3.65, s * 4], [x, 3, s * 4.48], 0.018, 'aluminio')
@@ -119,7 +128,8 @@ const alturaAnel = 9.35
 for (let i = 0; i < 4; i++) {
   const [x, z] = quinas[i], [xx, zz] = quinas[(i + 1) % 4]
   fio('Anel_captacao', [x, alturaAnel, z], [xx, alturaAnel, zz])
-  fio(`Descida_D${i + 1}`, [x, 0, z], [x, alturaAnel, z])
+  fio(`Descida_D${i + 1}`, [x, 0.79, z], [x, alturaAnel, z])
+  fio(`Aterramento_D${i + 1}`, [x, 0, z], [x, 0.61, z])
   for (let y = 1.35; y < 9; y += 1) {
     fio('Suporte_descida', [Math.sign(x) * 5.98, y, Math.sign(z) * 3.98], [x, y, z], 0.025, 'aluminio')
     caixa('Abracadeira', [x, y, z], [0.09, 0.08, 0.09], 'metal')
@@ -128,8 +138,10 @@ for (let i = 0; i < 4; i++) {
   caixa(`Fundo_caixa_D${i + 1}`, [x, 0.7, z - s * 0.06], [0.46, 0.58, 0.1], 'metal')
   for (const dx of [-0.235, 0.235]) caixa('Lateral_caixa', [x + dx, 0.7, z + s * 0.06], [0.035, 0.6, 0.25], 'aluminio')
   for (const y of [0.41, 0.99]) caixa('Borda_caixa', [x, y, z + s * 0.06], [0.5, 0.03, 0.25], 'aluminio')
-  caixa(`Conector_D${i + 1}`, [x, 0.7, z + s * 0.065], [0.17, 0.22, 0.065], 'cobre')
-  for (const y of [0.64, 0.76]) fio('Parafuso_conector', [x, y, z + s * 0.09], [x, y, z + s * 0.13], 0.035, 'aluminio')
+  for (const y of [0.56, 0.84]) {
+    caixa(`Terminal_D${i + 1}`, [x, y, z + s * 0.065], [0.17, 0.1, 0.065], 'cobre')
+    fio('Parafuso_conector', [x + 0.055, y, z + s * 0.09], [x + 0.055, y, z + s * 0.13], 0.023, 'aluminio')
+  }
   // Tampa aberta permite ver e identificar o ponto de contato sem transparência.
   const tampa = caixa('Tampa_aberta', [x + Math.sign(x) * 0.39, 0.7, z + s * 0.21], [0.42, 0.58, 0.025], 'metal')
   tampa.rotation.y = -s * Math.sign(x) * Math.PI / 3
@@ -142,12 +154,18 @@ for (const z of [-4.25, 4.25]) for (const x of [-4.5, -3, -1.5, 1.5, 3, 4.5]) {
   caixa('Suporte_anel', [x, 9.23, z], [0.12, 0.19, 0.12], 'isolador')
 }
 
-// BEP na fachada oeste; barramento exposto para inspeção e ligação aparente até D1.
-caixa('Fundo_BEP', [-6.12, 0.9, 1.5], [0.12, 0.6, 1.05], 'metal')
-caixa('Barramento_BEP', [-6.25, 0.9, 1.5], [0.06, 0.13, 0.8], 'cobre')
-for (const z of [1.2, 1.4, 1.6, 1.8]) fio('Terminal_BEP', [-6.28, 0.9, z], [-6.34, 0.9, z], 0.035, 'aluminio')
-fio('Ligacao_D1_BEP', [-6.25, 0.7, -4.25], [-6.25, 0.7, 1.2], 0.029)
-fio('Subida_BEP', [-6.25, 0.7, 1.2], [-6.25, 0.9, 1.2], 0.029)
+// Sala elétrica interna: QGBT fechado e BEP acessível ao lado.
+caixa('QGBT_gabinete', [-2.6, 1.4, 0.33], [1.6, 2.1, 0.6], 'metal')
+caixa('QGBT_porta', [-2.6, 1.4, 0.015], [1.49, 1.97, 0.03], 'aluminio')
+caixa('QGBT_visor', [-2.6, 1.9, -0.008], [0.5, 0.23, 0.025], 'vidro')
+fio('QGBT_puxador', [-1.98, 1.25, -0.04], [-1.98, 1.6, -0.04], 0.025, 'metal')
+caixa('Fundo_BEP', [-4.8, 1.2, 0.67], [1.15, 0.65, 0.1], 'metal')
+caixa('Barramento_BEP', [-4.8, 1.2, 0.57], [0.95, 0.14, 0.07], 'cobre')
+for (const x of [-5.15, -4.95, -4.65, -4.45]) fio('Terminal_BEP', [x, 1.2, 0.535], [x, 1.2, 0.49], 0.028, 'aluminio')
+const ligacao = [[-6.25, 0.56, -4.25], [-6.25, 0.4, -4.25], [-5.5, 0.4, -4.25], [-5.5, 0.4, 0.5], [-4.8, 0.4, 0.5], [-4.8, 1.2, 0.535]]
+for (let i = 1; i < ligacao.length; i++) fio('Ligacao_D1_BEP', ligacao[i - 1], ligacao[i], 0.029)
+fio('Ligacao_QGBT_BEP', [-4.45, 1.2, 0.535], [-3.45, 1.2, 0.535], 0.025)
+fio('PE_QGBT', [-3.45, 1.2, 0.535], [-3.45, 0.5, 0.33], 0.025)
 
 // FileReader mínimo para exportação binária no Node, sem texturas externas.
 globalThis.FileReader = class {

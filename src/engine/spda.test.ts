@@ -159,6 +159,28 @@ describe('emitirLaudo', () => {
 })
 
 describe('catálogo SPDA_PONTOS', () => {
+  it('cobre vizinhas, cruzadas nos dois níveis e BEP interno, sem reutilizar leituras', () => {
+    expect(SPDA_PONTOS).toHaveLength(13)
+    for (const par of ['D1–D2', 'D2–D3', 'D3–D4', 'D4–D1', 'D1–D3', 'D2–D4']) {
+      const [superior, inferior] = SPDA_PONTOS.filter(p => p.par === par)
+      expect(superior.nivel).toBe('superior')
+      expect(inferior.nivel).toBe('inferior')
+      expect(superior.pos[1]).toBeGreaterThan(inferior.pos[1])
+      expect(superior.posOrigem[1]).toBeGreaterThan(inferior.posOrigem[1])
+    }
+    const bep = SPDA_PONTOS.find(p => p.id === 'eq-bep')!
+    expect(Math.abs(bep.pos[0])).toBeLessThan(6)
+    expect(Math.abs(bep.pos[2])).toBeLessThan(4)
+  })
+
+  it('calcula o anel pelos dois ramos em paralelo, além das descidas em série', () => {
+    const ponto = { ...SPDA_PONTOS[0], comprimentoM: 10, conexoes: 0,
+      ramos: [{ comprimentoM: 20, conexoes: 0 }, { comprimentoM: 20, conexoes: 0 }] }
+    const leitura = medirContinuidade(ponto, 'conforme', true)
+    expect(leitura.rTeorica).toBeCloseTo(resistenciaTeorica(20, ponto.material, ponto.secaoMm2), 10)
+    const simples = medirContinuidade({ ...ponto, comprimentoM: 20, ramos: undefined }, 'conforme', true)
+    expect(leitura.r).toBeCloseTo(simples.r, 10)
+  })
   it('não tem ids duplicados', () => {
     const ids = SPDA_PONTOS.map((p) => p.id)
     expect(new Set(ids).size).toBe(ids.length)

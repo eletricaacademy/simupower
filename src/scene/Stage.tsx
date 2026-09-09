@@ -74,7 +74,7 @@ export function Stage() {
   const modo = useSim((s) => s.ensaio.modo)
   const pontoSpdaId = useSpda((s) => s.pontoAtivo)
   const etapaSpda = useSim((s) => s.ensaio.steps[s.passoIndex]?.id)
-  const pontoSpda = getPontoSPDA(etapaSpda === 'spda-zerar' ? 'eq-bep' : pontoSpdaId)!
+  const pontoSpda = getPontoSPDA(etapaSpda === 'spda-zerar' ? 'd1-d2-sup' : pontoSpdaId)!
   // vista de foco na tomada ativa (verificação) — usada pelo botão/início do ensaio
   const alvoVerif = useVerif((s) => s.alvo)
   const focoView = useMemo(() => {
@@ -260,7 +260,10 @@ export function Stage() {
         defaultTarget={defaultTarget}
         half={Math.min(halfX, halfZ)}
         height={roomH}
-        extraViews={ehHosp ? { quadro: QUADRO_VIEW, foco: focoView } : ehSpda ? { foco: vistaInbrat(pontoSpda), quadro: pontoSpda.vista } : undefined}
+        extraViews={ehHosp ? { quadro: QUADRO_VIEW, foco: focoView } : ehSpda ? {
+          foco: vistaInbrat(pontoSpda), quadro: pontoSpda.vista,
+          origem: { pos: [pontoSpda.posOrigem[0] + Math.sign(pontoSpda.posOrigem[0]) * 1.25, 1.5, pontoSpda.posOrigem[2] + Math.sign(pontoSpda.posOrigem[2]) * 2.65], target: pontoSpda.posOrigem },
+        } : undefined}
       />
       <PoseCapturer />
       <InitialPose />

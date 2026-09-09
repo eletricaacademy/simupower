@@ -131,14 +131,23 @@ export function medirContinuidade(
   cenario: CenarioSPDA,
   pontasZeradas: boolean,
 ): LeituraContinuidade {
-  const rTeorica = resistenciaTeorica(ponto.comprimentoM, ponto.material, ponto.secaoMm2)
+  // Anel fechado oferece dois caminhos em paralelo; descidas/terminais são comuns.
+  const paralelo = (contatos: boolean) => {
+    if (!ponto.ramos?.length) return 0
+    const resistencias = ponto.ramos.map(r => resistenciaTeorica(r.comprimentoM, ponto.material, ponto.secaoMm2)
+      + (contatos ? r.conexoes * R_CONEXAO_BOA : 0))
+    if (resistencias.some(r => r === 0)) return 0
+    return 1 / resistencias.reduce((soma, r) => soma + 1 / r, 0)
+  }
+  const rSerie = resistenciaTeorica(ponto.comprimentoM, ponto.material, ponto.secaoMm2)
+  const rTeorica = rSerie + paralelo(false)
   const defeito = cenario === 'com-defeitos' ? ponto.defeito : undefined
 
   let r: number
   if (defeito === 'rompido') {
     r = Infinity
   } else {
-    r = rTeorica + ponto.conexoes * R_CONEXAO_BOA + ruido(ponto.id)
+    r = rSerie + paralelo(true) + ponto.conexoes * R_CONEXAO_BOA + ruido(ponto.id)
     if (defeito) r += R_DEFEITO[defeito]
     if (!pontasZeradas) r += R_PONTAS
     r = Math.max(0, r)

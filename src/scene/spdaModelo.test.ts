@@ -39,7 +39,7 @@ describe('Contrato geométrico do GLB do SPDA', () => {
     expect(limites.max.y).toBeCloseTo(10.05, 4)
   })
 
-  it('mantém os seis contatos e suas referências sobre o cobre após otimização', () => {
+  it('mantém os contatos superiores/inferiores e o BEP interno sobre o cobre', () => {
     const proximo = new Vector3()
     for (const ponto of SPDA_PONTOS) for (const coordenada of [ponto.pos, ponto.posOrigem]) {
       const alvo = new Vector3(...coordenada)

@@ -198,6 +198,12 @@ mede a **continuidade** dos trechos do SPDA (captação → descidas → caixas 
 - **Legibilidade SPDA (09/09):** três prédios distantes no entorno, iluminação
   suavizada e bloom desativado. Esferas das caixas/BEP deslocadas para o lado,
   mantendo os contatos reais e a seleção por clique.
+- **Roteiro entre descidas + sala elétrica (09/09):** 13 medições: quatro pares
+  vizinhos e dois cruzados, cada um superior/inferior, mais D1–BEP. Duas garras
+  nas caixas abertas, alternância de nível no HUD e leituras independentes.
+  Anel calculado por ramos em paralelo. BEP transferido para sala interna ao lado
+  do QGBT fechado, com porta aberta e entrada guiada. Cabos externos contornam o
+  prédio e o cabo até D1 passa pela porta. Catálogo antigo preservado como legado.
 
 ## 6. Comandos
 ```

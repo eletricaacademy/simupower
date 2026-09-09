@@ -26,7 +26,7 @@ export type MaterialCondutor = 'cobre-nu' | 'aluminio' | 'aco-galvanizado'
 export type TipoDefeito = 'emenda-frouxa' | 'corrosao' | 'rompido'
 
 /** Subsistema do SPDA a que o trecho pertence. */
-export type SubsistemaSPDA = 'captacao' | 'descida' | 'equipotencializacao'
+export type SubsistemaSPDA = 'captacao' | 'descida' | 'aterramento' | 'equipotencializacao'
 
 export interface PontoSPDA {
   id: string
@@ -49,6 +49,12 @@ export interface PontoSPDA {
   defeito?: TipoDefeito
   /** O que o aluno deve observar na inspeção visual deste trecho. */
   dica: string
+  /** Roteiro aprovado por Pablo: duas caixas, acima/abaixo do seccionamento. */
+  nivel?: 'superior' | 'inferior' | 'bep'
+  par?: string
+  grupo?: 'Vizinhas' | 'Cruzadas' | 'BEP'
+  /** Dois percursos do anel em paralelo, além do comprimento comum em série. */
+  ramos?: { comprimentoM: number; conexoes: number }[]
 
   // ── CAMPOS DA CENA 3D — CALIBRAR (CODEX) ────────────────────────────────
   /** Ponto de teste na cena (onde a ponta de prova encosta). */
@@ -76,7 +82,7 @@ export const PREDIO = {
  * `pos` capturadas por pick no GLB em 2026-09-08; vistas capturadas no HUD.
  * Referências superiores seguem os nós do anel modelado em metros.
  */
-export const SPDA_PONTOS: PontoSPDA[] = [
+export const SPDA_PONTOS_LEGADO: PontoSPDA[] = [
   {
     id: 'capt-anel',
     nome: 'Anel de captação (malha superior)',
@@ -179,12 +185,54 @@ export const SPDA_PONTOS: PontoSPDA[] = [
 
 /** Acesso por id (HUD/cena). */
 export function getPontoSPDA(id: string): PontoSPDA | undefined {
-  return SPDA_PONTOS.find((p) => p.id === id)
+  return SPDA_PONTOS.find((p) => p.id === id) ?? SPDA_PONTOS_LEGADO.find(p => p.id === id)
 }
 
 /** Rótulo curto do subsistema (chips do HUD). */
 export const ROTULO_SUBSISTEMA: Record<SubsistemaSPDA, string> = {
   captacao: 'Captação',
   descida: 'Descida',
+  aterramento: 'Continuidade do aterramento',
   equipotencializacao: 'Equipotencial',
 }
+
+/** Revisão autorizada por Pablo: legado preservado para referência, fora do roteiro ativo. */
+export const CAIXAS_SPDA = [
+  [-6.25, -4.25], [6.25, -4.25], [6.25, 4.25], [-6.25, 4.25],
+] as const
+export function contatoCaixa(indice: number, nivel: 'superior' | 'inferior'): Vec3 {
+  // Pick nos oito terminais do GLB em 09/09; o ponto é a face do cobre, não o parafuso.
+  const superiores: Vec3[] = [[-6.31, 0.87, -4.35], [6.22, 0.85, -4.35], [6.22, 0.86, 4.35], [-6.26, 0.88, 4.35]]
+  const inferiores: Vec3[] = [[-6.29, 0.56, -4.35], [6.22, 0.56, -4.35], [6.21, 0.56, 4.35], [-6.26, 0.57, 4.35]]
+  return (nivel === 'superior' ? superiores : inferiores)[indice]
+}
+const PARES = [[0, 1, 12.5], [1, 2, 8.5], [2, 3, 12.5], [3, 0, 8.5], [0, 2, 21], [1, 3, 21]] as const
+export const SPDA_PONTOS: PontoSPDA[] = PARES.flatMap(([a, b, percurso], i) =>
+  (['superior', 'inferior'] as const).map(nivel => {
+    const pos = contatoCaixa(b, nivel), posOrigem = contatoCaixa(a, nivel)
+    const superior = nivel === 'superior'
+    const par = `D${a + 1}–D${b + 1}`
+    return {
+      id: `d${a + 1}-d${b + 1}-${superior ? 'sup' : 'inf'}`, par, nivel,
+      grupo: i < 4 ? 'Vizinhas' : 'Cruzadas', nome: `${par} · ${superior ? 'Superior' : 'Inferior'}`,
+      subsistema: superior ? 'captacao' : 'aterramento',
+      norma: 'NBR 5419-3 · inspeção de continuidade · roteiro definido por Pablo',
+      de: `D${a + 1} — terminal ${nivel}`, ate: `D${b + 1} — terminal ${nivel}`,
+      comprimentoM: superior ? 2 * (9.35 - 0.84) : 2 * 0.56,
+      material: 'cobre-nu', secaoMm2: superior ? 35 : 50, conexoes: 4,
+      ramos: [{ comprimentoM: percurso, conexoes: 2 }, { comprimentoM: 42 - percurso, conexoes: 2 }],
+      defeito: superior && (a === 2 || b === 2) ? 'emenda-frouxa' : !superior && (a === 3 || b === 3) ? 'corrosao' : undefined,
+      dica: superior ? 'Seccionamentos abertos: garras nos terminais superiores das duas caixas; caminho pela captação.' : 'Mova as duas garras para os terminais inferiores. Mede continuidade do anel enterrado, não resistência em relação ao solo.',
+      pos, posOrigem,
+      vista: { pos: [pos[0] + Math.sign(pos[0]) * 1.25, 1.5, pos[2] + Math.sign(pos[2]) * 2.65], target: [pos[0], 0.7, pos[2]] },
+    } satisfies PontoSPDA
+  }),
+)
+SPDA_PONTOS.push({
+  ...SPDA_PONTOS_LEGADO.find(p => p.id === 'eq-bep')!,
+  nome: 'D1–BEP · Sala elétrica', nivel: 'bep', grupo: 'BEP', par: 'D1–BEP',
+  de: 'D1 — terminal inferior', ate: 'BEP interno, ao lado do QGBT',
+  comprimentoM: 9.5, posOrigem: contatoCaixa(0, 'inferior'), pos: [-4.74, 1.23, 0.54],
+  dica: 'Entre pela porta da fachada norte e verifique a ligação equipotencial ao BEP, ao lado do QGBT fechado.',
+  vista: { pos: [-3.7, 1.8, -3.4], target: [-3.7, 1.3, 0.5] },
+})
