@@ -190,3 +190,27 @@ a branch antes de editar; não sobrescrever trabalho de outro agente.
   falhas ocultas no SPDA, comparação visual de leituras e próxima simulação de
   resistividade do solo pelo método de Wenner. Para SPDA, manter NBR 5419:2026;
   para Wenner, conferir a norma específica aplicável antes de definir critérios.
+
+### Diagnóstico fotográfico, Aterrinserts e publicação — 10/09/2026
+
+- No SPDA estrutural pronto, os oito Aterrinserts superiores e inferiores ficam
+  na face externa dos pilares; na obra, a garra continua acessando a ferragem
+  interna exposta. Implementação e teste geométrico: `481b7f1`.
+- O módulo separado de continuidade recebeu **Diagnóstico por fotos** com quatro
+  paradas: Cu-Al sem conector bimetálico em D4, DPS inoperante no QGBT, distância
+  de segurança insuficiente junto à D2 e ensaio de continuidade na cobertura.
+  A quarta parada é verificação em campo, não não conformidade. Implementação:
+  `fb5d771`; validação visual documentada em `a787a37`.
+- As quatro imagens locais ficam em `public/images/diagnostico-spda/`. O painel é
+  responsivo, move a câmera para uma pose catalogada, mostra marcador 3D e revela
+  diagnóstico, risco, ação e referência por assunto. Não altera engine, leituras
+  ou laudo. Confirmar os itens normativos exatos com Pablo antes de material externo.
+- Validação: build aprovado, 91/91 testes, quatro paradas percorridas em 1440×900
+  e painel rolável até “Concluir tour” em 390×844, sem erros no console.
+- Fonte remota atualizada em `feat/spda-continuidade` até `a787a37`. GitHub Pages
+  publicado em `a7a82b7`, preservando `CNAME` e `.nojekyll`. Produção confirmada
+  pelo HTML `assets/index-BBnV-emn.js`, cena `assets/Stage-BS3n_vMD.js`, quatro
+  fotos e `models/spda-predio.glb`, todos respondendo 200 em 10/09/2026.
+- O remoto Git embutido em `dist/` foi normalizado para a URL HTTPS sem credencial.
+  Nesta publicação foi usado clone temporário limpo do `origin/gh-pages`, sem
+  force push. Revalidar hashes e referências remotas antes da próxima publicação.
