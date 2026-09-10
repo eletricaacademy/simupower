@@ -309,9 +309,11 @@ Mudanças mínimas fora da cena, necessárias para o recurso autorizado:
 
 Validação local desta entrega: build de produção aprovado e **91 testes Vitest**
 aprovados, incluindo três contratos específicos do tour (paradas, arquivos e
-poses 3D). A inspeção visual automatizada no navegador não ficou disponível no
-ambiente desta sessão; os enquadramentos devem receber a conferência final do
-Pablo antes de uma publicação.
+poses 3D). Em 10/09/2026, a inspeção visual automatizada percorreu as quatro
+paradas em 1440 × 900: imagens carregadas, conteúdo revelado, marcadores e vistas
+3D presentes, sem erros no console. Em 390 × 844, depois dos avisos móveis já
+existentes, o painel ficou contido na largura, rolável e com “Concluir tour”
+acessível ao final. Nenhuma publicação foi feita.
 
 ### Verificação
 
