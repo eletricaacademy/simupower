@@ -21,6 +21,8 @@ import { verificacaoProcedure } from './tests/verificacao'
 import { spdaProcedure } from './tests/spda'
 import { galpaoEstrutural } from './equipment/galpaoEstrutural'
 import { estruturalProcedure } from './tests/estrutural'
+import { usinaFv } from './equipment/usinaFv'
+import { usinaFvProcedure } from './tests/usinaFv'
 
 export const EQUIPAMENTOS: Record<string, Equipment> = {
   [galpaoEstrutural.id]: galpaoEstrutural,
@@ -31,6 +33,7 @@ export const EQUIPAMENTOS: Record<string, Equipment> = {
   [aterramentoSub.id]: aterramentoSub,
   [hospital.id]: hospital,
   [spdaPredio.id]: spdaPredio,
+  [usinaFv.id]: usinaFv,
 }
 
 export const ENSAIOS: Record<string, TestProcedure> = {
@@ -42,6 +45,7 @@ export const ENSAIOS: Record<string, TestProcedure> = {
   [aterramentoProcedure.id]: aterramentoProcedure,
   [verificacaoProcedure.id]: verificacaoProcedure,
   [spdaProcedure.id]: spdaProcedure,
+  [usinaFvProcedure.id]: usinaFvProcedure,
 }
 
 /** Par padrão (módulo de isolamento em motor). */
@@ -93,6 +97,9 @@ export function getEquipamento(id: string): Equipment {
 }
 
 export const PAR_ESTRUTURAL = { equipamentoId: galpaoEstrutural.id, ensaioId: estruturalProcedure.id } as const
+
+/** Par do módulo de aterramento em usina fotovoltaica de solo (100 kW). */
+export const PAR_USINA_FV = { equipamentoId: usinaFv.id, ensaioId: usinaFvProcedure.id } as const
 
 export function getEnsaio(id: string): TestProcedure {
   const t = ENSAIOS[id]

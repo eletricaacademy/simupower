@@ -9,6 +9,7 @@ import {
   PAR_VERIFICACAO,
   PAR_SPDA,
   PAR_ESTRUTURAL,
+  PAR_USINA_FV,
 } from '../catalog'
 import { asset } from '../lib/asset'
 import { color } from '../design/tokens'
@@ -66,6 +67,17 @@ const MODULOS: Modulo[] = [
     instrumento: 'Inbrat · conexões nas ferragens e Aterrinsert', norma: 'ABNT NBR 5419-3:2026',
     descricao: 'Ensaie as armaduras do galpão pelos Aterrinsert: primeira verificação cruzada e comprobatória entre captação e BEP, com corrente visível.',
     disponivel: true, par: PAR_ESTRUTURAL,
+  },
+  {
+    id: 'aterramento-usina-fv',
+    titulo: 'Aterramento em Usina Fotovoltaica',
+    equipamento: 'Usina FV de solo · 100 kW (skid, trafo e SE)',
+    instrumento: 'Miliohmímetro · terrômetro · toque e passo',
+    norma: 'NBR 16690 · NBR 16274 · NBR 15749 · NBR 15751',
+    descricao:
+      'Equipotencialização das mesas, resistência da malha por queda de potencial e tensões de toque e passo numa usina de solo, com laudo consolidado. Ambiente 3D provisório.',
+    disponivel: true,
+    par: PAR_USINA_FV,
   },
   {
     id: 'iso-motor',

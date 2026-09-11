@@ -106,9 +106,10 @@ arquivo**, não por tarefa:
 
 ## 5. Estado atual (2026-09)
 
-8 módulos: isolamento em motor · arco elétrico · inspeção de subestação ·
+9 módulos: isolamento em motor · arco elétrico · inspeção de subestação ·
 desenergização/LOTO · resistência de aterramento · verificação NBR 5410 §7 ·
-**continuidade do SPDA** e **SPDA natural/estrutural** (atualização em 09/09/2026).
+**continuidade do SPDA**, **SPDA natural/estrutural** (09/09/2026) e
+**aterramento em usina fotovoltaica** (11/09/2026, ambiente 3D provisório).
 
 Detalhes e histórico completo: **`ROADMAP.md`**.
 Contratos de módulo em construção: **`docs/modulos/`**.
@@ -227,3 +228,29 @@ a branch antes de editar; não sobrescrever trabalho de outro agente.
   build local. Não havia nada novo para publicar e não houve deploy.
 - Build aprovado e 91/91 testes nesta sincronização. Próximo passo aguardando o
   Pablo; as ideias propostas em 09/09 continuam sem autorização para implementar.
+
+### Novo módulo — Aterramento em usina fotovoltaica (11/09/2026)
+
+Pedido do Pablo: usina FV **de solo, 100 kW** (citou 300 e corrigiu), com skid,
+transformador, subestação e painéis. **Claude fez a ferramenta completa e o cenário
+procedural; o ambiente 3D definitivo é do Codex.** Branch `feat/aterramento-usina-fv`
+(sai de `feat/spda-continuidade`). Contrato, checklist e briefing para o Codex:
+`docs/modulos/aterramento-usina-fv.md` — ler antes de mexer.
+
+- Planta em `src/catalog/usinaFvPontos.ts`: 180 × 555 Wp em 6 mesas 2P×15 a 20°,
+  **norte = −Z** (módulos voltados para −Z), skid com 2 × 50 kW + QGBT, trafo
+  112,5 kVA 380 V/13,8 kV, cabine de medição e proteção, poste MT fora da cerca,
+  portão e estrada ao sul (+Z). Malha interligada com anel de equalização da cerca.
+- Três ensaios + laudo: continuidade do BEP do skid a 11 massas; resistência da
+  malha por queda de potencial (Sverak + disco equivalente: só há patamar com a
+  estaca C a ~5× a diagonal, 300 m); toque e passo com brita, extrapolados para a
+  corrente de falta. Solo e defeitos escolhidos pelo instrutor no ⚙.
+- Números sem fonte fechada estão como constantes `⚠ REVISAR COM O PABLO` na engine
+  (critério de continuidade, patamar, 10 Ω, corrente e tempo de falta, 50 kg). Não
+  copiar os limites do SPDA para cá. SPDA da usina fora do escopo; se entrar, NBR
+  5419:2026.
+- Codex: trocar o placeholder `scene/UsinaFvElements.tsx` pelo GLB
+  (`public/models/usina-fv.glb`), `USINA_PROCEDURAL = false`, recalibrar só os campos
+  `CALIBRAR (CODEX)`. Malha enterrada, estacas e marcadores ficam no mesmo arquivo.
+- Validado: build, 120/120 testes, fluxo completo no navegador desktop e layout de
+  390 px num iframe. Aparelho real ainda não conferido. Sem deploy.

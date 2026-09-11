@@ -26,6 +26,7 @@ import { MotorElements } from './MotorElements'
 import { Terrometro3D } from './Terrometro'
 import { SpdaElements } from './SpdaElements'
 import { EstruturalElements } from './EstruturalElements'
+import { UsinaFvElements } from './UsinaFvElements'
 import { Inbrat, vistaInbrat } from './Inbrat'
 import { useSpda } from '../sim/spdaStore'
 import { getPontoSPDA } from '../catalog/spdaPontos'
@@ -50,6 +51,9 @@ const LAB_ROOM = { size: 10, height: 4.5 }
 
 /** Direção do sol no ensaio externo de aterramento (luz direcional + céu). */
 const SUN_POS: [number, number, number] = [14, 20, 9]
+
+/** Sol da usina FV: ao norte (−Z), como no hemisfério sul — ilumina a face dos módulos. */
+const SUN_USINA: [number, number, number] = [-12, 30, -26]
 
 /** Altura do gramado no pátio de aterramento — alinha com a base visível do
  *  modelo (que tem geometria enterrada: postes/hastes abaixo da superfície). */
@@ -104,12 +108,13 @@ export function Stage() {
   const ehAter = ehEnv && modo === 'aterramento' // pátio externo a céu aberto
   const ehEstrutural = cenario === 'galpao-estrutural'
   const ehSpda = cenario === 'predio-spda' || ehEstrutural // iluminação externa comum aos módulos SPDA
-  const ehExterno = ehAter || ehSpda // cenas externas: sol + céu + grama
-  const walkIn = ehEnv || ehHosp || ehSpda // modelo é o próprio ambiente (câmera livre)
+  const ehUsina = cenario === 'usina-fv' // usina FV de solo (terreno próprio, sem Outdoor)
+  const ehExterno = ehAter || ehSpda || ehUsina // cenas externas: sol + céu + grama
+  const walkIn = ehEnv || ehHosp || ehSpda || ehUsina // modelo é o próprio ambiente (câmera livre)
 
   // abertura: inspeção = vista aérea 3/4; hospital = dentro, à altura dos olhos;
   // demais = dentro da sala (ajustável por captura).
-  const camPos: [number, number, number] = ehEstrutural ? [32, 23, 36] : ehSpda
+  const camPos: [number, number, number] = ehUsina ? [36, 28, -42] : ehEstrutural ? [32, 23, 36] : ehSpda
     ? [18, 10, 18]
     : ehHosp
     ? [4.5, 2.0, 9.5]
@@ -119,7 +124,9 @@ export function Stage() {
         ? [4.5, 2.8, 6.5]
         : [2.8, 2.0, 3.2]
   const focusBaseY = ehArc || walkIn ? 0 : BENCH_TOP_Y
-  const defaultTarget: [number, number, number] = ehSpda
+  const defaultTarget: [number, number, number] = ehUsina
+    ? [0, 0.5, 4]
+    : ehSpda
     ? [0, 4.5, 0]
     : ehHosp
     ? [0, 1.3, 0]
@@ -130,9 +137,9 @@ export function Stage() {
         : [0, BENCH_TOP_Y + 0.35, 0]
   const bg = ehExterno ? '#bcdcff' : ehHosp ? '#dfe6ec' : ehEnv ? '#1b2026' : ehArc ? TEMA_SUB.bg : TEMA_BT.bg
   // limites de confinamento/enquadramento da câmera (AABB)
-  const halfX = ehSpda ? 30 : ehHosp ? 8 : ehEnv ? 3.0 : ehArc ? ROOM.size / 2 : LAB_ROOM.size / 2
-  const halfZ = ehSpda ? 30 : ehHosp ? 10 : ehEnv ? 2.6 : ehArc ? ROOM.size / 2 : LAB_ROOM.size / 2
-  const roomH = ehSpda ? 20 : ehHosp ? 3.3 : ehEnv ? 4.4 : ehArc ? ROOM.height : LAB_ROOM.height
+  const halfX = ehUsina ? 80 : ehSpda ? 30 : ehHosp ? 8 : ehEnv ? 3.0 : ehArc ? ROOM.size / 2 : LAB_ROOM.size / 2
+  const halfZ = ehUsina ? 80 : ehSpda ? 30 : ehHosp ? 10 : ehEnv ? 2.6 : ehArc ? ROOM.size / 2 : LAB_ROOM.size / 2
+  const roomH = ehUsina ? 70 : ehSpda ? 20 : ehHosp ? 3.3 : ehEnv ? 4.4 : ehArc ? ROOM.height : LAB_ROOM.height
 
   return (
     <>
@@ -178,7 +185,7 @@ export function Stage() {
         }
       />
       <directionalLight
-        position={ehExterno ? SUN_POS : [4, 7, 3]}
+        position={ehUsina ? SUN_USINA : ehExterno ? SUN_POS : [4, 7, 3]}
         intensity={ehSpda ? 1.25 : ehExterno ? 1.9 : ehHosp ? 1.25 : ehArc ? 1.0 : ehEnv ? 0.55 : 1.2}
         color={ehExterno ? '#fff3df' : '#ffffff'}
         // sombra real do sol SÓ no nível 'alto' (GPU dedicada); médio/baixo usam
@@ -191,7 +198,7 @@ export function Stage() {
         {/* frustum de sombra largo no pátio (modelo grande, escala ~8) */}
         <orthographicCamera
           attach="shadow-camera"
-          args={ehExterno ? [-18, 18, 18, -18, 0.1, 90] : [-7, 7, 7, -7, 0.1, 40]}
+          args={ehUsina ? [-32, 32, 32, -32, 0.1, 120] : ehExterno ? [-18, 18, 18, -18, 0.1, 90] : [-7, 7, 7, -7, 0.1, 40]}
         />
       </directionalLight>
       {!ehEnv && <directionalLight position={[-5, 3, -2]} intensity={0.35} color="#9fb4d0" />}
@@ -209,7 +216,9 @@ export function Stage() {
       )}
 
       <Suspense fallback={null}>
-        {ehEstrutural ? (
+        {ehUsina ? (
+          <UsinaFvElements />
+        ) : ehEstrutural ? (
           <EstruturalElements />
         ) : ehSpda ? (
           <SpdaScene />
@@ -251,12 +260,12 @@ export function Stage() {
         enableDamping={cfg.damping}
         dampingFactor={0.08}
         minDistance={walkIn ? 0.6 : ehArc ? 2.5 : 1.4}
-        maxDistance={ehSpda ? 70 : ehAter ? 55 : ehHosp ? 35 : ehEnv ? 28 : ehArc ? 9 : 8}
+        maxDistance={ehUsina ? 160 : ehSpda ? 70 : ehAter ? 55 : ehHosp ? 35 : ehEnv ? 28 : ehArc ? 9 : 8}
         maxPolarAngle={Math.PI / 2.05}
         target={defaultTarget}
       />
 
-      <CameraRig cfg={cfg} reduced={reduced} baseY={focusBaseY} defaultTarget={defaultTarget} tourMode={ehEnv || ehSpda} />
+      <CameraRig cfg={cfg} reduced={reduced} baseY={focusBaseY} defaultTarget={defaultTarget} tourMode={ehEnv || ehSpda || ehUsina} />
       {/* walk-in (inspeção/hospital): câmera livre p/ percorrer; demais salas confinam */}
       {!walkIn && <ConfineToRoom halfX={halfX} halfZ={halfZ} height={roomH} />}
       {!ehEstrutural && <ViewCommands
@@ -278,7 +287,7 @@ export function Stage() {
 
       {cfg.postprocessing && (
         <EffectComposer enableNormalPass={false} multisampling={cfg.antialias ? 2 : 0}>
-          {cfg.bloom && !ehSpda ? (
+          {cfg.bloom && !ehSpda && !ehUsina ? (
             <Bloom
               intensity={0.7}
               luminanceThreshold={0.6}

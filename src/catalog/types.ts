@@ -44,6 +44,8 @@ export type Cenario =
   /** pátio externo com prédio + SPDA (continuidade NBR 5419-3) */
   | 'predio-spda'
   | 'galpao-estrutural'
+  /** usina fotovoltaica de solo (aterramento: continuidade, malha, toque/passo) */
+  | 'usina-fv'
 
 export interface Equipment {
   id: string
@@ -112,6 +114,7 @@ export type EngineRef =
   | 'aterramento'
   | 'verificacao'
   | 'spda'
+  | 'usina-fv'
 
 /** Modo de simulação — define qual HUD/fluxo a app usa. */
 export type ModoSim =
@@ -123,6 +126,7 @@ export type ModoSim =
   | 'aterramento'
   | 'verificacao'
   | 'spda'
+  | 'usina-fv'
 
 /** Ação 3D de um passo de desenergização/reenergização. */
 export type AcaoDes =

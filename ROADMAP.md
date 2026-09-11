@@ -1,5 +1,16 @@
 # SimuPower — Módulo NR-10 · Roadmap & Status
 
+### 11/09/2026 — Novo módulo: Aterramento em usina fotovoltaica (100 kW)
+
+Usina de solo com 180 módulos (99,9 kWp) em 6 mesas, skid de inversores, trafo
+112,5 kVA 13,8 kV, cabine de medição e proteção, cerca e malha enterrada. Três
+ensaios guiados e laudo: continuidade da equipotencialização (11 pontos), resistência
+da malha por queda de potencial com estaca C de 60 a 300 m (patamar só a ~5× a
+diagonal) e tensões de toque/passo com brita. Engine `usinaFv` (Sverak, disco
+equivalente, limites IEEE 80/NBR 15751), store, HUD desktop/mobile e cenário
+procedural provisório — o GLB é do Codex. Critérios sem fonte fechada marcados ⚠.
+Build e 120 testes aprovados. Contrato: `docs/modulos/aterramento-usina-fv.md`.
+
 ### 09/09/2026 — Ensaios estruturais conforme fonte 2026 fornecida
 
 Parte 3 fornecida pelo Pablo lida no Anexo F: oito cruzadas F.1 (≤1 Ω) e uma
@@ -34,7 +45,7 @@ Setas animadas após medir acompanham C1, os condutores e o retorno C2, incluind
 > Stack: Vite 5 + React 18 + TypeScript · three r0.169 + @react-three/fiber v8 + drei v9 + postprocessing · zustand v4 · Tailwind v4 (@theme) · @fontsource · Vitest.
 > Padrão: **engine pura e testada** → **catálogo orientado a dados** → cena/HUD renderizam qualquer par (equipamento × ensaio).
 
-Estado: **build limpo** (`npm run build`), **66 testes** passam (`npm test`).
+Estado: **build limpo** (`npm run build`), **120 testes** passam (`npm test`) — 11/09/2026.
 
 > **Agentes:** o contexto compartilhado entre **Claude Code** e **Codex** (arquitetura, convenções e
 > divisão de trabalho por arquivo) está em **`AGENTS.md`** (o `CLAUDE.md` importa esse mesmo arquivo).
@@ -42,7 +53,7 @@ Estado: **build limpo** (`npm run build`), **66 testes** passam (`npm test`).
 
 ---
 
-## 1. Módulos (7 — todos disponíveis no menu)
+## 1. Módulos (9 — todos disponíveis no menu)
 
 | # | Módulo | modo | Equipamento | Engine | HUD |
 |---|--------|------|-------------|--------|-----|
@@ -53,6 +64,8 @@ Estado: **build limpo** (`npm run build`), **66 testes** passam (`npm test`).
 | 5 | **Resistência de Aterramento** | `aterramento` | aterramento.glb (pátio) | `aterramento` | `AterramentoHud.tsx` |
 | 6 | **Verificação de Instalações (NBR 5410 §7)** | `verificacao` | hospital.glb (walk-in, sala cirúrgica) | `verificacao` (sem registry; só casca) | `VerificacaoHud.tsx` |
 | 7 | **Continuidade do SPDA** | `spda` | spda-predio (**prédio procedural provisório**) | `spda` | `SpdaHud.tsx` |
+| 8 | **SPDA natural / estrutural** | `spda-estrutural` | galpao-estrutural (procedural) | `estrutural` | `EstruturalHud.tsx` |
+| 9 | **Aterramento em Usina Fotovoltaica** | `usina-fv` | usina-fv-100kw (**procedural provisório**, GLB do Codex) | `usinaFv` | `UsinaFvHud.tsx` |
 
 Roteamento por `modo` em `App.tsx`; cena por `cenario` em `scene/Stage.tsx` (bancada-lab / subestacao [arco] / subestacao-3d [walk-in env] / **hospital** [walk-in] / **predio-spda** [externo]).
 
