@@ -104,10 +104,13 @@ Rg calculada = 0,006983 Ω por Ω·m (6,5 % abaixo de Sverak, checado em teste):
     255 em base64.
 - `GEOMETRIA_CALCULADA` guarda a assinatura da malha. **Se a malha ou as distâncias
   mudarem, o teste falha até recalcular.**
-- **Recalcular:** o gerador não fica neste repositório. Hoje está numa pasta
-  temporária da sessão do Claude; o destino privado (repositório GroundPRO) está
-  pendente com o Pablo. O método é o de `Ground New HTZ/src/engines/potential-solver.ts`
-  (`F_heppe`, `DI`, `computeR`, `solveS`, `VV`) com K = 0.
+- **Recalcular:** o gerador **não fica neste repositório**. Está numa pasta local à
+  parte, sem git: `C:\Users\Pablo\Documents\Meus projetos\SimuPower-gerador-usina-fv\`
+  (decisão do Pablo, 11/09/2026). O `README.md` de lá explica quando e como rodar
+  (`npx vite-node …\gerar.ts`, a partir da pasta do SimuPower). O gerador reproduz este
+  arquivo byte a byte. O método é o de
+  `Ground New HTZ/src/engines/potential-solver.ts` (`F_heppe`, `DI`, `computeR`,
+  `solveS`, `VV`) com K = 0. O GroundPRO **não** foi alterado.
 - Limitações:
   - só os cabos entram no mapa, como no GroundPRO;
   - solo homogêneo;
@@ -156,8 +159,7 @@ Rg calculada = 0,006983 Ω por Ω·m (6,5 % abaixo de Sverak, checado em teste):
    - estaca C a 5× a diagonal;
    - falta: 500 A e 0,5 s;
    - brita: 3 000 Ω·m × 10 cm.
-4. Onde guardar o gerador (sugestão: repositório privado do GroundPRO).
-5. Solo em 2 camadas (o GroundPRO tem; aqui é homogêneo). SPDA da usina fora do escopo;
+4. Solo em 2 camadas (o GroundPRO tem; aqui é homogêneo). SPDA da usina fora do escopo;
    se entrar, NBR 5419:2026.
 
 ## Mudanças fora da área do Claude (mínimas, avisadas)

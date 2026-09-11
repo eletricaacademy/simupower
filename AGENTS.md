@@ -260,7 +260,9 @@ ler antes de mexer.
   NBR 5419:2026). **Confirmado por Pablo (11/09): corpo de 50 kg** nos limites de
   toque/passo — não trocar por 70 kg.
 - Pablo pediu para não mexer no GroundPRO nem nos processos do Codex. O gerador dos
-  resultados ainda não tem destino definitivo (ver contrato).
+  resultados fica numa pasta local fora dos repositórios, sem git:
+  `Meus projetos\SimuPower-gerador-usina-fv\` (README com o passo a passo). Nunca
+  copiar o gerador nem o solver para este repositório.
 - Codex: trocar o placeholder `scene/UsinaFvElements.tsx` pelo GLB, desligar
   `USINA_PROCEDURAL`, recalibrar só `CALIBRAR (CODEX)`; a camada didática continua.
 - Validado: build, 123/123 testes e, no navegador desktop, todas as etapas sem erro
