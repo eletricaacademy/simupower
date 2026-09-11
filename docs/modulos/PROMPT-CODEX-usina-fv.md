@@ -84,6 +84,18 @@ Modele a usina de solo respeitando as posições de `src/catalog/usinaFvPontos.t
    - pessoa de toque/passo e mapa de potencial.
 8. Qualidade gráfica: respeite `cfg.tier` (`scene/quality.ts`). No `baixo`, sem
    detalhes finos.
+9. **Kit de peças reaproveitável.** Este modelo será reaproveitado depois em outro
+   produto, onde cada usina tem um layout diferente (número de mesas, fileiras, skids,
+   tamanho da cerca). Por isso, além da usina montada, deixe no GLB (ou num
+   `usina-fv-kit.glb` separado) as **peças como nós nomeados e independentes**, com a
+   origem na base de cada peça, em escala real e sem transformação acumulada:
+   - `kit_modulo`
+   - `kit_mesa_estaca` e `kit_mesa_terca` (ou uma mesa 2P×27 parametrizável)
+   - `kit_skid`, `kit_trafo`, `kit_cabine`, `kit_poste_mt`
+   - `kit_cerca_painel`, `kit_cerca_mourao`, `kit_portao`, `kit_caixa_inspecao`
+   
+   A usina montada deve ser feita com essas mesmas peças. Registre no contrato os nomes
+   e as dimensões de cada peça.
 
 ## Tarefa 2 — "Montanha de potencial" (modo Relevo 3D)
 

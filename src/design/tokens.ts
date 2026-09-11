@@ -43,7 +43,7 @@ export const color = {
     roupa: '#2f5d8a',
     /**
      * Escala do mapa de potenciais (0 = frio, 1 = GPR) — as 16 paradas do
-     * GroundPRO (`potential-colors.ts`), para os dois produtos lerem igual.
+     * GroundPRO, para os dois produtos lerem igual.
      */
     escalaPotencial: [
       [0, '#140a5a'], [0.0667, '#1e148c'], [0.1333, '#0a32c8'], [0.2, '#005ae6'],

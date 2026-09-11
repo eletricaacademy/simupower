@@ -3,8 +3,8 @@
  * ARQUIVO GERADO — não editar à mão.
  *
  * Decisão do Pablo (11/09/2026): a usina é um exemplo fixo. Os potenciais são
- * calculados FORA do SimuPower (método dos momentos com núcleo de Heppe, o mesmo
- * do GroundPRO, solo homogêneo, só os cabos) e só os NÚMEROS vêm para cá — o
+ * calculados FORA do SimuPower (pelo método do GroundPRO, solo homogêneo, só os
+ * cabos) e só os NÚMEROS vêm para cá — o
  * método de cálculo não entra no repositório nem no navegador.
  *
  * Tudo é unitário: ρ = 1 Ω·m e 1 A injetado. A engine escala por ρ e por I.

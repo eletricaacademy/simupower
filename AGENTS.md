@@ -243,7 +243,7 @@ ler antes de mexer.
   medição e proteção, poste MT fora da cerca, portão e estrada ao sul (+Z). Malha com
   condutor em cada linha de pilares e anel de equalização a 1 m da cerca.
 - **Decisão do Pablo — só resultados, não o método:** os potenciais de solo vêm do
-  método do GroundPRO (`Ground New HTZ`, momentos/Heppe, solo homogêneo) calculados
+  método do GroundPRO (solo homogêneo) calculados
   FORA e gravados em `src/catalog/usinaFvResultados.ts` (arquivo gerado, unitário
   ρ = 1 Ω·m e 1 A). O solver NÃO entra neste repositório, que é **público** no GitHub,
   nem no bundle do navegador. Não trazer código do GroundPRO para cá. Mudou a malha
@@ -270,6 +270,9 @@ ler antes de mexer.
   `docs/modulos/PROMPT-CODEX-usina-fv.md`.
 - Validado: build, 123/123 testes e, no navegador desktop, todas as etapas sem erro
   no console. Celular não conferido nesta revisão. Sem deploy.
-- Segurança (dúvida do Pablo): o que vai para o bundle pode ser lido no navegador,
-  inclusive a senha de acesso do menu. O GroundPRO roda o solver no navegador; para
-  proteger a lógica dele, a saída é mover o cálculo para uma função no servidor.
+- Segurança: este repositório é **público** e o bundle pode ser lido no navegador
+  (inclusive a senha de acesso do menu). Não escrever aqui detalhes internos de outros
+  produtos do Pablo.
+- **Plano de levar o 3D da usina para o GroundPRO:** fica numa pasta LOCAL e privada,
+  `privado/levar-3d-para-ground/PLANO.md` (no `.gitignore`, não vai para o GitHub).
+  Começa só depois que o Codex terminar o modelo final e o relevo de potencial.

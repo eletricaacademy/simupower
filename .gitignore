@@ -32,3 +32,6 @@ assets-raw/
 
 # temporários de modelos
 .tmp_*.glb
+
+# planos e notas PRIVADOS (o repositório é público) — ficam só nesta máquina
+privado/

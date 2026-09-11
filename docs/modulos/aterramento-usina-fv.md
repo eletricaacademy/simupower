@@ -15,12 +15,15 @@ para o `main`). Card no menu: "Aterramento em Usina Fotovoltaica".
 
 - **300 kW**, com a configuração recomendada pelo Claude (abaixo).
 - **Potenciais de solo e malha mostrados no 3D**, com a visualização do GroundPRO
-  (`Ground New HTZ`, módulo de usinas FV) como referência.
+  como referência.
 - **Só os RESULTADOS vêm para o SimuPower, não o método de cálculo.** A usina é um
-  exemplo fixo: os potenciais são calculados fora (método dos momentos com núcleo de
-  Heppe, o mesmo do GroundPRO, em solo homogêneo) e gravados em
-  `src/catalog/usinaFvResultados.ts`. O solver **não** entra neste repositório, que é
-  **público** no GitHub, nem no navegador. Motivo: proteger a lógica do GroundPRO.
+  exemplo fixo: os potenciais são calculados fora (pelo método do GroundPRO, em solo
+  homogêneo) e gravados em `src/catalog/usinaFvResultados.ts`. O solver **não** entra
+  neste repositório, que é **público** no GitHub, nem no navegador. Motivo: proteger a
+  lógica do GroundPRO. Não documentar aqui detalhes internos do GroundPRO.
+- **O modelo final do Codex será reaproveitado no GroundPRO** (layouts variáveis): por
+  isso o GLB precisa das peças como nós nomeados. O plano fica numa pasta local e
+  privada (`privado/`, fora do git) e começa só depois que o Codex terminar.
 
 ## Estado
 
@@ -108,9 +111,7 @@ Rg calculada = 0,006983 Ω por Ω·m (6,5 % abaixo de Sverak, checado em teste):
   parte, sem git: `C:\Users\Pablo\Documents\Meus projetos\SimuPower-gerador-usina-fv\`
   (decisão do Pablo, 11/09/2026). O `README.md` de lá explica quando e como rodar
   (`npx vite-node …\gerar.ts`, a partir da pasta do SimuPower). O gerador reproduz este
-  arquivo byte a byte. O método é o de
-  `Ground New HTZ/src/engines/potential-solver.ts` (`F_heppe`, `DI`, `computeR`,
-  `solveS`, `VV`) com K = 0. O GroundPRO **não** foi alterado.
+  arquivo byte a byte. O GroundPRO **não** foi alterado.
 - Limitações:
   - só os cabos entram no mapa, como no GroundPRO;
   - solo homogêneo;
