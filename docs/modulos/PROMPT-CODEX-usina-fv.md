@@ -69,12 +69,12 @@ Modele a usina de solo respeitando as posições de `src/catalog/usinaFvPontos.t
    - `pos`, `vista` e `alvo` dos pontos de continuidade e de toque/passo;
    - `ESTACAS_FV.e`;
    - `VISTAS_FV` e `vistaInicial`.
-   
+
    Não renomeie ids.
 6. Os defeitos visuais continuam no cenário "com defeitos":
    - a cordoalha do portão some;
    - o conector da M6 fica oxidado.
-   
+
    Hoje os dois são desenhados em `Derivacoes` e `CordoalhaPortao`. Se o GLB tiver
    essas peças, deixe-as como nós nomeados que dá para esconder ou recolorir.
 7. A **camada didática** do mesmo arquivo continua funcionando por cima do GLB:
@@ -93,7 +93,7 @@ Modele a usina de solo respeitando as posições de `src/catalog/usinaFvPontos.t
    - `kit_mesa_estaca` e `kit_mesa_terca` (ou uma mesa 2P×27 parametrizável)
    - `kit_skid`, `kit_trafo`, `kit_cabine`, `kit_poste_mt`
    - `kit_cerca_painel`, `kit_cerca_mourao`, `kit_portao`, `kit_caixa_inspecao`
-   
+
    A usina montada deve ser feita com essas mesmas peças. Registre no contrato os nomes
    e as dimensões de cada peça.
 
