@@ -214,3 +214,16 @@ a branch antes de editar; não sobrescrever trabalho de outro agente.
 - O remoto Git embutido em `dist/` foi normalizado para a URL HTTPS sem credencial.
   Nesta publicação foi usado clone temporário limpo do `origin/gh-pages`, sem
   force push. Revalidar hashes e referências remotas antes da próxima publicação.
+
+### Sincronização com o servidor — 11/09/2026
+
+- Claude buscou `origin`: `feat/spda-continuidade` local = remota. Depois do código
+  publicado (`a787a37`) só houve commits de documentação. `origin/main` (`1024e3d`,
+  senha promocional) já está integrado na branch; o `main` local avançou só por
+  fast-forward. Não havia branch nova do Codex no remoto nem stash pendente.
+- `main` ainda **não** recebeu o SPDA: a branch está 19 commits à frente e produção
+  é publicada a partir dela. Merge/PR para `main` aguarda decisão do Pablo.
+- Produção conferida: HTML referencia `assets/index-BBnV-emn.js`, o mesmo hash do
+  build local. Não havia nada novo para publicar e não houve deploy.
+- Build aprovado e 91/91 testes nesta sincronização. Próximo passo aguardando o
+  Pablo; as ideias propostas em 09/09 continuam sem autorização para implementar.
