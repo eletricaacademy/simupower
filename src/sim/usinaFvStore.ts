@@ -36,6 +36,9 @@ import {
 } from '../catalog/usinaFvPontos'
 import { RESULTADOS_FV, MAPAS_FV } from '../catalog/usinaFvResultados'
 
+/** Mapa no solo: potencial em cores, relevo 3D (altura = potencial) ou áreas seguras. */
+export type ModoMapaFv = 'desligado' | 'potencial' | 'relevo' | 'seguranca'
+
 /** Malha da usina para o solo e o cenário (resultados pré-calculados escalados por ρ). */
 export function malhaDoSolo(solo: PerfilSoloFv, cenario: CenarioFv): MalhaFv {
   return montarMalha(RESISTIVIDADE_SOLO[solo], RESULTADOS_FV[cenario])
@@ -72,7 +75,7 @@ interface UsinaFvState {
   /** Malha enterrada visível através do solo (cena). */
   mostrarMalha: boolean
   /** Mapa de potencial no solo durante a falta (cena, etapa de toque/passo). */
-  mapaPotencial: 'desligado' | 'potencial' | 'seguranca'
+  mapaPotencial: ModoMapaFv
 
   // continuidade
   pontasZeradas: boolean
@@ -95,7 +98,7 @@ interface UsinaFvState {
   setSolo: (s: PerfilSoloFv) => void
   setCenario: (c: CenarioFv) => void
   setMostrarMalha: (v: boolean) => void
-  setMapaPotencial: (v: 'desligado' | 'potencial' | 'seguranca') => void
+  setMapaPotencial: (v: ModoMapaFv) => void
   zerarPontas: () => void
   setPontoCont: (id: string) => void
   medirContinuidade: () => void
@@ -116,7 +119,7 @@ const inicial = {
   solo: 'arenoso' as PerfilSoloFv,
   cenario: 'com-defeitos' as CenarioFv,
   mostrarMalha: false,
-  mapaPotencial: 'potencial' as 'desligado' | 'potencial' | 'seguranca',
+  mapaPotencial: 'potencial' as ModoMapaFv,
   pontasZeradas: false,
   pontoCont: PONTOS_CONTINUIDADE_FV[0].id,
   continuidade: {} as Record<string, LeituraContinuidadeFv>,

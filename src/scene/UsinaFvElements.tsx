@@ -796,6 +796,8 @@ function corEscala(t: number, alvo: THREE.Color): THREE.Color {
  * Mapa de potenciais no solo durante a falta: grade pré-calculada (V/GPR) em
  * cores por vértice. Modo "áreas seguras": âmbar onde o toque passaria do
  * limite, vermelho onde o passo passaria (brita no skid/trafo, grama no resto).
+ * CODEX: o modo 'relevo' (altura = potencial, com isolinhas) ainda desenha o
+ * mapa plano — ver docs/modulos/PROMPT-CODEX-usina-fv.md.
  */
 function MapaPotencial() {
   const modo = useUsinaFv((s) => s.mapaPotencial)

@@ -189,7 +189,14 @@ Rg calculada = 0,006983 Ω por Ω·m (6,5 % abaixo de Sverak, checado em teste):
   - estacas e carretéis de cabo.
 - [ ] `npm run build`, `npm test`, desktop e 390 × 844; commit.
 
-## Briefing para colar no Codex
+## Prompt atual do Codex (11/09/2026)
+
+Pablo escolheu duas frentes para o Codex: **modelo 3D definitivo** e **"montanha de
+potencial"** (modo Relevo 3D, com linhas equipotenciais). O texto completo para colar
+está em `docs/modulos/PROMPT-CODEX-usina-fv.md`. O modo `relevo` já existe no store e
+no HUD (`ModoMapaFv`); falta só desenhar em `MapaPotencial`.
+
+## Briefing para colar no Codex (versão curta anterior)
 
 > Leia `AGENTS.md` e `docs/modulos/aterramento-usina-fv.md`. Na branch
 > `feat/aterramento-usina-fv`, o módulo "Aterramento em Usina Fotovoltaica" (300 kW)

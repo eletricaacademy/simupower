@@ -265,6 +265,9 @@ ler antes de mexer.
   copiar o gerador nem o solver para este repositório.
 - Codex: trocar o placeholder `scene/UsinaFvElements.tsx` pelo GLB, desligar
   `USINA_PROCEDURAL`, recalibrar só `CALIBRAR (CODEX)`; a camada didática continua.
+  **Próxima rodada do Codex (11/09):** modelo 3D definitivo + "montanha de potencial"
+  (modo `relevo`, já ligado no store/HUD) — prompt em
+  `docs/modulos/PROMPT-CODEX-usina-fv.md`.
 - Validado: build, 123/123 testes e, no navegador desktop, todas as etapas sem erro
   no console. Celular não conferido nesta revisão. Sem deploy.
 - Segurança (dúvida do Pablo): o que vai para o bundle pode ser lido no navegador,

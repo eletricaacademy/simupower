@@ -758,7 +758,8 @@ function LegendaMapa() {
   const gradiente = `linear-gradient(90deg, ${color.usinaFv.escalaPotencial.map(([t, c]) => `${c} ${t * 100}%`).join(', ')})`
   const opcoes = [
     { id: 'potencial', label: 'Potencial' },
-    { id: 'seguranca', label: 'Áreas seguras' },
+    { id: 'relevo', label: 'Relevo 3D' },
+    { id: 'seguranca', label: 'Seguras' },
     { id: 'desligado', label: 'Ocultar' },
   ] as const
   return (
@@ -776,7 +777,7 @@ function LegendaMapa() {
           </button>
         ))}
       </div>
-      {modo === 'potencial' && (
+      {(modo === 'potencial' || modo === 'relevo') && (
         <>
           <div className="h-2.5 rounded-full" style={{ background: gradiente }} />
           <div className="flex justify-between font-mono text-[9.5px] mt-1" style={{ color: color.textFaint }}>
@@ -785,7 +786,9 @@ function LegendaMapa() {
             <span>GPR {Math.round(gpr)} V</span>
           </div>
           <div className="text-[10px] mt-1 leading-snug" style={{ color: color.textFaint }}>
-            Potencial da superfície na falta. Toque = GPR − potencial sob os pés: onde o solo fica “frio” (azul) perto de uma massa aterrada, o toque é alto.
+            {modo === 'relevo'
+              ? 'A altura do relevo é o potencial do solo: o “platô” é a malha no GPR; a encosta fora da cerca é onde o passo e o toque crescem.'
+              : 'Potencial da superfície na falta. Toque = GPR − potencial sob os pés: onde o solo fica “frio” (azul) perto de uma massa aterrada, o toque é alto.'}
           </div>
         </>
       )}
