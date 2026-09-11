@@ -6,6 +6,7 @@ import {
   MESAS_FV,
   MESA,
   MODULO,
+  PILARES_POR_FILA,
   USINA,
   CERCA,
   PORTAO,
@@ -15,19 +16,23 @@ import {
   POSTE_MT,
   AREA_BRITA,
   BEP_SKID,
-  MALHA_FV,
   HASTES_FV,
   COMPRIMENTO_HASTE,
+  PROFUNDIDADE_MALHA,
   ESTACAS_FV,
+  DISTANCIAS_C_M,
   PONTOS_CONTINUIDADE_FV,
   PONTOS_TOQUE_PASSO_FV,
+  malhaDoCenario,
 } from '../catalog/usinaFvPontos'
 import type { Vec3 } from '../catalog/types'
-import { useUsinaFv } from '../sim/usinaFvStore'
+import { useUsinaFv, malhaDoSolo, mapaDoCenario } from '../sim/usinaFvStore'
 import { useSim } from '../sim/store'
+import { I_MALHA_A, POSICOES_PATAMAR, limitePasso, limiteToque } from '../engine/usinaFv'
 import { color } from '../design/tokens'
 import { resolverQualidade } from './quality'
 import { Equipment3D } from './Equipment3D'
+import { SetasCorrente } from './SpdaFluxo'
 
 /**
  * UsinaFvElements — cena do módulo ATERRAMENTO EM USINA FOTOVOLTAICA.
@@ -58,6 +63,7 @@ export function UsinaFvElements() {
   const detail = resolverQualidade(pref).tier !== 'baixo'
   const etapa = useSim((s) => s.ensaio.steps[s.passoIndex]?.id)
   const mostrarMalha = useUsinaFv((s) => s.mostrarMalha)
+  const comDefeitos = useUsinaFv((s) => s.cenario === 'com-defeitos')
   const camera = useThree((s) => s.camera)
   const invalidate = useThree((s) => s.invalidate)
   const tamanho = useThree((s) => s.size)
@@ -110,10 +116,17 @@ export function UsinaFvElements() {
         </>
       )}
       <BepSkid />
-      <MalhaEnterrada visivel={mostrarMalha} />
+      <Derivacoes comDefeitos={comDefeitos} />
+      <CordoalhaPortao presente={!comDefeitos} />
+      <MalhaEnterrada visivel={mostrarMalha} comDefeitos={comDefeitos} />
       {etapa === 'fv-continuidade' && <EnsaioContinuidade />}
-      {etapa === 'fv-resistencia' && <EnsaioQuedaPotencial />}
-      {etapa === 'fv-toque-passo' && <EnsaioToquePasso />}
+      {etapa === 'fv-resistencia' && <EnsaioQuedaPotencial baixo={!detail} />}
+      {etapa === 'fv-toque-passo' && (
+        <>
+          <EnsaioToquePasso />
+          <MapaPotencial />
+        </>
+      )}
       {pickMode && (
         <mesh
           rotation={[-Math.PI / 2, 0, 0]}
@@ -190,11 +203,12 @@ function Etiqueta({ pos, texto, destaque = false }: { pos: Vec3; texto: string; 
 
 /** Gramado, estrada de acesso (onde vão as estacas) e brita do skid/trafo. */
 function Terreno() {
-  const comprimentoEstrada = 340
+  // a estaca C chega a 5× a diagonal da malha (~470 m na planta de 300 kW)
+  const comprimentoEstrada = Math.max(...DISTANCIAS_C_M) + 80
   return (
     <group>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 0]} receiveShadow>
-        <planeGeometry args={[1000, 1000]} />
+        <planeGeometry args={[1600, 1600]} />
         <meshLambertMaterial color={CU.grama} />
       </mesh>
       {/* estrada de terra: do portão para o sul, por onde as estacas são levadas */}
@@ -227,7 +241,10 @@ function Mesas({ detail }: { detail: boolean }) {
   const modulos = useRef<THREE.InstancedMesh>(null)
   const pilares = useRef<THREE.InstancedMesh>(null)
   const nModulos = MESAS_FV.length * USINA.modulosPorFileira * USINA.fileirasPorMesa
-  const xsPilar = useMemo(() => Array.from({ length: 6 }, (_, i) => -MESA.comprimento / 2 + 0.6 + (i * (MESA.comprimento - 1.2)) / 5), [])
+  const xsPilar = useMemo(
+    () => Array.from({ length: PILARES_POR_FILA }, (_, i) => -MESA.comprimento / 2 + 0.6 + (i * (MESA.comprimento - 1.2)) / (PILARES_POR_FILA - 1)),
+    [],
+  )
   const zsPilar = [-(MESA.profundidade / 2 - 0.5), MESA.profundidade / 2 - 0.5]
   const nPilares = MESAS_FV.length * xsPilar.length * zsPilar.length
 
@@ -476,16 +493,56 @@ function BepSkid() {
   )
 }
 
+/**
+ * Derivação de cada mesa: do terminal da estrutura até o solo (o trecho
+ * enterrado aparece com a malha). No cenário com defeitos, o conector de M6
+ * mostra a oxidação que a inspeção visual deve achar; o de M4 parece normal —
+ * a anodização só aparece na medição.
+ */
+function Derivacoes({ comDefeitos }: { comDefeitos: boolean }) {
+  return (
+    <group>
+      {PONTOS_CONTINUIDADE_FV.filter((p) => p.grupo === 'Mesas').map((p) => {
+        const oxidado = comDefeitos && p.defeito === 'corrosao'
+        return (
+          <group key={p.id}>
+            <Barra a={[p.pos[0], p.pos[1], p.pos[2]]} b={[p.pos[0], -0.02, p.pos[2]]} raio={0.012} cor={color.spda.cobre} />
+            <Caixa pos={[p.pos[0], p.pos[1], p.pos[2]]} dim={[0.07, 0.06, 0.07]} cor={oxidado ? color.spda.oxidacao : color.spda.cobre} metal={oxidado ? 0.1 : 0.8} rough={oxidado ? 0.9 : 0.35} sombra={false} />
+          </group>
+        )
+      })}
+    </group>
+  )
+}
+
+/** Cordoalha flexível entre a folha do portão e o mourão — falta no cenário com defeitos. */
+function CordoalhaPortao({ presente }: { presente: boolean }) {
+  if (!presente) return null
+  const z = CERCA.zMax + 0.06
+  const xMourao = PORTAO.x + PORTAO.largura / 2
+  return (
+    <Line
+      points={[[xMourao - 0.35, 0.9, z], [xMourao - 0.18, 0.72, z], [xMourao, 0.9, z]]}
+      color={color.spda.cobre}
+      lineWidth={3}
+    />
+  )
+}
+
 /** Malha enterrada, desenhada através do solo quando o aluno pede. */
-function MalhaEnterrada({ visivel }: { visivel: boolean }) {
+function MalhaEnterrada({ visivel, comDefeitos }: { visivel: boolean; comDefeitos: boolean }) {
   if (!visivel) return null
   return (
     <group>
-      {MALHA_FV.map((c) => (
+      {malhaDoCenario(comDefeitos).map((c) => (
         <Barra key={c.id} a={c.a} b={c.b} raio={c.equalizacao ? 0.05 : 0.07} cor={c.equalizacao ? color.accentCool : CU.malha} atravessaSolo />
       ))}
       {HASTES_FV.map((h, i) => (
         <Barra key={i} a={h} b={[h[0], h[1] - COMPRIMENTO_HASTE, h[2]]} raio={0.05} cor={CU.malha} atravessaSolo />
+      ))}
+      {/* derivações das mesas: do pé do terminal até a linha de pilares */}
+      {PONTOS_CONTINUIDADE_FV.filter((p) => p.grupo === 'Mesas').map((p) => (
+        <Barra key={p.id} a={[p.pos[0], -0.02, p.pos[2]]} b={[p.pos[0], -PROFUNDIDADE_MALHA, p.pos[2]]} raio={0.03} cor={color.spda.cobre} atravessaSolo />
       ))}
     </group>
   )
@@ -520,43 +577,74 @@ function Marcador({ pos, cor, ativo }: { pos: Vec3; cor: string; ativo: boolean 
 
 const corLeitura = (cor?: 'pass' | 'marginal' | 'fail') => (cor ? color.status[cor] : color.textMuted)
 
-/** Ensaio 1: cabo de ensaio do BEP do skid até o ponto ativo, marcadores coloridos. */
+/** Ensaio 1: miliohmímetro no BEP do skid, cabo até o ponto ativo, marcadores coloridos. */
 function EnsaioContinuidade() {
   const pontoCont = useUsinaFv((s) => s.pontoCont)
   const leituras = useUsinaFv((s) => s.continuidade)
   const ativo = PONTOS_CONTINUIDADE_FV.find((p) => p.id === pontoCont)
+  const leitura = ativo ? leituras[ativo.id] : undefined
+  const instrumento: Vec3 = [BEP_SKID[0] + 0.9, 0, BEP_SKID[2] - 1]
   const rota = useMemo(() => {
     if (!ativo) return null
     const y = 0.06
-    const saida: Vec3 = [BEP_SKID[0], y, BEP_SKID[2] - 0.6]
-    return [BEP_SKID, saida, [ativo.pos[0], y, saida[2]], [ativo.pos[0], y, ativo.pos[2]], ativo.pos] as Vec3[]
+    const saida: Vec3 = [instrumento[0], y, instrumento[2] - 0.3]
+    return [[instrumento[0], 0.2, instrumento[2]], saida, [ativo.pos[0], y, saida[2]], [ativo.pos[0], y, ativo.pos[2]], ativo.pos] as Vec3[]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ativo])
   return (
     <group>
       {PONTOS_CONTINUIDADE_FV.map((p) => (
         <Marcador key={p.id} pos={p.pos} cor={corLeitura(leituras[p.id]?.cor)} ativo={p.id === pontoCont} />
       ))}
+      {/* instrumento provisório: maleta com o visor; cabo da garra fixa até o BEP */}
+      <Caixa pos={[instrumento[0], 0.12, instrumento[2]]} dim={[0.42, 0.24, 0.32]} cor={color.inbrat.maleta} rough={0.5} />
+      <Line points={[[instrumento[0], 0.2, instrumento[2]], [BEP_SKID[0], 0.1, BEP_SKID[2] - 0.3], BEP_SKID]} color={color.accentCool} lineWidth={2.5} />
       {rota && <Line points={rota} color={color.accent} lineWidth={2.5} />}
+      <Etiqueta pos={[instrumento[0], 0.7, instrumento[2]]} texto={leitura ? `${leitura.display} Ω` : 'miliohmímetro'} destaque={!!leitura} />
       {ativo && <Etiqueta pos={[ativo.pos[0], ativo.pos[1] + 0.9, ativo.pos[2]]} texto={ativo.nome} destaque />}
       <Etiqueta pos={[BEP_SKID[0], BEP_SKID[1] + 0.8, BEP_SKID[2] - 0.2]} texto="BEP do skid · garra fixa" />
     </group>
   )
 }
 
-/** Ensaio 2: terrômetro junto a E e as estacas P e C ao longo da estrada. */
-function EnsaioQuedaPotencial() {
+/** Caminho reto entre pontos, para as setas de corrente. */
+function caminho(pontos: Vec3[]): THREE.CurvePath<THREE.Vector3> {
+  const c = new THREE.CurvePath<THREE.Vector3>()
+  for (let i = 1; i < pontos.length; i++) c.add(new THREE.LineCurve3(new THREE.Vector3(...pontos[i - 1]), new THREE.Vector3(...pontos[i])))
+  return c
+}
+
+/**
+ * Ensaio 2: terrômetro junto a E e as estacas P e C ao longo da estrada, com
+ * a zona de influência da malha (âmbar) e a janela do patamar (52–72 %).
+ * A corrente sai pelo cabo C, atravessa o solo e volta pela malha (setas); o
+ * cabo P só lê tensão.
+ */
+function EnsaioQuedaPotencial({ baixo }: { baixo: boolean }) {
   const distanciaC = useUsinaFv((s) => s.distanciaC)
   const cravadas = useUsinaFv((s) => s.estacasCravadas)
   const posP = useUsinaFv((s) => s.posP)
+  const solo = useUsinaFv((s) => s.solo)
+  const cenario = useUsinaFv((s) => s.cenario)
+  const zona = malhaDoSolo(solo, cenario).unit.influenciaEstradaM
   const e = ESTACAS_FV.e
   const dir = ESTACAS_FV.direcao
-  const ao = (d: number, dx = 0): Vec3 => [e[0] + dir[0] * d + dx, 0, e[2] + dir[2] * d]
+  const ao = (d: number, dx = 0, y = 0): Vec3 => [e[0] + dir[0] * d + dx, y, e[2] + dir[2] * d]
   const terrometro: Vec3 = [e[0] + 1.6, 0, e[2] + 0.8]
   const posC = ao(distanciaC)
   const posPe = ao(posP * distanciaC)
   const marcos = useMemo(() => Array.from({ length: Math.floor(distanciaC / 50) }, (_, i) => (i + 1) * 50), [distanciaC])
+  const [j0, j1] = [POSICOES_PATAMAR[0] * distanciaC, POSICOES_PATAMAR[2] * distanciaC]
+  const janelaForaDaZona = j0 > zona
+  const correnteC = useMemo(() => caminho([[terrometro[0], 0.25, terrometro[2]], ao(1, 0.5, 0.25), ao(distanciaC, 0.5, 0.25), [posC[0], 0.6, posC[2]]]), [distanciaC])
+  const correnteE = useMemo(() => caminho([[e[0], 0.35, e[2]], [terrometro[0], 0.25, terrometro[2]]]), [])
   return (
     <group>
+      {/* faixas no chão da estrada: zona de influência e janela do patamar */}
+      <Faixa de={0} ate={Math.min(zona, distanciaC)} cor={color.status.marginal} largura={7} y={0.02} />
+      {cravadas && <Faixa de={j0} ate={j1} cor={janelaForaDaZona ? color.status.pass : color.status.fail} largura={4} y={0.03} />}
+      <Etiqueta pos={ao(Math.min(zona, distanciaC) / 2, -6, 0.4)} texto={`zona de influência da malha · ~${zona} m`} />
+
       {/* ponto E: caixa de inspeção no anel de equalização */}
       <Caixa pos={[e[0], 0.05, e[2]]} dim={[0.4, 0.1, 0.4]} cor={CU.alvenaria} />
       <Estaca pos={e} cor={CU.estacaE} rotulo="E · malha" />
@@ -568,12 +656,28 @@ function EnsaioQuedaPotencial() {
           <Estaca pos={posPe} cor={CU.estacaP} rotulo={`P · ${Math.round(posP * 100)} %`} alta />
           <Line points={[[terrometro[0], 0.2, terrometro[2]], ao(1, 0.5), ao(distanciaC, 0.5), [posC[0], 0.5, posC[2]]]} color={CU.estacaC} lineWidth={2} />
           <Line points={[[terrometro[0], 0.2, terrometro[2]], ao(1, -0.5), ao(posP * distanciaC, -0.5), [posPe[0], 0.5, posPe[2]]]} color={CU.estacaP} lineWidth={2} />
+          <SetasCorrente curva={correnteC} cor={color.accent} baixo={baixo} />
+          <SetasCorrente curva={correnteE} cor={color.accent} baixo={baixo} />
           {marcos.map((m) => (
             <Etiqueta key={m} pos={[e[0] + 3.5, 0.3, e[2] + m]} texto={`${m} m`} />
           ))}
         </>
       )}
     </group>
+  )
+}
+
+/** Faixa translúcida no chão, ao longo da linha das estacas (de/ate em metros a partir de E). */
+function Faixa({ de, ate, cor, largura, y }: { de: number; ate: number; cor: string; largura: number; y: number }) {
+  if (ate <= de) return null
+  const e = ESTACAS_FV.e
+  const dir = ESTACAS_FV.direcao
+  const meio = (de + ate) / 2
+  return (
+    <mesh position={[e[0] + dir[0] * meio, y, e[2] + dir[2] * meio]} rotation={[-Math.PI / 2, 0, Math.atan2(dir[0], dir[2])]} renderOrder={3}>
+      <planeGeometry args={[largura, ate - de]} />
+      <meshBasicMaterial color={cor} transparent opacity={0.35} depthWrite={false} toneMapped={false} />
+    </mesh>
   )
 }
 
@@ -600,7 +704,7 @@ function Estaca({ pos, cor, rotulo, alta = false }: { pos: Vec3; cor: string; ro
   )
 }
 
-/** Ensaio 3: eletrodos de pé (placas) em cada ponto, coloridos pelo resultado. */
+/** Ensaio 3: eletrodos de pé (placas) em cada ponto e a pessoa no ponto ativo. */
 function EnsaioToquePasso() {
   const pontoTP = useUsinaFv((s) => s.pontoTP)
   const leituras = useUsinaFv((s) => s.toquePasso)
@@ -612,18 +716,140 @@ function EnsaioToquePasso() {
         // toque: pés juntos a 1 m do objeto; passo: dois eletrodos afastados 1 m
         const placas: Vec3[] = p.tipo === 'toque' ? [[0, 0.02, 0]] : [[-0.5, 0.02, 0], [0.5, 0.02, 0]]
         return (
-          <group key={p.id} position={p.pos}>
-            {placas.map((d, i) => (
-              <mesh key={i} position={d} rotation={[-Math.PI / 2, 0, 0]} renderOrder={22}>
-                <circleGeometry args={[ativo ? 0.28 : 0.2, 24]} />
-                <meshBasicMaterial color={cor} transparent opacity={0.9} depthTest={false} toneMapped={false} />
-              </mesh>
-            ))}
-            <Marcador pos={[0, 0.9, 0]} cor={cor} ativo={ativo} />
-            {ativo && <Etiqueta pos={[0, 1.7, 0]} texto={p.nome} destaque />}
+          <group key={p.id}>
+            <group position={p.pos}>
+              {placas.map((d, i) => (
+                <mesh key={i} position={d} rotation={[-Math.PI / 2, 0, 0]} renderOrder={22}>
+                  <circleGeometry args={[ativo ? 0.28 : 0.2, 24]} />
+                  <meshBasicMaterial color={cor} transparent opacity={0.9} depthTest={false} toneMapped={false} />
+                </mesh>
+              ))}
+              {!ativo && <Marcador pos={[0, 0.9, 0]} cor={cor} ativo={false} />}
+            </group>
+            {ativo && <Pessoa pos={p.pos} alvo={p.alvo} passo={p.tipo === 'passo'} cor={cor} />}
+            {ativo && <Etiqueta pos={[p.pos[0], 2.2, p.pos[2]]} texto={leituras[p.id] ? `${p.nome} · ${Math.round(leituras[p.id].vFalta)} V` : p.nome} destaque />}
           </group>
         )
       })}
     </group>
+  )
+}
+
+/**
+ * Figura humana simplificada (1,75 m): no toque, de frente para a massa com a
+ * mão nela; no passo, pernas abertas 1 m. O contorno dos pés ganha a cor do
+ * resultado. O Codex pode trocar por um personagem modelado.
+ */
+function Pessoa({ pos, alvo, passo, cor }: { pos: Vec3; alvo?: Vec3; passo: boolean; cor: string }) {
+  const giro = alvo ? Math.atan2(alvo[0] - pos[0], alvo[2] - pos[2]) : 0
+  const pele = CU.pessoa
+  const roupa = CU.roupa
+  const abertura = passo ? 0.5 : 0.12
+  // braço de toque: do ombro até a mão na massa (no referencial da pessoa)
+  const distAlvo = alvo ? Math.hypot(alvo[0] - pos[0], alvo[2] - pos[2]) : 0
+  const ombro: Vec3 = [0.2, 1.42, 0]
+  const mao: Vec3 = alvo ? [0.12, alvo[1], distAlvo - 0.05] : [0.25, 0.9, 0.1]
+  return (
+    <group position={pos} rotation={[0, giro, 0]}>
+      {/* pernas */}
+      {[-1, 1].map((s) => (
+        <Barra key={s} a={[s * abertura, 0.05, 0]} b={[s * 0.1, 0.9, 0]} raio={0.07} cor={roupa} />
+      ))}
+      {/* tronco e cabeça */}
+      <mesh position={[0, 1.18, 0]} castShadow>
+        <capsuleGeometry args={[0.17, 0.42, 4, 10]} />
+        <meshStandardMaterial color={roupa} roughness={0.8} />
+      </mesh>
+      <mesh position={[0, 1.64, 0]} castShadow>
+        <sphereGeometry args={[0.11, 14, 14]} />
+        <meshStandardMaterial color={pele} roughness={0.7} />
+      </mesh>
+      {/* braços: um relaxado e, no toque, o outro esticado até a massa */}
+      <Barra a={[-0.2, 1.42, 0]} b={[-0.26, 0.92, 0.02]} raio={0.045} cor={roupa} />
+      <Barra a={ombro} b={mao} raio={0.045} cor={alvo ? pele : roupa} />
+      {/* contorno dos pés com a cor do resultado */}
+      {[-1, 1].map((s) => (
+        <mesh key={s} position={[s * abertura, 0.03, 0.05]} rotation={[-Math.PI / 2, 0, 0]} renderOrder={23}>
+          <ringGeometry args={[0.13, 0.18, 20]} />
+          <meshBasicMaterial color={cor} transparent opacity={0.95} depthTest={false} side={THREE.DoubleSide} toneMapped={false} />
+        </mesh>
+      ))}
+    </group>
+  )
+}
+
+/** Cor da escala de potenciais (paradas do GroundPRO) para t ∈ [0, 1]. */
+const ESCALA = color.usinaFv.escalaPotencial.map(([t, c]) => [t, new THREE.Color(c)] as const)
+function corEscala(t: number, alvo: THREE.Color): THREE.Color {
+  const x = Math.max(0, Math.min(1, t))
+  for (let i = 1; i < ESCALA.length; i++) {
+    if (x <= ESCALA[i][0]) {
+      const [t0, c0] = ESCALA[i - 1]
+      const [t1, c1] = ESCALA[i]
+      return alvo.copy(c0).lerp(c1, (x - t0) / (t1 - t0))
+    }
+  }
+  return alvo.copy(ESCALA[ESCALA.length - 1][1])
+}
+
+/**
+ * Mapa de potenciais no solo durante a falta: grade pré-calculada (V/GPR) em
+ * cores por vértice. Modo "áreas seguras": âmbar onde o toque passaria do
+ * limite, vermelho onde o passo passaria (brita no skid/trafo, grama no resto).
+ */
+function MapaPotencial() {
+  const modo = useUsinaFv((s) => s.mapaPotencial)
+  const solo = useUsinaFv((s) => s.solo)
+  const cenario = useUsinaFv((s) => s.cenario)
+  const geometria = useMemo(() => {
+    const m = mapaDoCenario(cenario)
+    const malha = malhaDoSolo(solo, cenario)
+    const gpr = malha.rg * I_MALHA_A
+    const pos = new Float32Array(m.nx * m.nz * 3)
+    const cores = new Float32Array(m.nx * m.nz * 3)
+    const c = new THREE.Color()
+    const verde = new THREE.Color(color.status.pass)
+    const ambar = new THREE.Color(color.status.marginal)
+    const vermelho = new THREE.Color(color.status.fail)
+    const rel = (i: number, j: number) => m.rel[Math.max(0, Math.min(m.nz - 1, j)) * m.nx + Math.max(0, Math.min(m.nx - 1, i))]
+    for (let j = 0; j < m.nz; j++) {
+      for (let i = 0; i < m.nx; i++) {
+        const k = j * m.nx + i
+        const x = m.x0 + i * m.passo
+        const z = m.z0 + j * m.passo
+        pos.set([x, 0.05, z], k * 3)
+        if (modo === 'seguranca') {
+          const brita = x >= AREA_BRITA.xMin && x <= AREA_BRITA.xMax && z >= AREA_BRITA.zMin && z <= AREA_BRITA.zMax
+          const sup = brita ? 'brita' : 'grama'
+          const toque = gpr * (1 - rel(i, j))
+          // passo ≈ gradiente × 1 m (diferenças centrais na grade)
+          const gx = (rel(i + 1, j) - rel(i - 1, j)) / (2 * m.passo)
+          const gz = (rel(i, j + 1) - rel(i, j - 1)) / (2 * m.passo)
+          const passo = gpr * Math.hypot(gx, gz)
+          c.copy(passo > limitePasso(malha.rho, sup) ? vermelho : toque > limiteToque(malha.rho, sup) ? ambar : verde)
+        } else {
+          corEscala(rel(i, j), c)
+        }
+        cores.set([c.r, c.g, c.b], k * 3)
+      }
+    }
+    const idx: number[] = []
+    for (let j = 0; j < m.nz - 1; j++)
+      for (let i = 0; i < m.nx - 1; i++) {
+        const a = j * m.nx + i
+        idx.push(a, a + m.nx, a + 1, a + 1, a + m.nx, a + m.nx + 1)
+      }
+    const g = new THREE.BufferGeometry()
+    g.setAttribute('position', new THREE.BufferAttribute(pos, 3))
+    g.setAttribute('color', new THREE.BufferAttribute(cores, 3))
+    g.setIndex(idx)
+    return g
+  }, [modo, solo, cenario])
+  useEffect(() => () => geometria.dispose(), [geometria])
+  if (modo === 'desligado') return null
+  return (
+    <mesh geometry={geometria} renderOrder={2}>
+      <meshBasicMaterial vertexColors transparent opacity={0.62} depthWrite={false} side={THREE.DoubleSide} toneMapped={false} />
+    </mesh>
   )
 }

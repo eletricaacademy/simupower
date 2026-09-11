@@ -28,19 +28,42 @@ import {
   type LaudoFv,
 } from '../engine/usinaFv'
 import {
-  AREA_MALHA_M2,
-  PROFUNDIDADE_MALHA,
-  comprimentoEnterradoM,
   DISTANCIAS_C_M,
   PONTOS_CONTINUIDADE_FV,
   PONTOS_TOQUE_PASSO_FV,
   getPontoContinuidadeFv,
   getPontoToquePassoFv,
 } from '../catalog/usinaFvPontos'
+import { RESULTADOS_FV, MAPAS_FV } from '../catalog/usinaFvResultados'
 
-/** Malha da usina para o solo escolhido (resistência verdadeira por Sverak). */
-export function malhaDoSolo(solo: PerfilSoloFv): MalhaFv {
-  return montarMalha(RESISTIVIDADE_SOLO[solo], AREA_MALHA_M2, comprimentoEnterradoM(), PROFUNDIDADE_MALHA)
+/** Malha da usina para o solo e o cenário (resultados pré-calculados escalados por ρ). */
+export function malhaDoSolo(solo: PerfilSoloFv, cenario: CenarioFv): MalhaFv {
+  return montarMalha(RESISTIVIDADE_SOLO[solo], RESULTADOS_FV[cenario])
+}
+
+export interface MapaPotencialFv {
+  nx: number
+  nz: number
+  x0: number
+  z0: number
+  passo: number
+  /** V/GPR na superfície (0…1), linha a linha em z. */
+  rel: Float32Array
+}
+
+const cacheMapas: Partial<Record<CenarioFv, MapaPotencialFv>> = {}
+
+/** Mapa de potencial na superfície (V/GPR) do cenário — decodificado uma vez. */
+export function mapaDoCenario(cenario: CenarioFv): MapaPotencialFv {
+  const pronto = cacheMapas[cenario]
+  if (pronto) return pronto
+  const g = MAPAS_FV[cenario]
+  const bin = atob(g.b64)
+  const rel = new Float32Array(bin.length)
+  for (let i = 0; i < bin.length; i++) rel[i] = bin.charCodeAt(i) / 255
+  const mapa = { nx: g.nx, nz: g.nz, x0: g.x0, z0: g.z0, passo: g.passo, rel }
+  cacheMapas[cenario] = mapa
+  return mapa
 }
 
 interface UsinaFvState {
@@ -48,6 +71,8 @@ interface UsinaFvState {
   cenario: CenarioFv
   /** Malha enterrada visível através do solo (cena). */
   mostrarMalha: boolean
+  /** Mapa de potencial no solo durante a falta (cena, etapa de toque/passo). */
+  mapaPotencial: 'desligado' | 'potencial' | 'seguranca'
 
   // continuidade
   pontasZeradas: boolean
@@ -70,6 +95,7 @@ interface UsinaFvState {
   setSolo: (s: PerfilSoloFv) => void
   setCenario: (c: CenarioFv) => void
   setMostrarMalha: (v: boolean) => void
+  setMapaPotencial: (v: 'desligado' | 'potencial' | 'seguranca') => void
   zerarPontas: () => void
   setPontoCont: (id: string) => void
   medirContinuidade: () => void
@@ -90,6 +116,7 @@ const inicial = {
   solo: 'arenoso' as PerfilSoloFv,
   cenario: 'com-defeitos' as CenarioFv,
   mostrarMalha: false,
+  mapaPotencial: 'potencial' as 'desligado' | 'potencial' | 'seguranca',
   pontasZeradas: false,
   pontoCont: PONTOS_CONTINUIDADE_FV[0].id,
   continuidade: {} as Record<string, LeituraContinuidadeFv>,
@@ -112,6 +139,7 @@ export const useUsinaFv = create<UsinaFvState>((set, get) => ({
   // trocar o cenário invalida tudo que já foi medido
   setCenario: (cenario) => set({ cenario, continuidade: {}, curva: [], malha: null, toquePasso: {}, laudo: null }),
   setMostrarMalha: (mostrarMalha) => set({ mostrarMalha }),
+  setMapaPotencial: (mapaPotencial) => set({ mapaPotencial }),
 
   zerarPontas: () => set({ pontasZeradas: true }),
   setPontoCont: (id) => {
@@ -134,17 +162,17 @@ export const useUsinaFv = create<UsinaFvState>((set, get) => ({
   cravarEstacas: () => set({ estacasCravadas: true }),
   setPosP: (x) => set({ posP: Math.max(0, Math.min(1, x)) }),
   registrarP: () => {
-    const { estacasCravadas, solo, distanciaC, posP, curva } = get()
+    const { estacasCravadas, solo, cenario, distanciaC, posP, curva } = get()
     if (!estacasCravadas) return
-    const r = resistenciaAparenteFv(malhaDoSolo(solo), distanciaC, posP)
+    const r = resistenciaAparenteFv(malhaDoSolo(solo, cenario), distanciaC, posP)
     // substitui o ponto na mesma posição para não duplicar
     const semDup = curva.filter((p) => Math.abs(p.x - posP) > TOLERANCIA_POSICAO / 2)
     set({ curva: [...semDup, { x: posP, r }].sort((a, b) => a.x - b.x), malha: null, laudo: null })
   },
   limparCurva: () => set({ curva: [], malha: null, laudo: null }),
   calcularMalha: () => {
-    const { solo, distanciaC, curva } = get()
-    set({ malha: avaliarQuedaPotencial(malhaDoSolo(solo), distanciaC, curva), laudo: null })
+    const { solo, cenario, distanciaC, curva } = get()
+    set({ malha: avaliarQuedaPotencial(malhaDoSolo(solo, cenario), distanciaC, curva), laudo: null })
   },
 
   setPontoTP: (id) => {
@@ -154,7 +182,7 @@ export const useUsinaFv = create<UsinaFvState>((set, get) => ({
     const { pontoTP, solo, cenario, toquePasso } = get()
     const ponto = getPontoToquePassoFv(pontoTP)
     if (!ponto) return
-    set({ toquePasso: { ...toquePasso, [ponto.id]: medirToquePasso(ponto, malhaDoSolo(solo), cenario) }, laudo: null })
+    set({ toquePasso: { ...toquePasso, [ponto.id]: medirToquePasso(ponto, malhaDoSolo(solo, cenario)) }, laudo: null })
   },
 
   emitir: () => {

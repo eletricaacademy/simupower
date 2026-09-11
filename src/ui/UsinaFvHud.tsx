@@ -22,6 +22,7 @@ import {
   type CenarioFv,
   type PerfilSoloFv,
   type PontoCurvaFv,
+  type MalhaFv,
 } from '../engine/usinaFv'
 import { R_PONTAS, formatarLeitura } from '../engine/spda'
 import {
@@ -382,6 +383,7 @@ function PainelEtapa({ onAbrirLaudo }: { onAbrirLaudo: () => void }) {
 function PainelPlanta({ onAbrirLaudo }: { onAbrirLaudo: () => void }) {
   const laudo = useUsinaFv((s) => s.laudo)
   const solo = useUsinaFv((s) => s.solo)
+  const cenario = useUsinaFv((s) => s.cenario)
   const Linha = ({ rotulo, valor }: { rotulo: string; valor: string }) => (
     <div className="flex justify-between gap-2 text-[11.5px] py-0.5">
       <span style={{ color: color.textFaint }}>{rotulo}</span>
@@ -397,6 +399,7 @@ function PainelPlanta({ onAbrirLaudo }: { onAbrirLaudo: () => void }) {
       <Linha rotulo="Transformador" valor={`${USINA.trafoKva} kVA · ${USINA.tensaoBtV} V / ${USINA.tensaoMtKv} kV`} />
       <Linha rotulo="Subestação" valor="Cabine de medição e proteção" />
       <Linha rotulo="Malha" valor={`${AREA_MALHA_M2} m² · ${Math.round(comprimentoEnterradoM())} m enterrados`} />
+      <Linha rotulo="Rg calculada" valor={`${malhaDoSolo(solo, cenario).rg.toFixed(2)} Ω`} />
       <Linha rotulo="Solo (instrutor)" valor={`${ROTULO_SOLO[solo]} · ${RESISTIVIDADE_SOLO[solo]} Ω·m`} />
       <div className="my-2 h-px" style={{ background: color.hairline }} />
       <MalhaToggle />
@@ -523,6 +526,7 @@ function Miliohmimetro() {
 
 function TerrometroFv() {
   const solo = useUsinaFv((s) => s.solo)
+  const cenario = useUsinaFv((s) => s.cenario)
   const distanciaC = useUsinaFv((s) => s.distanciaC)
   const estacasCravadas = useUsinaFv((s) => s.estacasCravadas)
   const posP = useUsinaFv((s) => s.posP)
@@ -530,10 +534,13 @@ function TerrometroFv() {
   const resultado = useUsinaFv((s) => s.malha)
   const { setDistanciaC, cravarEstacas, setPosP, registrarP, limparCurva, calcularMalha } = useUsinaFv.getState()
 
-  const malha = malhaDoSolo(solo)
+  const malha = malhaDoSolo(solo, cenario)
   const rLive = resistenciaAparenteFv(malha, distanciaC, posP)
   const podeCalcular = patamarRegistrado(curva)
   const multiplo = distanciaC / DIAGONAL_MALHA_M
+  // P a 52 % precisa estar além da zona de influência da malha ao longo da estrada
+  const zona = malha.unit.influenciaEstradaM
+  const pForaDaZona = POSICOES_PATAMAR[0] * distanciaC > zona
 
   return (
     <Painel titulo="Terrômetro · queda de potencial" subtitulo={`E–C ${distanciaC} m`}>
@@ -556,6 +563,10 @@ function TerrometroFv() {
       <div className="text-[10.5px] mb-2 leading-snug" style={{ color: multiplo >= 4.5 ? color.status.pass : color.textFaint }}>
         ≈ {multiplo.toFixed(1)}× a diagonal da malha ({DIAGONAL_MALHA_M.toFixed(0)} m). Mudar a distância recrava as estacas e apaga a curva.
       </div>
+      <div className="text-[10.5px] mb-2 leading-snug rounded-[8px] px-2 py-1.5" style={{ background: color.surface, color: pForaDaZona ? color.status.pass : color.status.marginal }}>
+        Zona de influência da malha pela estrada: ~{zona} m de E (potencial acima de 10 % do GPR, faixa âmbar no 3D).
+        {pForaDaZona ? ' P a 52 % já fica fora dela.' : ' P a 52 % ainda cai dentro dela — a curva não vai achatar.'}
+      </div>
 
       {!estacasCravadas ? (
         <button onClick={cravarEstacas} className="w-full py-2.5 rounded-[10px] font-display font-semibold text-[13px]" style={{ background: color.accent, color: color.viewport }}>
@@ -564,7 +575,7 @@ function TerrometroFv() {
       ) : (
         <>
           <Visor valor={rLive.toFixed(2)} unidade="Ω" cor={color.accentCool} />
-          <CurvaQueda posP={posP} curva={curva} tracada={resultado?.curva} distanciaC={distanciaC} solo={solo} />
+          <CurvaQueda posP={posP} curva={curva} tracada={resultado?.curva} distanciaC={distanciaC} malha={malha} />
 
           <div className="mt-2">
             <div className="flex justify-between text-[11px] mb-1" style={{ color: color.textMuted }}>
@@ -625,8 +636,7 @@ function TerrometroFv() {
 }
 
 /** Gráfico R × posição da estaca P, com as posições do patamar marcadas. */
-function CurvaQueda({ posP, curva, tracada, distanciaC, solo }: { posP: number; curva: PontoCurvaFv[]; tracada?: PontoCurvaFv[]; distanciaC: number; solo: PerfilSoloFv }) {
-  const malha = malhaDoSolo(solo)
+function CurvaQueda({ posP, curva, tracada, distanciaC, malha }: { posP: number; curva: PontoCurvaFv[]; tracada?: PontoCurvaFv[]; distanciaC: number; malha: MalhaFv }) {
   const W = 300
   const H = 112
   const pad = 6
@@ -732,7 +742,62 @@ function MedidorToquePasso() {
         <BotaoPrincipal onClick={medir} ativo>{leitura ? '↻ Remedir' : '▶ Medir'}</BotaoPrincipal>
       </div>
       <Aviso>Limites pelas expressões da NBR 15751 / IEEE 80 (corpo de 50 kg). Valores de falta são do cenário didático.</Aviso>
+      <div className="my-2 h-px" style={{ background: color.hairline }} />
+      <LegendaMapa />
     </Painel>
+  )
+}
+
+/** Escolha e legenda do mapa de potenciais no solo (cena 3D). */
+function LegendaMapa() {
+  const modo = useUsinaFv((s) => s.mapaPotencial)
+  const setModo = useUsinaFv((s) => s.setMapaPotencial)
+  const solo = useUsinaFv((s) => s.solo)
+  const cenario = useUsinaFv((s) => s.cenario)
+  const gpr = malhaDoSolo(solo, cenario).rg * I_MALHA_A
+  const gradiente = `linear-gradient(90deg, ${color.usinaFv.escalaPotencial.map(([t, c]) => `${c} ${t * 100}%`).join(', ')})`
+  const opcoes = [
+    { id: 'potencial', label: 'Potencial' },
+    { id: 'seguranca', label: 'Áreas seguras' },
+    { id: 'desligado', label: 'Ocultar' },
+  ] as const
+  return (
+    <div>
+      <Rotulo>Mapa no solo durante a falta</Rotulo>
+      <div className="flex gap-1.5 mb-2">
+        {opcoes.map((o) => (
+          <button
+            key={o.id}
+            onClick={() => setModo(o.id)}
+            className="flex-1 text-[11px] py-1.5 rounded-[8px]"
+            style={{ background: modo === o.id ? color.accent : color.surface, color: modo === o.id ? color.viewport : color.textMuted, border: `1px solid ${modo === o.id ? color.accent : color.hairline}` }}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
+      {modo === 'potencial' && (
+        <>
+          <div className="h-2.5 rounded-full" style={{ background: gradiente }} />
+          <div className="flex justify-between font-mono text-[9.5px] mt-1" style={{ color: color.textFaint }}>
+            <span>0 V</span>
+            <span>{Math.round(gpr / 2)} V</span>
+            <span>GPR {Math.round(gpr)} V</span>
+          </div>
+          <div className="text-[10px] mt-1 leading-snug" style={{ color: color.textFaint }}>
+            Potencial da superfície na falta. Toque = GPR − potencial sob os pés: onde o solo fica “frio” (azul) perto de uma massa aterrada, o toque é alto.
+          </div>
+        </>
+      )}
+      {modo === 'seguranca' && (
+        <div className="text-[10.5px] leading-snug space-y-0.5">
+          <div style={{ color: color.status.pass }}>■ toque e passo dentro do limite</div>
+          <div style={{ color: color.status.marginal }}>■ toque acima do limite (se houver massa ao alcance)</div>
+          <div style={{ color: color.status.fail }}>■ passo acima do limite</div>
+          <div className="pt-0.5" style={{ color: color.textFaint }}>Limites com brita no skid/trafo e grama no restante.</div>
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -741,10 +806,11 @@ function MedidorToquePasso() {
 function ResumoLaudo({ onClose, onMenu, onNova }: { onClose: () => void; onMenu: () => void; onNova: () => void }) {
   const laudo = useUsinaFv((s) => s.laudo)
   const solo = useUsinaFv((s) => s.solo)
+  const cenario = useUsinaFv((s) => s.cenario)
   if (!laudo) return null
   const cor = laudo.conforme ? color.status.pass : color.status.fail
   const m = laudo.malha
-  const rReferencia = malhaDoSolo(solo).rg
+  const rReferencia = malhaDoSolo(solo, cenario).rg
 
   const Item = ({ rotulo, valor, cor: c }: { rotulo: string; valor: string; cor?: string }) => (
     <div className="rounded-[10px] px-3 py-2" style={{ background: color.surface, border: `1px solid ${color.hairline}` }}>
@@ -782,7 +848,7 @@ function ResumoLaudo({ onClose, onMenu, onNova }: { onClose: () => void; onMenu:
           <div className="text-[11.5px] mb-3 leading-snug" style={{ color: color.textMuted }}>
             Estaca C a {m.distanciaCM} m · variação do patamar {m.variacaoPct.toFixed(1)} % ({m.patamarOk ? 'estável' : 'sem patamar'}).{' '}
             <span style={{ color: color.textFaint }}>
-              Referência didática do modelo (Sverak, {RESISTIVIDADE_SOLO[solo]} Ω·m): {rReferencia.toFixed(2)} Ω.
+              Rg calculada da malha (método dos momentos, solo de {RESISTIVIDADE_SOLO[solo]} Ω·m): {rReferencia.toFixed(2)} Ω.
             </span>
           </div>
         )}

@@ -71,7 +71,7 @@ const MODULOS: Modulo[] = [
   {
     id: 'aterramento-usina-fv',
     titulo: 'Aterramento em Usina Fotovoltaica',
-    equipamento: 'Usina FV de solo · 100 kW (skid, trafo e SE)',
+    equipamento: 'Usina FV de solo · 300 kW (skid, trafo e SE)',
     instrumento: 'Miliohmímetro · terrômetro · toque e passo',
     norma: 'NBR 16690 · NBR 16274 · NBR 15749 · NBR 15751',
     descricao:

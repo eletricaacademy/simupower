@@ -53,7 +53,7 @@ const LAB_ROOM = { size: 10, height: 4.5 }
 const SUN_POS: [number, number, number] = [14, 20, 9]
 
 /** Sol da usina FV: ao norte (−Z), como no hemisfério sul — ilumina a face dos módulos. */
-const SUN_USINA: [number, number, number] = [-12, 30, -26]
+const SUN_USINA: [number, number, number] = [-20, 50, -44]
 
 /** Altura do gramado no pátio de aterramento — alinha com a base visível do
  *  modelo (que tem geometria enterrada: postes/hastes abaixo da superfície). */
@@ -114,7 +114,7 @@ export function Stage() {
 
   // abertura: inspeção = vista aérea 3/4; hospital = dentro, à altura dos olhos;
   // demais = dentro da sala (ajustável por captura).
-  const camPos: [number, number, number] = ehUsina ? [36, 28, -42] : ehEstrutural ? [32, 23, 36] : ehSpda
+  const camPos: [number, number, number] = ehUsina ? [58, 44, -66] : ehEstrutural ? [32, 23, 36] : ehSpda
     ? [18, 10, 18]
     : ehHosp
     ? [4.5, 2.0, 9.5]
@@ -125,7 +125,7 @@ export function Stage() {
         : [2.8, 2.0, 3.2]
   const focusBaseY = ehArc || walkIn ? 0 : BENCH_TOP_Y
   const defaultTarget: [number, number, number] = ehUsina
-    ? [0, 0.5, 4]
+    ? [0, 0.5, 0]
     : ehSpda
     ? [0, 4.5, 0]
     : ehHosp
@@ -137,9 +137,9 @@ export function Stage() {
         : [0, BENCH_TOP_Y + 0.35, 0]
   const bg = ehExterno ? '#bcdcff' : ehHosp ? '#dfe6ec' : ehEnv ? '#1b2026' : ehArc ? TEMA_SUB.bg : TEMA_BT.bg
   // limites de confinamento/enquadramento da câmera (AABB)
-  const halfX = ehUsina ? 80 : ehSpda ? 30 : ehHosp ? 8 : ehEnv ? 3.0 : ehArc ? ROOM.size / 2 : LAB_ROOM.size / 2
-  const halfZ = ehUsina ? 80 : ehSpda ? 30 : ehHosp ? 10 : ehEnv ? 2.6 : ehArc ? ROOM.size / 2 : LAB_ROOM.size / 2
-  const roomH = ehUsina ? 70 : ehSpda ? 20 : ehHosp ? 3.3 : ehEnv ? 4.4 : ehArc ? ROOM.height : LAB_ROOM.height
+  const halfX = ehUsina ? 130 : ehSpda ? 30 : ehHosp ? 8 : ehEnv ? 3.0 : ehArc ? ROOM.size / 2 : LAB_ROOM.size / 2
+  const halfZ = ehUsina ? 130 : ehSpda ? 30 : ehHosp ? 10 : ehEnv ? 2.6 : ehArc ? ROOM.size / 2 : LAB_ROOM.size / 2
+  const roomH = ehUsina ? 110 : ehSpda ? 20 : ehHosp ? 3.3 : ehEnv ? 4.4 : ehArc ? ROOM.height : LAB_ROOM.height
 
   return (
     <>
@@ -198,7 +198,7 @@ export function Stage() {
         {/* frustum de sombra largo no pátio (modelo grande, escala ~8) */}
         <orthographicCamera
           attach="shadow-camera"
-          args={ehUsina ? [-32, 32, 32, -32, 0.1, 120] : ehExterno ? [-18, 18, 18, -18, 0.1, 90] : [-7, 7, 7, -7, 0.1, 40]}
+          args={ehUsina ? [-50, 50, 50, -50, 0.1, 160] : ehExterno ? [-18, 18, 18, -18, 0.1, 90] : [-7, 7, 7, -7, 0.1, 40]}
         />
       </directionalLight>
       {!ehEnv && <directionalLight position={[-5, 3, -2]} intensity={0.35} color="#9fb4d0" />}
@@ -260,7 +260,7 @@ export function Stage() {
         enableDamping={cfg.damping}
         dampingFactor={0.08}
         minDistance={walkIn ? 0.6 : ehArc ? 2.5 : 1.4}
-        maxDistance={ehUsina ? 160 : ehSpda ? 70 : ehAter ? 55 : ehHosp ? 35 : ehEnv ? 28 : ehArc ? 9 : 8}
+        maxDistance={ehUsina ? 260 : ehSpda ? 70 : ehAter ? 55 : ehHosp ? 35 : ehEnv ? 28 : ehArc ? 9 : 8}
         maxPolarAngle={Math.PI / 2.05}
         target={defaultTarget}
       />

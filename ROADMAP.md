@@ -1,5 +1,15 @@
 # SimuPower — Módulo NR-10 · Roadmap & Status
 
+### 11/09/2026 — Usina FV passa a 300 kW, com potenciais de solo do GroundPRO
+
+Planta refeita para 300 kW (540 módulos, 10 mesas 2P×27, 3 × 100 kW, trafo 300 kVA).
+Potenciais de solo calculados fora pelo método do GroundPRO e trazidos só como
+resultados (`catalog/usinaFvResultados.ts`), por decisão do Pablo. No 3D: mapa de
+potencial no solo e modo áreas seguras, zona de influência e janela do patamar na
+estrada, corrente animada nas estacas, pessoa no toque/passo, derivações das mesas e
+defeitos visíveis (cordoalha ausente, oxidação, anel de equalização interrompido).
+Build e 123 testes aprovados. Contrato: `docs/modulos/aterramento-usina-fv.md`.
+
 ### 11/09/2026 — Novo módulo: Aterramento em usina fotovoltaica (100 kW)
 
 Usina de solo com 180 módulos (99,9 kWp) em 6 mesas, skid de inversores, trafo
@@ -45,7 +55,7 @@ Setas animadas após medir acompanham C1, os condutores e o retorno C2, incluind
 > Stack: Vite 5 + React 18 + TypeScript · three r0.169 + @react-three/fiber v8 + drei v9 + postprocessing · zustand v4 · Tailwind v4 (@theme) · @fontsource · Vitest.
 > Padrão: **engine pura e testada** → **catálogo orientado a dados** → cena/HUD renderizam qualquer par (equipamento × ensaio).
 
-Estado: **build limpo** (`npm run build`), **120 testes** passam (`npm test`) — 11/09/2026.
+Estado: **build limpo** (`npm run build`), **123 testes** passam (`npm test`) — 11/09/2026.
 
 > **Agentes:** o contexto compartilhado entre **Claude Code** e **Codex** (arquitetura, convenções e
 > divisão de trabalho por arquivo) está em **`AGENTS.md`** (o `CLAUDE.md` importa esse mesmo arquivo).
@@ -65,7 +75,7 @@ Estado: **build limpo** (`npm run build`), **120 testes** passam (`npm test`) �
 | 6 | **Verificação de Instalações (NBR 5410 §7)** | `verificacao` | hospital.glb (walk-in, sala cirúrgica) | `verificacao` (sem registry; só casca) | `VerificacaoHud.tsx` |
 | 7 | **Continuidade do SPDA** | `spda` | spda-predio (**prédio procedural provisório**) | `spda` | `SpdaHud.tsx` |
 | 8 | **SPDA natural / estrutural** | `spda-estrutural` | galpao-estrutural (procedural) | `estrutural` | `EstruturalHud.tsx` |
-| 9 | **Aterramento em Usina Fotovoltaica** | `usina-fv` | usina-fv-100kw (**procedural provisório**, GLB do Codex) | `usinaFv` | `UsinaFvHud.tsx` |
+| 9 | **Aterramento em Usina Fotovoltaica** (300 kW) | `usina-fv` | usina-fv-100kw (id mantido; **procedural provisório**, GLB do Codex) | `usinaFv` + resultados pré-calculados | `UsinaFvHud.tsx` |
 
 Roteamento por `modo` em `App.tsx`; cena por `cenario` em `scene/Stage.tsx` (bancada-lab / subestacao [arco] / subestacao-3d [walk-in env] / **hospital** [walk-in] / **predio-spda** [externo]).
 

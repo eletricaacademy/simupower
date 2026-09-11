@@ -231,26 +231,37 @@ a branch antes de editar; não sobrescrever trabalho de outro agente.
 
 ### Novo módulo — Aterramento em usina fotovoltaica (11/09/2026)
 
-Pedido do Pablo: usina FV **de solo, 100 kW** (citou 300 e corrigiu), com skid,
-transformador, subestação e painéis. **Claude fez a ferramenta completa e o cenário
-procedural; o ambiente 3D definitivo é do Codex.** Branch `feat/aterramento-usina-fv`
-(sai de `feat/spda-continuidade`). Contrato, checklist e briefing para o Codex:
-`docs/modulos/aterramento-usina-fv.md` — ler antes de mexer.
+Pedido do Pablo: usina FV **de solo** com skid, transformador, subestação e painéis —
+começou em 100 kW e, no mesmo dia, passou a **300 kW** "conforme a recomendação" do
+Claude. **Claude fez a ferramenta e o cenário procedural; o ambiente 3D definitivo é
+do Codex.** Branch `feat/aterramento-usina-fv` (sai de `feat/spda-continuidade`).
+Contrato, checklist e briefing para o Codex: `docs/modulos/aterramento-usina-fv.md` —
+ler antes de mexer.
 
-- Planta em `src/catalog/usinaFvPontos.ts`: 180 × 555 Wp em 6 mesas 2P×15 a 20°,
-  **norte = −Z** (módulos voltados para −Z), skid com 2 × 50 kW + QGBT, trafo
-  112,5 kVA 380 V/13,8 kV, cabine de medição e proteção, poste MT fora da cerca,
-  portão e estrada ao sul (+Z). Malha interligada com anel de equalização da cerca.
-- Três ensaios + laudo: continuidade do BEP do skid a 11 massas; resistência da
-  malha por queda de potencial (Sverak + disco equivalente: só há patamar com a
-  estaca C a ~5× a diagonal, 300 m); toque e passo com brita, extrapolados para a
-  corrente de falta. Solo e defeitos escolhidos pelo instrutor no ⚙.
-- Números sem fonte fechada estão como constantes `⚠ REVISAR COM O PABLO` na engine
-  (critério de continuidade, patamar, 10 Ω, corrente e tempo de falta, 50 kg). Não
-  copiar os limites do SPDA para cá. SPDA da usina fora do escopo; se entrar, NBR
-  5419:2026.
-- Codex: trocar o placeholder `scene/UsinaFvElements.tsx` pelo GLB
-  (`public/models/usina-fv.glb`), `USINA_PROCEDURAL = false`, recalibrar só os campos
-  `CALIBRAR (CODEX)`. Malha enterrada, estacas e marcadores ficam no mesmo arquivo.
-- Validado: build, 120/120 testes, fluxo completo no navegador desktop e layout de
-  390 px num iframe. Aparelho real ainda não conferido. Sem deploy.
+- Planta em `src/catalog/usinaFvPontos.ts`: 540 × 555 Wp em 10 mesas 2P×27 a 20°,
+  **norte = −Z**, skid com 3 × 100 kW + QGBT, trafo 300 kVA 380 V/13,8 kV, cabine de
+  medição e proteção, poste MT fora da cerca, portão e estrada ao sul (+Z). Malha com
+  condutor em cada linha de pilares e anel de equalização a 1 m da cerca.
+- **Decisão do Pablo — só resultados, não o método:** os potenciais de solo vêm do
+  método do GroundPRO (`Ground New HTZ`, momentos/Heppe, solo homogêneo) calculados
+  FORA e gravados em `src/catalog/usinaFvResultados.ts` (arquivo gerado, unitário
+  ρ = 1 Ω·m e 1 A). O solver NÃO entra neste repositório, que é **público** no GitHub,
+  nem no bundle do navegador. Não trazer código do GroundPRO para cá. Mudou a malha
+  ou as posições? Os resultados precisam ser recalculados (um teste acusa).
+- Três ensaios + laudo: continuidade do BEP do skid a 15 massas; queda de potencial
+  (curvas pré-calculadas; só há patamar com a estaca C a 5× a diagonal, 470 m);
+  toque e passo com o potencial real sob os pés e brita. Defeito físico no cenário
+  com defeitos: trecho do anel de equalização ausente em frente ao portão.
+- 3D didático: malha através do solo, mapa de potencial no solo (escala de 16 cores
+  do GroundPRO, em `tokens.ts`) e modo "áreas seguras", zona de influência e janela
+  do patamar na estrada, corrente animada nas estacas, pessoa no toque/passo.
+- Números sem fonte fechada estão como constantes `⚠ REVISAR COM O PABLO` na engine.
+  Não copiar os limites do SPDA para cá. SPDA da usina fora do escopo (se entrar,
+  NBR 5419:2026).
+- Codex: trocar o placeholder `scene/UsinaFvElements.tsx` pelo GLB, desligar
+  `USINA_PROCEDURAL`, recalibrar só `CALIBRAR (CODEX)`; a camada didática continua.
+- Validado: build, 123/123 testes e, no navegador desktop, todas as etapas sem erro
+  no console. Celular não conferido nesta revisão. Sem deploy.
+- Segurança (dúvida do Pablo): o que vai para o bundle pode ser lido no navegador,
+  inclusive a senha de acesso do menu. O GroundPRO roda o solver no navegador; para
+  proteger a lógica dele, a saída é mover o cálculo para uma função no servidor.

@@ -9,15 +9,17 @@
  *
  *  2. RESISTÊNCIA DA MALHA pela queda de potencial (NBR 15749). A malha de uma
  *     usina é GRANDE: a regra dos 61,8 % só vale com a estaca de corrente muito
- *     longe. Modelo: malha = disco equivalente de raio a = √(A/π) na superfície
- *     (potencial externo exato do disco: V(d) = I·ρ/(2πa)·arcsen(a/d)), com a
- *     resistência própria pela fórmula de Sverak (IEEE 80). O ponto E fica na
- *     borda da malha — o centro elétrico está `a` metros atrás dele, e é isso
- *     que desloca o patamar quando a estaca C está perto.
+ *     longe.
  *
  *  3. TENSÕES DE TOQUE E PASSO (medição NBR 15749, limites NBR 15751): o GPR
- *     da malha numa falta à terra na MT, a fração que chega a cada ponto e o
- *     limite suportável pelo corpo, com e sem camada de brita.
+ *     da malha numa falta à terra na MT e o potencial no solo sob os pés:
+ *     toque = GPR − V(pés); passo = |V(pé 1) − V(pé 2)|.
+ *
+ * Os potenciais NÃO são calculados aqui. Decisão do Pablo (11/09/2026): a
+ * usina é um exemplo fixo, calculado fora pelo método do GroundPRO e trazido
+ * como RESULTADOS (`catalog/usinaFvResultados.ts`, unitários: ρ = 1 Ω·m e
+ * 1 A). Em solo homogêneo tudo é linear em ρ e em I, então esta engine só
+ * escala e interpola — e aplica os critérios de norma.
  *
  * Funções puras, sem React/cena — testáveis isoladamente.
  */
@@ -40,29 +42,19 @@ export type PerfilSoloFv = 'umido' | 'arenoso' | 'rochoso'
 /**
  * Resistividade aparente do solo por perfil (Ω·m), para um solo homogêneo.
  * Valores de ordem de grandeza da literatura; um projeto real usa a
- * estratificação medida pelo método de Wenner.
+ * estratificação medida pelo método de Wenner. O rochoso fica em 2 000 Ω·m
+ * para que a malha de 300 kW ainda saia do critério e reprove o toque no trafo.
  */
 export const RESISTIVIDADE_SOLO: Record<PerfilSoloFv, number> = {
   umido: 100,
   arenoso: 500,
-  rochoso: 1200,
+  rochoso: 2000,
 }
 
 export const ROTULO_SOLO: Record<PerfilSoloFv, string> = {
   umido: 'Argiloso úmido',
   arenoso: 'Arenoso',
   rochoso: 'Rochoso / seco',
-}
-
-/**
- * Resistência de malha pela fórmula de Sverak (IEEE Std 80, eq. 52):
- *   Rg = ρ · [ 1/LT + 1/√(20·A) · (1 + 1/(1 + h·√(20/A))) ]
- * ρ em Ω·m, A em m², LT (condutores + hastes) em m, h (profundidade) em m.
- */
-export function resistenciaMalhaSverak(rho: number, areaM2: number, comprimentoM: number, profundidadeM: number): number {
-  if (rho <= 0 || areaM2 <= 0 || comprimentoM <= 0) throw new Error('Parâmetros de malha inválidos')
-  const termoArea = (1 / Math.sqrt(20 * areaM2)) * (1 + 1 / (1 + profundidadeM * Math.sqrt(20 / areaM2)))
-  return rho * (1 / comprimentoM + termoArea)
 }
 
 /**
@@ -94,40 +86,53 @@ export const TOLERANCIA_POSICAO = 0.02
  * de campo); conferir o texto da NBR 15749.
  */
 export const LIMITE_PATAMAR_PCT = 10
-/** Raio efetivo da estaca de corrente (m) — evita a singularidade junto a C. */
-const RAIO_ESTACA_M = 0.3
-
-export interface MalhaFv {
-  rho: number
-  /** Resistência verdadeira da malha (Ω) — Sverak. */
+/**
+ * Resultados unitários de UM cenário da usina (ρ = 1 Ω·m, 1 A injetado),
+ * calculados fora e gravados em `catalog/usinaFvResultados.ts`.
+ */
+export interface ResultadosUnitariosFv {
+  /** Resistência da malha para ρ = 1 Ω·m (Ω por Ω·m). */
   rg: number
-  /** Raio do disco equivalente (m). */
-  raioEquivalente: number
+  /** Distância da estaca C (m) → R(x) por Ω·m, x = 0; 0,01; …; 1 (101 valores). */
+  curvas: Record<number, number[]>
+  /** Id do ponto de toque/passo → fração do GPR (toque: 1 − V(pés)/GPR; passo: ΔV/GPR). */
+  fracoes: Record<string, number>
+  /** Distância de E, pela estrada das estacas, onde o potencial no solo cai a 10 % do GPR (m). */
+  influenciaEstradaM: number
+  /** Centro elétrico da malha em planta (x, z). */
+  centro: [number, number]
 }
 
-export function montarMalha(rho: number, areaM2: number, comprimentoM: number, profundidadeM: number): MalhaFv {
-  return {
-    rho,
-    rg: resistenciaMalhaSverak(rho, areaM2, comprimentoM, profundidadeM),
-    raioEquivalente: Math.sqrt(areaM2 / Math.PI),
-  }
+/** Malha da usina para uma resistividade: os resultados unitários escalados por ρ. */
+export interface MalhaFv {
+  rho: number
+  /** Resistência da malha (Ω). */
+  rg: number
+  unit: ResultadosUnitariosFv
+}
+
+export function montarMalha(rho: number, unit: ResultadosUnitariosFv): MalhaFv {
+  if (!(rho > 0)) throw new Error('Resistividade inválida')
+  return { rho, rg: rho * unit.rg, unit }
+}
+
+/** Interpolação linear numa curva amostrada de 0 a 1. */
+function interpolar(valores: number[], x: number): number {
+  const n = valores.length - 1
+  const t = Math.max(0, Math.min(1, x)) * n
+  const i = Math.min(n - 1, Math.floor(t))
+  const f = t - i
+  return valores[i] * (1 - f) + valores[i + 1] * f
 }
 
 /**
- * Resistência aparente com a estaca P na fração x ∈ [0, 1] da distância E–C.
- * Distâncias medidas a partir do ponto E, na borda da malha, ao longo da reta
- * que se afasta dela.
- *   R(x) = Rg − ρ/(2π·dC') − ρ/(2πa)·arcsen(a/dP') + ρ/(2π·(dC' − dP'))
- * com dP' = a + x·dC e dC' = a + dC (distâncias ao centro elétrico).
+ * Resistência aparente com a estaca P na fração x ∈ [0, 1] da distância E–C,
+ * interpolada na curva pré-calculada para essa distância.
  */
 export function resistenciaAparenteFv(malha: MalhaFv, distanciaCM: number, x: number): number {
-  const { rho, rg, raioEquivalente: a } = malha
-  const xc = Math.max(0, Math.min(1, x))
-  const dC = a + distanciaCM
-  const dP = a + xc * distanciaCM
-  const potMalhaEmP = (rho / (2 * Math.PI * a)) * Math.asin(Math.min(1, a / dP))
-  const distPC = Math.max(RAIO_ESTACA_M, dC - dP)
-  return rg - rho / (2 * Math.PI * dC) - potMalhaEmP + rho / (2 * Math.PI * distPC)
+  const curva = malha.unit.curvas[distanciaCM]
+  if (!curva) throw new Error(`Sem curva calculada para a estaca C a ${distanciaCM} m`)
+  return malha.rho * interpolar(curva, x)
 }
 
 export interface PontoCurvaFv {
@@ -321,8 +326,13 @@ export interface LeituraToquePasso {
 /** Faixa de atenção: até 20 % abaixo do limite ainda é aprovado, mas sem folga. */
 const FOLGA_ATENCAO = 0.8
 
-export function medirToquePasso(ponto: PontoToquePassoFv, malha: MalhaFv, cenario: CenarioFv): LeituraToquePasso {
-  const fracao = cenario === 'com-defeitos' ? (ponto.fracaoGprDefeito ?? ponto.fracaoGpr) : ponto.fracaoGpr
+/**
+ * Mede toque/passo num ponto. `malha` já é a do cenário (a geometria com
+ * defeito é outra: falta o anel de equalização em frente ao portão).
+ */
+export function medirToquePasso(ponto: PontoToquePassoFv, malha: MalhaFv): LeituraToquePasso {
+  const fracao = malha.unit.fracoes[ponto.id]
+  if (fracao === undefined) throw new Error(`Sem resultado calculado para o ponto ${ponto.id}`)
   const vTeste = fracao * I_TESTE_A * malha.rg
   const vFalta = vTeste * (I_MALHA_A / I_TESTE_A)
   const limite = ponto.tipo === 'toque' ? limiteToque(malha.rho, ponto.superficie) : limitePasso(malha.rho, ponto.superficie)
@@ -406,7 +416,7 @@ export function emitirLaudoFv(dados: {
         leitura: `${Math.round(l.vFalta)} V > ${Math.round(l.limite)} V`,
         acao:
           p.id === 't-portao'
-            ? 'Interligar portão e cerca à malha (cordoalha flexível) e manter o anel de equalização externo.'
+            ? 'Refazer o anel de equalização em frente ao portão (a 1 m da cerca) e reavaliar; em solo muito resistivo, acrescentar brita do lado de fora.'
             : 'Reforçar a malha no local, aplicar brita (≥ 10 cm) e reavaliar.',
       })
   }

@@ -1,5 +1,5 @@
 /**
- * usinaFvPontos.ts — Dados da USINA FOTOVOLTAICA DE SOLO (100 kW) do módulo
+ * usinaFvPontos.ts — Dados da USINA FOTOVOLTAICA DE SOLO (300 kW) do módulo
  * "Aterramento em usina fotovoltaica": arranjo, malha enterrada, pontos de
  * continuidade, pontos de toque/passo e a linha das estacas da queda de potencial.
  *
@@ -7,7 +7,8 @@
  * ║ CONTRATO CLAUDE × CODEX — este arquivo é a fronteira entre os dois.       ║
  * ║                                                                          ║
  * ║ • CLAUDE (ferramenta): tipos, ids, dados elétricos (trechos, seções,      ║
- * ║   conexões, defeitos, frações de GPR), malha, textos e critérios.         ║
+ * ║   conexões, defeitos), malha, textos e critérios. Os potenciais vêm      ║
+ * ║   calculados em `usinaFvResultados.ts` — mudar a malha exige recalcular.  ║
  * ║ • CODEX (cena/ambiente): APENAS os campos marcados `CALIBRAR (CODEX)` —   ║
  * ║   `pos` e `vista` dos pontos e `vistaPadrao`, recapturados no GLB real    ║
  * ║   com o pickMode e o capturador de pose do HUD (⚙ → Calibração).          ║
@@ -29,30 +30,31 @@ import type { Vec3, Vista } from './types'
 // ─── Dados nominais da planta ────────────────────────────────────────────────
 
 /**
- * Usina de solo de 100 kW (CA) com skid de inversores, transformador elevador
+ * Usina de solo de 300 kW (CA) com skid de inversores, transformador elevador
  * e subestação de entrada (cabine de medição e proteção) em média tensão.
+ * Pablo passou de 100 para 300 kW em 11/09/2026 ("conforme sua recomendação").
  *
- * ⚠ REVISAR COM O PABLO: potência (o pedido citou 300 e corrigiu para 100 kW),
- * módulo de 555 Wp, 2 inversores de 50 kW, trafo de 112,5 kVA e ligação em
- * 13,8 kV são uma configuração típica adotada para o cenário, não um projeto.
+ * ⚠ REVISAR COM O PABLO: módulo de 555 Wp, 10 mesas 2P×27, 3 inversores de
+ * 100 kW, trafo de 300 kVA e ligação em 13,8 kV são uma configuração típica
+ * adotada para o cenário, não um projeto.
  */
 export const USINA = {
-  potenciaCaKw: 100,
+  potenciaCaKw: 300,
   moduloWp: 555,
-  /** Mesa fixa 2P × 15: duas fileiras de módulos em retrato, 15 por fileira. */
-  modulosPorFileira: 15,
+  /** Mesa fixa 2P × 27: duas fileiras de módulos em retrato, 27 por fileira. */
+  modulosPorFileira: 27,
   fileirasPorMesa: 2,
-  mesas: 6,
-  inversores: 2,
-  inversorKw: 50,
-  trafoKva: 112.5,
+  mesas: 10,
+  inversores: 3,
+  inversorKw: 100,
+  trafoKva: 300,
   tensaoMtKv: 13.8,
   tensaoBtV: 380,
   inclinacaoGraus: 20,
 } as const
 
 export const MODULOS_TOTAL = USINA.mesas * USINA.modulosPorFileira * USINA.fileirasPorMesa
-/** Potência de pico do arranjo (kWp) — 180 × 555 Wp = 99,9 kWp. */
+/** Potência de pico do arranjo (kWp) — 540 × 555 Wp = 299,7 kWp. */
 export const POTENCIA_DC_KWP = (MODULOS_TOTAL * USINA.moduloWp) / 1000
 
 /** Módulo de 144 meias-células (m). */
@@ -72,34 +74,38 @@ export interface MesaFv {
   centro: Vec3
 }
 
-/** Seis mesas em 3 fileiras × 2 colunas; corredor central de 3 m e passo de 7,5 m. */
-const COLUNAS_X = [-10.15, 10.15]
-const FILEIRAS_Z = [-10, -2.5, 5]
+/** Corredor central entre as duas colunas de mesas (m). */
+const CORREDOR = 3
+/** Passo entre fileiras (m): ~1,75× a projeção da mesa, para não sombrear no inverno. */
+const PASSO_FILEIRAS = 7.5
+/** Dez mesas em 5 fileiras × 2 colunas. */
+const COLUNAS_X = [-(MESA.comprimento + CORREDOR) / 2, (MESA.comprimento + CORREDOR) / 2]
+const FILEIRAS_Z = [0, 1, 2, 3, 4].map((i) => -22.5 + i * PASSO_FILEIRAS)
 export const MESAS_FV: MesaFv[] = FILEIRAS_Z.flatMap((z, f) =>
   COLUNAS_X.map((x, c) => ({ id: `M${f * 2 + c + 1}`, nome: `Mesa M${f * 2 + c + 1}`, centro: [x, 0, z] as Vec3 })),
 )
 
 /** Cerca perimetral (m). Portão na face sul (z = zMax). */
-export const CERCA = { xMin: -22, xMax: 22, zMin: -16, zMax: 19, altura: 2.1 } as const
-export const PORTAO = { x: -16, largura: 4 } as const
+export const CERCA = { xMin: -38, xMax: 38, zMin: -29, zMax: 23, altura: 2.1 } as const
+export const PORTAO = { x: -26, largura: 4 } as const
 
 /** Skid de conversão: contêiner com os inversores e o QGBT CA. */
-export const SKID = { centro: [-6, 0, 13.5] as Vec3, dimensoes: [6.06, 2.6, 2.44] as Vec3 }
+export const SKID = { centro: [-8, 0, 16.5] as Vec3, dimensoes: [6.06, 2.6, 2.44] as Vec3 }
 /** Transformador elevador a óleo sobre base de concreto. */
-export const TRAFO = { centro: [2.5, 0, 13.5] as Vec3, dimensoes: [1.6, 1.8, 1.2] as Vec3 }
+export const TRAFO = { centro: [0, 0, 16.5] as Vec3, dimensoes: [2.0, 2.0, 1.5] as Vec3 }
 /** Subestação de entrada: cabine de medição e proteção em alvenaria. */
-export const SE = { centro: [13, 0, 16] as Vec3, dimensoes: [4, 3, 3] as Vec3 }
+export const SE = { centro: [14, 0, 19.5] as Vec3, dimensoes: [4.5, 3, 3.5] as Vec3 }
 /** Poste da concessionária, fora da cerca, com a derivação em MT. */
-export const POSTE_MT: Vec3 = [16, 0, 22]
+export const POSTE_MT: Vec3 = [18, 0, 26]
 /** Área com brita em volta do skid e do trafo (retângulo x/z). */
-export const AREA_BRITA = { xMin: -10.5, xMax: 5.5, zMin: 10.8, zMax: 16.4 } as const
+export const AREA_BRITA = { xMin: -12, xMax: 3.5, zMin: 13.6, zMax: 19.8 } as const
 
 /**
  * BEP do skid (terminal de aterramento principal da usina): referência das
  * medições de continuidade. Face norte do contêiner.
  * CALIBRAR (CODEX): recapturar no GLB.
  */
-export const BEP_SKID: Vec3 = [-4.2, 0.55, 12.2]
+export const BEP_SKID: Vec3 = [-6.2, 0.55, 15.2]
 
 // ─── Malha de aterramento ────────────────────────────────────────────────────
 
@@ -112,6 +118,8 @@ export interface CondutorMalha {
   b: Vec3
   /** Anel externo de equalização da cerca (mitiga a tensão de toque no portão). */
   equalizacao?: boolean
+  /** Trecho do anel de equalização em frente ao portão — ausente no cenário com defeitos. */
+  trechoPortao?: boolean
 }
 
 const Y = -PROFUNDIDADE_MALHA
@@ -122,29 +130,62 @@ const ret = (id: string, x0: number, x1: number, z0: number, z1: number, equaliz
   { id: `${id}-o`, a: [x0, Y, z1], b: [x0, Y, z0], equalizacao },
 ]
 
+/** Anel interno: 1 m para dentro da cerca. */
+const ANEL = { x0: CERCA.xMin + 1, x1: CERCA.xMax - 1, z0: CERCA.zMin + 1, z1: CERCA.zMax - 1 }
+/** Anel da SE, em volta da cabine. */
+const ANEL_SE = { x0: SE.centro[0] - 2.5, x1: SE.centro[0] + 2.5, z0: SE.centro[2] - 2, z1: SE.centro[2] + 2 }
+/** Anel de equalização: 1 m para fora da cerca. */
+const EQ = { x0: CERCA.xMin - 1, x1: CERCA.xMax + 1, z0: CERCA.zMin - 1, z1: CERCA.zMax + 1 }
+/** Meia largura do trecho do anel de equalização em frente ao portão (m). */
+const TRECHO_PORTAO = 6
+/** Afastamento dos pilares em relação ao eixo da mesa, em planta (m). */
+const Z_PILARES = (MESA.profundidade / 2 - 0.5) * Math.cos((USINA.inclinacaoGraus * Math.PI) / 180)
+
 /**
- * Malha interligada: anel interno sob o arranjo, transversais sob cada fileira
- * de mesas e sob skid/trafo/SE, longitudinal no corredor central, anel da SE e
- * anel externo de equalização a 1 m da cerca. Tudo em cobre nu 50 mm².
+ * Malha interligada: anel interno; sob cada mesa, um condutor em cada linha de
+ * pilares (é assim que a estrutura é equipotencializada em usina de solo);
+ * transversal sob skid/trafo/SE; longitudinal no corredor; anel da SE; anel
+ * externo de equalização a 1 m da cerca. Tudo em cobre nu 50 mm².
  * ⚠ REVISAR COM O PABLO: topologia didática, não dimensionamento (IEEE 80 /
  * NBR 15751 exigem estudo com corrente de falta e estratificação do solo).
  */
 export const MALHA_FV: CondutorMalha[] = [
-  ...ret('anel', -21, 21, -15, 18),
-  ...FILEIRAS_Z.map((z, i) => ({ id: `transv-${i + 1}`, a: [-21, Y, z] as Vec3, b: [21, Y, z] as Vec3 })),
-  { id: 'transv-skid', a: [-21, Y, 13.5], b: [21, Y, 13.5] },
-  { id: 'longitudinal', a: [0, Y, -15], b: [0, Y, 18] },
-  ...ret('anel-se', 10.5, 15.5, 14, 18),
-  ...ret('equalizacao', CERCA.xMin - 1, CERCA.xMax + 1, CERCA.zMin - 1, CERCA.zMax + 1, true),
+  ...ret('anel', ANEL.x0, ANEL.x1, ANEL.z0, ANEL.z1),
+  ...FILEIRAS_Z.flatMap((z, i) =>
+    [-1, 1].map((s) => ({ id: `fileira-${i + 1}${s < 0 ? 'n' : 's'}`, a: [ANEL.x0, Y, z + s * Z_PILARES] as Vec3, b: [ANEL.x1, Y, z + s * Z_PILARES] as Vec3 })),
+  ),
+  { id: 'transv-skid', a: [ANEL.x0, Y, SKID.centro[2]], b: [ANEL.x1, Y, SKID.centro[2]] },
+  { id: 'longitudinal', a: [0, Y, ANEL.z0], b: [0, Y, ANEL.z1] },
+  ...ret('anel-se', ANEL_SE.x0, ANEL_SE.x1, ANEL_SE.z0, ANEL_SE.z1),
+  // anel de equalização: a face sul vem em três trechos para o do portão poder faltar
+  { id: 'equalizacao-n', a: [EQ.x0, Y, EQ.z0], b: [EQ.x1, Y, EQ.z0], equalizacao: true },
+  { id: 'equalizacao-l', a: [EQ.x1, Y, EQ.z0], b: [EQ.x1, Y, EQ.z1], equalizacao: true },
+  { id: 'equalizacao-s1', a: [EQ.x1, Y, EQ.z1], b: [PORTAO.x + TRECHO_PORTAO, Y, EQ.z1], equalizacao: true },
+  { id: 'equalizacao-portao', a: [PORTAO.x + TRECHO_PORTAO, Y, EQ.z1], b: [PORTAO.x - TRECHO_PORTAO, Y, EQ.z1], equalizacao: true, trechoPortao: true },
+  { id: 'equalizacao-s2', a: [PORTAO.x - TRECHO_PORTAO, Y, EQ.z1], b: [EQ.x0, Y, EQ.z1], equalizacao: true },
+  { id: 'equalizacao-o', a: [EQ.x0, Y, EQ.z1], b: [EQ.x0, Y, EQ.z0], equalizacao: true },
+  // o anel de equalização é interligado ao anel interno nos cantos
+  ...([[EQ.x0, EQ.z0, ANEL.x0, ANEL.z0], [EQ.x1, EQ.z0, ANEL.x1, ANEL.z0], [EQ.x1, EQ.z1, ANEL.x1, ANEL.z1], [EQ.x0, EQ.z1, ANEL.x0, ANEL.z1]] as const).map(
+    ([x0, z0, x1, z1], i) => ({ id: `interliga-${i + 1}`, a: [x0, Y, z0] as Vec3, b: [x1, Y, z1] as Vec3 }),
+  ),
 ]
 
-/** Hastes verticais (copperweld 3 m) nos cantos, no trafo, no skid e na SE. */
+/** Condutores presentes no cenário (com defeitos: falta o trecho do anel em frente ao portão). */
+export function malhaDoCenario(comDefeitos: boolean): CondutorMalha[] {
+  return comDefeitos ? MALHA_FV.filter((c) => !c.trechoPortao) : MALHA_FV
+}
+
+/** Raio do condutor de 50 mm² (m), usado pelo solver. */
+export const RAIO_CONDUTOR_M = Math.sqrt(50 / Math.PI) / 1000
+
+/** Hastes verticais (copperweld 3 m) nos cantos, no meio dos lados, no trafo, no skid e na SE. */
 export const COMPRIMENTO_HASTE = 3
 export const HASTES_FV: Vec3[] = [
-  [-21, Y, -15], [21, Y, -15], [21, Y, 18], [-21, Y, 18],
-  [CERCA.xMin - 1, Y, CERCA.zMin - 1], [CERCA.xMax + 1, Y, CERCA.zMin - 1],
-  [CERCA.xMax + 1, Y, CERCA.zMax + 1], [CERCA.xMin - 1, Y, CERCA.zMax + 1],
-  [2.5, Y, 13.5], [-6, Y, 13.5], [10.5, Y, 18], [15.5, Y, 14],
+  [ANEL.x0, Y, ANEL.z0], [ANEL.x1, Y, ANEL.z0], [ANEL.x1, Y, ANEL.z1], [ANEL.x0, Y, ANEL.z1],
+  [0, Y, ANEL.z0], [0, Y, ANEL.z1],
+  [EQ.x0, Y, EQ.z0], [EQ.x1, Y, EQ.z0], [EQ.x1, Y, EQ.z1], [EQ.x0, Y, EQ.z1],
+  [TRAFO.centro[0], Y, TRAFO.centro[2]], [SKID.centro[0], Y, SKID.centro[2]],
+  [ANEL_SE.x0, Y, ANEL_SE.z1], [ANEL_SE.x1, Y, ANEL_SE.z0],
 ]
 
 /** Comprimento total enterrado (condutores + hastes), usado na fórmula de Sverak. */
@@ -205,6 +246,12 @@ function terminalMesa(m: MesaFv): Vec3 {
   return [m.centro[0] + lado * (MESA.comprimento / 2 - 0.3), 0.45, m.centro[2] + 1.2]
 }
 
+/** Terminais nas faces dos equipamentos (derivados das dimensões acima). */
+const FACE_NORTE_SKID = SKID.centro[2] - SKID.dimensoes[2] / 2
+const T_INVERSORES: Vec3 = [SKID.centro[0] - 1.6, 1.1, FACE_NORTE_SKID - 0.03]
+const T_TRAFO: Vec3 = [TRAFO.centro[0] - TRAFO.dimensoes[0] / 2 - 0.05, 0.35, TRAFO.centro[2]]
+const T_SE: Vec3 = [SE.centro[0] - SE.dimensoes[0] / 2 - 0.15, 0.5, SE.centro[2] - 1.2]
+
 const DEFEITO_MESA: Record<string, TipoDefeitoFv | undefined> = { M4: 'anodizacao', M6: 'corrosao' }
 const DICA_MESA: Record<string, string> = {
   M4: 'Grampo de aterramento sobre perfil anodizado: sem arruela serrilhada, a anodização isola.',
@@ -241,8 +288,8 @@ export const PONTOS_CONTINUIDADE_FV: PontoContinuidadeFv[] = [
     trechos: [{ comprimentoM: 4, secaoMm2: 16 }],
     conexoes: 2,
     dica: 'Condutor PE de cada inversor ao barramento de terra do skid.',
-    pos: [-7.6, 1.1, 12.25],
-    vista: vistaDe([-7.6, 1.1, 12.25], -4),
+    pos: T_INVERSORES,
+    vista: vistaDe(T_INVERSORES, -4),
   },
   {
     id: 'trafo',
@@ -250,11 +297,11 @@ export const PONTOS_CONTINUIDADE_FV: PontoContinuidadeFv[] = [
     grupo: 'Equipamentos',
     norma: 'NBR 14039 · NBR 15751',
     ate: 'Terminal de terra do tanque do trafo',
-    trechos: [{ comprimentoM: percursoMalha([1.65, 0.35, 13.5]), secaoMm2: 50 }],
+    trechos: [{ comprimentoM: percursoMalha(T_TRAFO), secaoMm2: 50 }],
     conexoes: 3,
     dica: 'Tanque e neutro BT ligados à malha em pontos distintos; sem cordoalha rompida.',
-    pos: [1.65, 0.35, 13.5],
-    vista: vistaDe([1.65, 0.35, 13.5], -4),
+    pos: T_TRAFO,
+    vista: vistaDe(T_TRAFO, -4),
   },
   {
     id: 'se',
@@ -262,11 +309,11 @@ export const PONTOS_CONTINUIDADE_FV: PontoContinuidadeFv[] = [
     grupo: 'Equipamentos',
     norma: 'NBR 14039 · NBR 15751',
     ate: 'Barra de terra da cabine de medição e proteção',
-    trechos: [{ comprimentoM: percursoMalha([11.2, 0.5, 14.6]), secaoMm2: 50 }],
+    trechos: [{ comprimentoM: percursoMalha(T_SE), secaoMm2: 50 }],
     conexoes: 4,
     dica: 'Malha da SE interligada à malha da usina — sem malhas separadas no mesmo sítio.',
-    pos: [11.2, 0.5, 14.6],
-    vista: vistaDe([11.2, 0.5, 14.6], -4),
+    pos: T_SE,
+    vista: vistaDe(T_SE, -4),
   },
   {
     id: 'portao',
@@ -332,21 +379,28 @@ export interface PontoToquePassoFv {
   tipo: TipoPotencial
   local: string
   superficie: SuperficieFv
-  /**
-   * Fração do GPR que aparece como tensão de toque/passo neste ponto.
-   * ⚠ REVISAR COM O PABLO: parâmetro didático do cenário — num estudo real vem
-   * da simulação da malha (IEEE 80: Km, Ks, Ki) ou da medição NBR 15749.
-   */
-  fracaoGpr: number
-  /** Fração no cenário com defeitos (ausente = igual à íntegra). */
-  fracaoGprDefeito?: number
   norma: string
   dica: string
-  /** CALIBRAR (CODEX): onde ficam os eletrodos de pé na cena. */
+  /** CALIBRAR (CODEX): onde ficam os eletrodos de pé na cena (centro entre os pés). */
   pos: Vec3
+  /** Toque: onde a mão encosta na massa. CALIBRAR (CODEX). */
+  alvo?: Vec3
   /** CALIBRAR (CODEX): vista de câmera do ponto. */
   vista?: Vista
 }
+
+/** Pilares por fileira da mesa: um a cada ~5 m. */
+export const PILARES_POR_FILA = Math.round(MESA.comprimento / 5) + 1
+
+/** Pilar traseiro (sul, lado alto) de uma mesa — i de 0 a PILARES_POR_FILA − 1, de oeste para leste. */
+export function pilarMesa(m: MesaFv, i: number): Vec3 {
+  const xl = -MESA.comprimento / 2 + 0.6 + (i * (MESA.comprimento - 1.2)) / (PILARES_POR_FILA - 1)
+  const zl = (MESA.profundidade / 2 - 0.5) * Math.cos((USINA.inclinacaoGraus * Math.PI) / 180)
+  return [m.centro[0] + xl, 0, m.centro[2] + zl]
+}
+
+const PILAR_M1 = pilarMesa(MESAS_FV[0], 2)
+const FACE_SUL_TRAFO = TRAFO.centro[2] + TRAFO.dimensoes[2] / 2
 
 export const PONTOS_TOQUE_PASSO_FV: PontoToquePassoFv[] = [
   {
@@ -355,11 +409,11 @@ export const PONTOS_TOQUE_PASSO_FV: PontoToquePassoFv[] = [
     tipo: 'toque',
     local: 'Mão no tanque, pés a 1 m sobre a brita',
     superficie: 'brita',
-    fracaoGpr: 0.14,
     norma: 'NBR 15749 (medição) · NBR 15751 (limite)',
     dica: 'Ponto crítico: falta na MT do trafo eleva o potencial da malha inteira.',
-    pos: [2.5, 0, 15],
-    vista: vistaDe([2.5, 0.8, 15], 5),
+    pos: [TRAFO.centro[0], 0, FACE_SUL_TRAFO + 1],
+    alvo: [TRAFO.centro[0], 1.1, FACE_SUL_TRAFO],
+    vista: vistaDe([TRAFO.centro[0], 0.8, FACE_SUL_TRAFO + 1], 5),
   },
   {
     id: 't-skid',
@@ -367,11 +421,11 @@ export const PONTOS_TOQUE_PASSO_FV: PontoToquePassoFv[] = [
     tipo: 'toque',
     local: 'Mão na porta metálica, pés sobre a brita',
     superficie: 'brita',
-    fracaoGpr: 0.12,
     norma: 'NBR 15749 (medição) · NBR 15751 (limite)',
     dica: 'Portas e painéis metálicos no mesmo potencial da malha.',
-    pos: [-6, 0, 15.8],
-    vista: vistaDe([-6, 0.8, 15.8], 5),
+    pos: [SKID.centro[0], 0, FACE_NORTE_SKID - 1],
+    alvo: [SKID.centro[0], 1.2, FACE_NORTE_SKID],
+    vista: vistaDe([SKID.centro[0], 0.8, FACE_NORTE_SKID - 1], -5),
   },
   {
     id: 't-mesa',
@@ -379,11 +433,11 @@ export const PONTOS_TOQUE_PASSO_FV: PontoToquePassoFv[] = [
     tipo: 'toque',
     local: 'Mão no pilar da mesa, pés sobre a grama',
     superficie: 'grama',
-    fracaoGpr: 0.06,
     norma: 'NBR 15749 (medição) · NBR 15751 (limite)',
     dica: 'Transversal da malha sob a fileira reduz a diferença entre estrutura e solo.',
-    pos: [-8, 0, -8.2],
-    vista: vistaDe([-8, 0.8, -8.2], 5),
+    pos: [PILAR_M1[0], 0, PILAR_M1[2] + 1],
+    alvo: [PILAR_M1[0], 1.0, PILAR_M1[2]],
+    vista: vistaDe([PILAR_M1[0], 0.8, PILAR_M1[2] + 1], 5),
   },
   {
     id: 't-portao',
@@ -391,11 +445,10 @@ export const PONTOS_TOQUE_PASSO_FV: PontoToquePassoFv[] = [
     tipo: 'toque',
     local: 'Mão no portão, pés fora da cerca, sobre a grama',
     superficie: 'grama',
-    fracaoGpr: 0.07,
-    fracaoGprDefeito: 0.3,
     norma: 'NBR 15749 (medição) · NBR 15751 (limite)',
-    dica: 'Quem está fora da cerca não tem brita nem malha sob os pés: o anel de equalização é que protege.',
+    dica: 'Fora da cerca não há brita nem malha sob os pés: é o anel de equalização a 1 m que segura o potencial do solo. Com o trecho em frente ao portão interrompido, o toque sobe.',
     pos: [PORTAO.x + 1.2, 0, CERCA.zMax + 1],
+    alvo: [PORTAO.x + 1.2, 1.1, CERCA.zMax],
     vista: { pos: [PORTAO.x + 4, 2.4, CERCA.zMax + 6], target: [PORTAO.x + 1.2, 0.8, CERCA.zMax + 1] },
   },
   {
@@ -404,11 +457,10 @@ export const PONTOS_TOQUE_PASSO_FV: PontoToquePassoFv[] = [
     tipo: 'passo',
     local: 'Pés afastados 1 m, sobre a brita',
     superficie: 'brita',
-    fracaoGpr: 0.05,
     norma: 'NBR 15749 (medição) · NBR 15751 (limite)',
     dica: 'A camada de brita aumenta a resistência de contato dos pés.',
-    pos: [4.2, 0, 14.8],
-    vista: vistaDe([4.2, 0.4, 14.8], 5),
+    pos: [TRAFO.centro[0] + 2.3, 0, FACE_SUL_TRAFO + 1],
+    vista: vistaDe([TRAFO.centro[0] + 2.3, 0.4, FACE_SUL_TRAFO + 1], 5),
   },
   {
     id: 'p-cerca',
@@ -416,7 +468,6 @@ export const PONTOS_TOQUE_PASSO_FV: PontoToquePassoFv[] = [
     tipo: 'passo',
     local: 'Pés afastados 1 m, fora da cerca, sobre a grama',
     superficie: 'grama',
-    fracaoGpr: 0.09,
     norma: 'NBR 15749 (medição) · NBR 15751 (limite)',
     dica: 'O gradiente de potencial é maior na borda da malha.',
     pos: [CERCA.xMax + 1.5, 0, 0],
@@ -433,10 +484,10 @@ export function getPontoToquePassoFv(id: string): PontoToquePassoFv | undefined 
 /** CALIBRAR (CODEX): vistas de abertura e de referência da planta. */
 export const VISTAS_FV = {
   // pelo lado norte: os módulos estão voltados para o norte, então é daqui que se vê a face
-  geral: { pos: [36, 28, -42], target: [0, 0.5, 4] } as Vista,
-  planta: { pos: [0.01, 62, 18], target: [0, 0, 2] } as Vista,
-  skid: { pos: [-1, 6, 3], target: [-5, 1, 12.5] } as Vista,
+  geral: { pos: [58, 44, -66], target: [0, 0.5, 0] } as Vista,
+  planta: { pos: [0.01, 100, 14], target: [0, 0, -2] } as Vista,
+  skid: { pos: [-3, 7, 7], target: [-7, 1, 15.5] } as Vista,
   // da planta para a estrada: a usina em primeiro plano e as estacas se afastando
-  estacas: { pos: [-46, 40, -34], target: [ESTACAS_FV.e[0], 0, 95] } as Vista,
-  trafo: { pos: [9, 5, 6], target: [2.5, 1, 13.5] } as Vista,
+  estacas: { pos: [-80, 70, -60], target: [ESTACAS_FV.e[0], 0, 160] } as Vista,
+  trafo: { pos: [7, 5, 9], target: [0, 1, 16.5] } as Vista,
 }

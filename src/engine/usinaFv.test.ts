@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
 import {
-  resistenciaMalhaSverak,
   montarMalha,
   resistenciaAparenteFv,
   avaliarQuedaPotencial,
@@ -20,11 +19,14 @@ import {
   emitirLaudoFv,
   RESISTIVIDADE_SOLO,
   type PontoCurvaFv,
+  type PerfilSoloFv,
 } from './usinaFv'
 import {
   AREA_MALHA_M2,
   PROFUNDIDADE_MALHA,
-  comprimentoEnterradoM,
+  MALHA_FV,
+  HASTES_FV,
+  COMPRIMENTO_HASTE,
   DISTANCIAS_C_M,
   DIAGONAL_MALHA_M,
   PONTOS_CONTINUIDADE_FV,
@@ -33,30 +35,41 @@ import {
   getPontoContinuidadeFv,
   getPontoToquePassoFv,
 } from '../catalog/usinaFvPontos'
+import { RESULTADOS_FV, GEOMETRIA_CALCULADA, MAPAS_FV } from '../catalog/usinaFvResultados'
 
-const malhaDe = (perfil: keyof typeof RESISTIVIDADE_SOLO) =>
-  montarMalha(RESISTIVIDADE_SOLO[perfil], AREA_MALHA_M2, comprimentoEnterradoM(), PROFUNDIDADE_MALHA)
+type Cen = 'conforme' | 'com-defeitos'
+const malhaDe = (perfil: PerfilSoloFv, cenario: Cen = 'conforme') => montarMalha(RESISTIVIDADE_SOLO[perfil], RESULTADOS_FV[cenario])
 
 /** Registra as três posições do patamar, como o operador faria. */
 const registrarPatamar = (malha: ReturnType<typeof malhaDe>, d: number): PontoCurvaFv[] =>
   POSICOES_PATAMAR.map((x) => ({ x, r: resistenciaAparenteFv(malha, d, x) }))
 
-describe('usina FV — planta', () => {
-  it('arranjo de ~100 kWp com a diagonal de referência da malha', () => {
-    expect(POTENCIA_DC_KWP).toBeCloseTo(99.9, 1)
-    expect(DISTANCIAS_C_M.at(-1)).toBeGreaterThanOrEqual(5 * DIAGONAL_MALHA_M - 10)
-  })
-})
+const LONGE = DISTANCIAS_C_M[DISTANCIAS_C_M.length - 1]
+const PERTO = DISTANCIAS_C_M[0]
 
-describe('usina FV — resistência da malha (Sverak)', () => {
-  it('é proporcional à resistividade do solo', () => {
-    const r1 = resistenciaMalhaSverak(100, 1700, 570, 0.5)
-    expect(resistenciaMalhaSverak(500, 1700, 570, 0.5)).toBeCloseTo(5 * r1, 9)
+describe('usina FV — planta e resultados gravados', () => {
+  it('arranjo de ~300 kWp com a diagonal de referência da malha', () => {
+    expect(POTENCIA_DC_KWP).toBeCloseTo(299.7, 1)
+    expect(LONGE).toBeGreaterThanOrEqual(5 * DIAGONAL_MALHA_M - 10)
   })
 
-  it('cai com a área e com o comprimento enterrado', () => {
-    expect(resistenciaMalhaSverak(100, 3400, 570, 0.5)).toBeLessThan(resistenciaMalhaSverak(100, 1700, 570, 0.5))
-    expect(resistenciaMalhaSverak(100, 1700, 900, 0.5)).toBeLessThan(resistenciaMalhaSverak(100, 1700, 570, 0.5))
+  it('os resultados foram calculados para a geometria atual (senão, recalcular)', () => {
+    const comprimento = MALHA_FV.reduce((s, c) => s + Math.hypot(c.b[0] - c.a[0], c.b[2] - c.a[2]), 0)
+    expect(GEOMETRIA_CALCULADA.condutores).toBe(MALHA_FV.length)
+    expect(GEOMETRIA_CALCULADA.comprimentoM).toBeCloseTo(comprimento, 0)
+    expect([...GEOMETRIA_CALCULADA.distanciasC]).toEqual(DISTANCIAS_C_M)
+    for (const c of ['conforme', 'com-defeitos'] as const) {
+      for (const d of DISTANCIAS_C_M) expect(RESULTADOS_FV[c].curvas[d]).toHaveLength(101)
+      for (const p of PONTOS_TOQUE_PASSO_FV) expect(RESULTADOS_FV[c].fracoes[p.id]).toBeGreaterThan(0)
+      expect(MAPAS_FV[c].b64.length).toBeGreaterThan(1000)
+    }
+  })
+
+  it('Rg calculado confere com a fórmula de Sverak (IEEE 80) em ±20 %', () => {
+    const lt = MALHA_FV.reduce((s, c) => s + Math.hypot(c.b[0] - c.a[0], c.b[2] - c.a[2]), 0) + HASTES_FV.length * COMPRIMENTO_HASTE
+    const a = AREA_MALHA_M2
+    const sverak = 1 / lt + (1 / Math.sqrt(20 * a)) * (1 + 1 / (1 + PROFUNDIDADE_MALHA * Math.sqrt(20 / a)))
+    expect(Math.abs(RESULTADOS_FV.conforme.rg - sverak) / sverak).toBeLessThan(0.2)
   })
 
   it('perfis de solo levam a vereditos distintos', () => {
@@ -64,33 +77,34 @@ describe('usina FV — resistência da malha (Sverak)', () => {
     expect(avaliarMalha(malhaDe('arenoso').rg).cor).toBe('pass')
     expect(avaliarMalha(malhaDe('rochoso').rg).cor).toBe('marginal')
   })
+
+  it('Rg escala linearmente com a resistividade', () => {
+    expect(malhaDe('arenoso').rg).toBeCloseTo(5 * malhaDe('umido').rg, 9)
+  })
 })
 
 describe('usina FV — queda de potencial com malha grande', () => {
   it('com a estaca C a 5× a diagonal, a leitura a 62 % fica perto da verdadeira', () => {
     const m = malhaDe('arenoso')
-    const d = DISTANCIAS_C_M.at(-1)!
-    expect(Math.abs(resistenciaAparenteFv(m, d, POS_62) - m.rg) / m.rg).toBeLessThan(0.03)
+    expect(Math.abs(resistenciaAparenteFv(m, LONGE, POS_62) - m.rg) / m.rg).toBeLessThan(0.05)
   })
 
   it('com a estaca C perto, a leitura a 62 % erra mais', () => {
     const m = malhaDe('arenoso')
     const erro = (d: number) => Math.abs(resistenciaAparenteFv(m, d, POS_62) - m.rg) / m.rg
-    expect(erro(DISTANCIAS_C_M[0])).toBeGreaterThan(erro(DISTANCIAS_C_M.at(-1)!))
-    expect(erro(DISTANCIAS_C_M[0])).toBeGreaterThan(0.1)
+    expect(erro(PERTO)).toBeGreaterThan(erro(LONGE))
   })
 
   it('a curva sobe a partir de E e dispara junto de C', () => {
     const m = malhaDe('arenoso')
-    const d = DISTANCIAS_C_M.at(-1)!
-    expect(resistenciaAparenteFv(m, d, 0.05)).toBeLessThan(resistenciaAparenteFv(m, d, POS_62))
-    expect(resistenciaAparenteFv(m, d, 0.99)).toBeGreaterThan(2 * resistenciaAparenteFv(m, d, POS_62))
+    expect(resistenciaAparenteFv(m, LONGE, 0.05)).toBeLessThan(resistenciaAparenteFv(m, LONGE, POS_62))
+    expect(resistenciaAparenteFv(m, LONGE, 1)).toBeGreaterThan(2 * resistenciaAparenteFv(m, LONGE, POS_62))
   })
 
   it('só há patamar com a estaca C distante', () => {
     const m = malhaDe('arenoso')
-    const longe = avaliarQuedaPotencial(m, DISTANCIAS_C_M.at(-1)!, registrarPatamar(m, DISTANCIAS_C_M.at(-1)!))!
-    const perto = avaliarQuedaPotencial(m, DISTANCIAS_C_M[0], registrarPatamar(m, DISTANCIAS_C_M[0]))!
+    const longe = avaliarQuedaPotencial(m, LONGE, registrarPatamar(m, LONGE))!
+    const perto = avaliarQuedaPotencial(m, PERTO, registrarPatamar(m, PERTO))!
     expect(longe.patamarOk).toBe(true)
     expect(longe.variacaoPct).toBeLessThanOrEqual(LIMITE_PATAMAR_PCT)
     expect(longe.valida).toBe(true)
@@ -101,11 +115,14 @@ describe('usina FV — queda de potencial com malha grande', () => {
 
   it('exige as três posições do patamar antes de calcular', () => {
     const m = malhaDe('umido')
-    const d = DISTANCIAS_C_M.at(-1)!
-    const doisPontos = registrarPatamar(m, d).slice(0, 2)
+    const doisPontos = registrarPatamar(m, LONGE).slice(0, 2)
     expect(patamarRegistrado(doisPontos)).toBe(false)
-    expect(avaliarQuedaPotencial(m, d, doisPontos)).toBeNull()
-    expect(patamarRegistrado(registrarPatamar(m, d))).toBe(true)
+    expect(avaliarQuedaPotencial(m, LONGE, doisPontos)).toBeNull()
+    expect(patamarRegistrado(registrarPatamar(m, LONGE))).toBe(true)
+  })
+
+  it('distância sem curva calculada é erro, não leitura inventada', () => {
+    expect(() => resistenciaAparenteFv(malhaDe('umido'), 123, 0.5)).toThrow()
   })
 })
 
@@ -154,30 +171,35 @@ describe('usina FV — toque e passo', () => {
   })
 
   it('extrapola a leitura de ensaio para a corrente de falta', () => {
-    const l = medirToquePasso(PONTOS_TOQUE_PASSO_FV[0], malhaDe('arenoso'), 'conforme')
+    const l = medirToquePasso(PONTOS_TOQUE_PASSO_FV[0], malhaDe('arenoso'))
     expect(l.vFalta).toBeGreaterThan(l.vTeste)
   })
 
-  it('solo arenoso íntegro passa; portão sem cordoalha reprova', () => {
-    const m = malhaDe('arenoso')
-    for (const p of PONTOS_TOQUE_PASSO_FV) expect(medirToquePasso(p, m, 'conforme').aprovado).toBe(true)
-    expect(medirToquePasso(getPontoToquePassoFv('t-portao')!, m, 'com-defeitos').aprovado).toBe(false)
+  it('anel de equalização interrompido no portão aumenta o toque ali', () => {
+    const f = (c: Cen) => RESULTADOS_FV[c].fracoes['t-portao']
+    expect(f('com-defeitos')).toBeGreaterThan(1.5 * f('conforme'))
   })
 
-  it('solo rochoso reprova o toque junto ao trafo mesmo com brita', () => {
-    expect(medirToquePasso(getPontoToquePassoFv('t-trafo')!, malhaDe('rochoso'), 'conforme').aprovado).toBe(false)
+  it('solo arenoso íntegro passa; com o anel interrompido, o portão reprova', () => {
+    const m = malhaDe('arenoso')
+    for (const p of PONTOS_TOQUE_PASSO_FV) expect(medirToquePasso(p, m).aprovado).toBe(true)
+    expect(medirToquePasso(getPontoToquePassoFv('t-portao')!, malhaDe('arenoso', 'com-defeitos')).aprovado).toBe(false)
+  })
+
+  it('solo rochoso: fora da cerca, sem brita, o toque no portão reprova mesmo íntegro', () => {
+    expect(medirToquePasso(getPontoToquePassoFv('t-portao')!, malhaDe('rochoso')).aprovado).toBe(false)
   })
 })
 
 describe('usina FV — laudo', () => {
-  const completo = (perfil: keyof typeof RESISTIVIDADE_SOLO, cenario: 'conforme' | 'com-defeitos', d = DISTANCIAS_C_M.at(-1)!) => {
-    const m = malhaDe(perfil)
+  const completo = (perfil: PerfilSoloFv, cenario: Cen, d = LONGE) => {
+    const m = malhaDe(perfil, cenario)
     return emitirLaudoFv({
       pontosContinuidade: PONTOS_CONTINUIDADE_FV,
       continuidade: Object.fromEntries(PONTOS_CONTINUIDADE_FV.map((p) => [p.id, medirContinuidadeFv(p, cenario, true)])),
       malha: avaliarQuedaPotencial(m, d, registrarPatamar(m, d)),
       pontosToquePasso: PONTOS_TOQUE_PASSO_FV,
-      toquePasso: Object.fromEntries(PONTOS_TOQUE_PASSO_FV.map((p) => [p.id, medirToquePasso(p, m, cenario)])),
+      toquePasso: Object.fromEntries(PONTOS_TOQUE_PASSO_FV.map((p) => [p.id, medirToquePasso(p, m)])),
     })
   }
 
@@ -198,7 +220,7 @@ describe('usina FV — laudo', () => {
   })
 
   it('curva sem patamar vira achado, não aprovação', () => {
-    const l = completo('umido', 'conforme', DISTANCIAS_C_M[0])
+    const l = completo('umido', 'conforme', PERTO)
     expect(l.conforme).toBe(false)
     expect(l.achados.some((a) => a.ensaio === 'Resistência da malha')).toBe(true)
   })

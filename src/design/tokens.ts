@@ -38,6 +38,19 @@ export const color = {
     estacaE: '#2a9d4a',
     estacaP: '#e3c423',
     estacaC: '#c83232',
+    /** Figura humana dos ensaios de toque/passo. */
+    pessoa: '#d9a066',
+    roupa: '#2f5d8a',
+    /**
+     * Escala do mapa de potenciais (0 = frio, 1 = GPR) — as 16 paradas do
+     * GroundPRO (`potential-colors.ts`), para os dois produtos lerem igual.
+     */
+    escalaPotencial: [
+      [0, '#140a5a'], [0.0667, '#1e148c'], [0.1333, '#0a32c8'], [0.2, '#005ae6'],
+      [0.2667, '#008cdc'], [0.3333, '#00b4be'], [0.4, '#00c88c'], [0.4667, '#1ed250'],
+      [0.5333, '#64d728'], [0.6, '#a0dc14'], [0.6667, '#d2d700'], [0.7333, '#fac300'],
+      [0.8, '#ff9b00'], [0.8667, '#fa6900'], [0.9333, '#e6320a'], [1, '#aa0f0a'],
+    ] as [number, string][],
   },
   inbrat: {
     maleta: '#ee3027',

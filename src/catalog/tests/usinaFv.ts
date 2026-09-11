@@ -1,5 +1,19 @@
 import type { TestProcedure } from '../types'
-import { VISTAS_FV } from '../usinaFvPontos'
+import {
+  VISTAS_FV,
+  USINA,
+  MODULOS_TOTAL,
+  POTENCIA_DC_KWP,
+  PONTOS_CONTINUIDADE_FV,
+  PONTOS_TOQUE_PASSO_FV,
+  DISTANCIAS_C_M,
+} from '../usinaFvPontos'
+
+// textos derivados dos dados: mudar a planta não deixa o procedimento desatualizado
+const kwp = POTENCIA_DC_KWP.toFixed(1).replace('.', ',')
+const nCont = PONTOS_CONTINUIDADE_FV.length
+const nTP = PONTOS_TOQUE_PASSO_FV.length
+const cLonge = DISTANCIAS_C_M[DISTANCIAS_C_M.length - 1]
 
 /**
  * ATERRAMENTO EM USINA FOTOVOLTAICA DE SOLO (100 kW) — três ensaios na ordem
@@ -30,8 +44,8 @@ export const usinaFvProcedure: TestProcedure = {
       descricao:
         'Faça a APR da usina: o arranjo gera tensão CC sempre que há luz, e a malha pode receber potencial de uma falta na rede. Confira clima, bloqueios e acessos.',
       detalhes: [
-        'Usina de solo: 180 módulos de 555 Wp (≈ 100 kWp), 6 mesas, skid com 2 inversores de 50 kW',
-        'Transformador elevador 112,5 kVA 380 V / 13,8 kV e cabine de medição e proteção',
+        `Usina de solo: ${MODULOS_TOTAL} módulos de ${USINA.moduloWp} Wp (${kwp} kWp), ${USINA.mesas} mesas, skid com ${USINA.inversores} inversores de ${USINA.inversorKw} kW`,
+        `Transformador elevador ${String(USINA.trafoKva).replace('.', ',')} kVA ${USINA.tensaoBtV} V / ${String(USINA.tensaoMtKv).replace('.', ',')} kV e cabine de medição e proteção`,
         'Inversores desligados e seccionadoras CC/CA abertas e bloqueadas (NR-10)',
         'NÃO ensaiar com tempestade: descarga próxima eleva o potencial da malha e das estacas',
         'Luvas isolantes para as garras e cabos longos da queda de potencial',
@@ -73,12 +87,12 @@ export const usinaFvProcedure: TestProcedure = {
       id: 'fv-continuidade',
       titulo: 'Continuidade da equipotencialização',
       descricao:
-        'Com o miliohmímetro, compense as pontas e meça do BEP do skid até cada massa: as seis mesas, os inversores, o trafo, a SE, o portão e a cerca.',
+        `Com o miliohmímetro, compense as pontas e meça do BEP do skid até cada massa: as ${USINA.mesas} mesas, os inversores, o trafo, a SE, o portão e a cerca.`,
       detalhes: [
         'Garra fixa no BEP do skid; terminal remoto em cada ponto',
         'Função de baixa resistência com corrente ≥ 200 mA',
         'Critério adotado: ≤ 0,5 Ω conforme · 0,5–1,0 Ω atenção · > 1,0 Ω ou OL não conforme',
-        'Meça os 11 pontos para concluir a etapa',
+        `Meça os ${nCont} pontos para concluir a etapa`,
       ],
       cuidados: ['Ensaio com o sistema desenergizado e bloqueado; não desconectar condutores de proteção em serviço.'],
       feito: 'Continuidade medida em todos os pontos.',
@@ -95,7 +109,7 @@ export const usinaFvProcedure: TestProcedure = {
         'Conecte E na caixa de inspeção junto ao portão e leve as estacas pela estrada. Escolha a distância da estaca C, registre P a 52 %, 62 % e 72 % e confira o patamar.',
       detalhes: [
         'Malha grande: com a estaca C perto, a curva não forma patamar e a leitura a 62 % engana',
-        'Distância de referência: ≥ 5× a diagonal da malha (≈ 300 m aqui)',
+        `Distância de referência: ≥ 5× a diagonal da malha (≈ ${cLonge} m aqui)`,
         'Registrar P em 52 %, 62 % e 72 % — patamar estável se variar ≤ 10 %',
         'Estacas em solo natural, em linha, longe de cercas e cabos enterrados',
       ],
@@ -116,7 +130,7 @@ export const usinaFvProcedure: TestProcedure = {
         'Pontos: tanque do trafo, porta do QGBT, mesa, portão (lado externo), base do trafo e perímetro',
         'Leitura na corrente de ensaio → extrapolada para a corrente de falta que escoa pela malha',
         'Limite suportável depende da resistividade da superfície: a brita aumenta o limite',
-        'Meça os 6 pontos para concluir a etapa',
+        `Meça os ${nTP} pontos para concluir a etapa`,
       ],
       cuidados: ['Somente a equipe de ensaio na área durante a injeção.'],
       feito: 'Toque e passo avaliados.',

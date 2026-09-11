@@ -1,148 +1,220 @@
-# Módulo 9 — Aterramento em Usina Fotovoltaica de solo (100 kW)
+# Módulo 9 — Aterramento em Usina Fotovoltaica de solo (300 kW)
 
-## Contrato Claude × Codex — 11/09/2026
+## Contrato Claude × Codex — revisão de 11/09/2026
 
-Pedido do Pablo em 11/09/2026: nova simulação "aterramento em usina fotovoltaica",
-usina de solo de **100 kW** (o pedido citou 300 e corrigiu para 100) com **skid**,
-**transformador**, **subestação** e **painéis fotovoltaicos**. Claude monta toda a
-estrutura (ferramenta, dados e cenário procedural). **O ambiente 3D definitivo é do
-Codex**, que troca o placeholder pelo GLB sem mexer na ferramenta.
+Pedido do Pablo em 11/09/2026: simulação "aterramento em usina fotovoltaica" de solo
+com **skid**, **transformador**, **subestação** e **painéis**. Começou com 100 kW e,
+no mesmo dia, Pablo pediu **300 kW** "conforme a recomendação" do Claude. Claude monta a
+ferramenta, os dados e o cenário procedural. **O ambiente 3D definitivo é do Codex**,
+que troca o placeholder pelo GLB sem mexer na ferramenta.
 
-Branch: `feat/aterramento-usina-fv` (sai de `feat/spda-continuidade`, que ainda não
-foi para o `main`). Módulo no menu: card "Aterramento em Usina Fotovoltaica".
+Branch: `feat/aterramento-usina-fv` (sai de `feat/spda-continuidade`, que ainda não foi
+para o `main`). Card no menu: "Aterramento em Usina Fotovoltaica".
+
+### Decisões do Pablo a preservar
+
+- **300 kW**, com a configuração recomendada pelo Claude (abaixo).
+- **Potenciais de solo e malha mostrados no 3D**, com a visualização do GroundPRO
+  (`Ground New HTZ`, módulo de usinas FV) como referência.
+- **Só os RESULTADOS vêm para o SimuPower, não o método de cálculo.** A usina é um
+  exemplo fixo: os potenciais são calculados fora (método dos momentos com núcleo de
+  Heppe, o mesmo do GroundPRO, em solo homogêneo) e gravados em
+  `src/catalog/usinaFvResultados.ts`. O solver **não** entra neste repositório, que é
+  **público** no GitHub, nem no navegador. Motivo: proteger a lógica do GroundPRO.
 
 ## Estado
 
 | Parte | Dono | Estado |
 |---|---|---|
-| Engine `src/engine/usinaFv.ts` + testes | Claude | ✅ pronta, 23 testes |
-| Dados `src/catalog/usinaFvPontos.ts` (planta, malha, pontos) | Claude | ✅ pronto |
-| Procedimento `src/catalog/tests/usinaFv.ts` (6 passos) | Claude | ✅ pronto |
-| Equipment `src/catalog/equipment/usinaFv.ts` | Claude | ✅ `modelPath: ''` (procedural) |
-| Store `src/sim/usinaFvStore.ts` + testes | Claude | ✅ pronto, 6 testes |
-| HUD `src/ui/UsinaFvHud.tsx` (desktop + MobileSheet) | Claude | ✅ pronto |
-| Cena `src/scene/UsinaFvElements.tsx` | **Claude (placeholder)** → **Codex** | 🟡 procedural provisório |
-| Ramo em `src/scene/Stage.tsx` | Claude (mínimo) | ✅ ver "Mudanças fora da área" |
+| Engine `src/engine/usinaFv.ts` + testes | Claude | ✅ critérios + interpolação dos resultados |
+| Dados `src/catalog/usinaFvPontos.ts` | Claude | ✅ planta 300 kW, malha, pontos |
+| Resultados `src/catalog/usinaFvResultados.ts` | Claude (gerado) | ✅ Rg, curvas, frações, mapas |
+| Procedimento `src/catalog/tests/usinaFv.ts` | Claude | ✅ textos derivados dos dados |
+| Store `src/sim/usinaFvStore.ts` + testes | Claude | ✅ |
+| HUD `src/ui/UsinaFvHud.tsx` (desktop + mobile) | Claude | ✅ + legenda do mapa |
+| Cena `src/scene/UsinaFvElements.tsx` | Claude (placeholder) → **Codex** | 🟡 procedural + camada didática |
 | GLB `public/models/usina-fv.glb` | **Codex** | ⬜ pendente |
-| Calibração `pos`/`vista` (`CALIBRAR (CODEX)`) | **Codex** | ⬜ pendente |
+| Calibração (`CALIBRAR (CODEX)`) | **Codex** | ⬜ pendente |
 
 ## A planta (fonte: `catalog/usinaFvPontos.ts`)
 
-Mundo em metros, +Y para cima, solo em y = 0. **Norte = −Z**: módulos voltados para
-o norte (hemisfério sul), borda baixa ao norte. Acesso, portão e estrada ao **sul (+Z)**.
+Mundo em metros, +Y para cima, solo em y = 0. **Norte = −Z**: módulos voltados para o
+norte, borda baixa ao norte. Portão, estrada e acesso ao **sul (+Z)**.
 
-- **Arranjo**: 180 módulos de 555 Wp (2,278 × 1,134 m) = 99,9 kWp; 6 mesas fixas
-  2P×15 (duas fileiras em retrato, 15 módulos cada), inclinação 20°, borda baixa a
-  0,8 m. Mesas em 3 fileiras × 2 colunas: x = ±10,15; z = −10, −2,5, 5. Corredor
-  central de 3 m; passo entre fileiras 7,5 m.
-- **Skid** (contêiner 20 pés, 6,06 × 2,6 × 2,44 m) em (−6, 0, 13,5): 2 inversores de
-  50 kW + QGBT CA. Portas na face norte. **BEP do skid** em (−4,2; 0,55; 12,2).
-- **Transformador** elevador 112,5 kVA 380 V / 13,8 kV, a óleo, em (2,5; 0; 13,5),
-  sobre base de concreto; buchas MT a leste, BT a oeste.
-- **Subestação**: cabine de medição e proteção em alvenaria, 4 × 3 × 3 m, em
-  (13; 0; 16). **Poste da concessionária** fora da cerca em (16; 0; 22), com a
-  derivação em MT até a bucha da cabine.
-- **Brita** em x −10,5…5,5 / z 10,8…16,4 (skid + trafo).
-- **Cerca** alambrado 2,1 m: x −22…22, z −16…19. **Portão** na face sul, centro x = −16,
-  4 m de vão. Estrada de terra saindo do portão para o sul (é por ela que as estacas
-  da queda de potencial são levadas, até 300 m).
-- **Malha enterrada** (0,5 m, Cu 50 mm²): anel interno x ±21 / z −15…18,
-  transversais sob cada fileira e sob skid/trafo/SE, longitudinal no corredor, anel da
-  SE e **anel externo de equalização** a 1 m da cerca. 12 hastes de 3 m. Área 1 702 m²,
-  571 m enterrados, diagonal 59 m.
+- **Arranjo:** 540 módulos de 555 Wp (2,278 × 1,134 m) = 299,7 kWp. São 10 mesas fixas
+  2P×27 (31,1 m de comprimento, 20°, borda baixa a 0,8 m) em 5 fileiras × 2 colunas.
+  - x = ±17,07; z = −22,5 / −15 / −7,5 / 0 / 7,5.
+  - Corredor central de 3 m e passo entre fileiras de 7,5 m.
+  - 7 pilares por linha, duas linhas por mesa.
+- **Skid** (contêiner 6,06 × 2,6 × 2,44 m) em (−8; 0; 16,5): 3 inversores de 100 kW e
+  o QGBT. Portas na face norte. **BEP do skid** em (−6,2; 0,55; 15,2).
+- **Transformador** de 300 kVA, 380 V / 13,8 kV, em (0; 0; 16,5), sobre base.
+- **Subestação:** cabine de medição e proteção de 4,5 × 3 × 3,5 m em (14; 0; 19,5).
+  **Poste MT** fora da cerca, em (18; 0; 26).
+- **Brita:** x −12…3,5 / z 13,6…19,8.
+- **Cerca** de 2,1 m: x −38…38, z −29…23. Portão ao sul em x = −26, com 4 m.
+- **Estrada** saindo do portão para o sul, até ~550 m (a estaca C vai a 470 m).
+- **Malha** a 0,5 m, Cu 50 mm² (1 405 m de cabo e 14 hastes de 3 m):
+  - anel interno;
+  - **um condutor em cada linha de pilares** de cada mesa;
+  - transversal sob skid/trafo/SE e longitudinal no corredor;
+  - anel da SE;
+  - **anel de equalização** a 1 m da cerca, interligado nos cantos. O trecho de 12 m
+    em frente ao portão falta no cenário com defeitos.
+  - Área 4 212 m², diagonal 95 m.
 
 ## Ensaios e critérios
 
-1. **Continuidade da equipotencialização** (NBR 16274 · NBR 16690) — do BEP do skid
-   até 11 pontos: 6 mesas, inversores, trafo, SE, portão e mourão da cerca.
-   Pontas precisam ser zeradas. ⚠ Critério adotado (a norma não fixa número):
-   ≤ 0,5 Ω conforme · 0,5–1,0 Ω atenção · > 1,0 Ω ou OL não conforme.
-   Defeitos didáticos: **M4** grampo sobre perfil anodizado (+3,4 Ω), **M6**
-   conector corroído (+0,62 Ω), **portão** sem cordoalha flexível (OL).
-2. **Resistência da malha — queda de potencial** (NBR 15749). Resistência verdadeira
-   por **Sverak (IEEE 80)**; curva pelo potencial de um **disco equivalente** com o
-   ponto E na borda da malha. Distâncias da estaca C: 60/120/180/300 m (1, 2, 3 e 5×
-   a diagonal). O aluno registra P a 52, 62 e 72 %; **patamar estável se variar
-   ≤ 10 %** (⚠). Só a 300 m há patamar — é a lição central do ensaio numa malha grande.
-   Critério da malha: ≤ 10 Ω (⚠, igual ao módulo de aterramento).
-3. **Toque e passo** (medição NBR 15749, limites NBR 15751/IEEE 80, corpo 50 kg ⚠):
-   injeção de 10 A, extrapolada para 500 A de falta que escoa pela malha, t = 0,5 s
-   (⚠ valores didáticos). Brita 3 000 Ω·m × 10 cm eleva os limites. 6 pontos: tanque
-   do trafo, porta do QGBT, mesa M1, portão (lado externo), passo junto ao trafo e no
-   perímetro externo. A fração do GPR em cada ponto é parâmetro do cenário (⚠).
-   Com defeito, o portão sem cordoalha vai de 7 % para 30 % do GPR e reprova.
-4. **Laudo** consolidado: aprovados por ensaio, malha com patamar, achados e ações.
+1. **Continuidade** (NBR 16274 · NBR 16690), do BEP do skid a 15 pontos: 10 mesas,
+   inversores, trafo, SE, portão e cerca. ⚠ Critério adotado: ≤ 0,5 Ω / 0,5–1,0 Ω / > 1,0 Ω.
+   - Defeitos: **M4** anodização (3,41 Ω), **M6** corrosão (0,63 Ω, oxidação visível no
+     3D) e **portão sem cordoalha** (OL; a cordoalha some no 3D).
+2. **Queda de potencial** (NBR 15749), com a curva R(x) pré-calculada:
+   - estaca C em 90 / 190 / 280 / 470 m (1, 2, 3 e 5× a diagonal);
+   - P a 52, 62 e 72 %; patamar ≤ 10 % (⚠);
+   - só a 470 m há patamar (9,3 %). Nas outras distâncias a variação é de 14,8 %,
+     20,7 % e 35,4 %;
+   - **zona de influência** (V > 10 % do GPR pela estrada): ~198 m de E.
+3. **Toque e passo** (NBR 15749 / NBR 15751, 50 kg ⚠, 500 A ⚠, 0,5 s ⚠):
+   - toque = GPR − V(pés); passo = |V(pé 1) − V(pé 2)|, frações dos resultados;
+   - o defeito é físico: sem o trecho do anel no portão, o toque ali vai de 10 % para
+     22 % do GPR. No solo arenoso isso reprova (392 V > 287 V);
+   - no solo rochoso, o portão reprova mesmo com a instalação íntegra.
+4. **Laudo:** achados, ação e Rg calculada.
 
-Solos (instrutor): úmido 100 Ω·m (Rg 1,23 Ω) · arenoso 500 Ω·m (6,16 Ω, padrão) ·
-rochoso 1 200 Ω·m (14,8 Ω — toque no trafo reprova mesmo com brita).
+Rg calculada = 0,006983 Ω por Ω·m (6,5 % abaixo de Sverak, checado em teste):
 
-## ⚠ Pendências com o Pablo (números e escopo)
+| Solo | Resistividade | Rg | Veredito |
+|---|---|---|---|
+| Úmido | 100 Ω·m | 0,70 Ω | — |
+| Arenoso | 500 Ω·m | 3,49 Ω | — |
+| Rochoso | 2 000 Ω·m | 13,97 Ω | atenção |
 
-- Confirmar **100 kW** (e não 300 kW), módulo 555 Wp, 2 × 50 kW, trafo 112,5 kVA e
-  ligação em 13,8 kV.
-- Edições vigentes e itens exatos da **NBR 16690**, **NBR 16274**, **NBR 15749** e
-  **NBR 15751** citados nos passos (hoje citados só pelo número).
-- Critério da continuidade (0,5 / 1,0 Ω) — decisão dele, a norma exige o ensaio sem
-  fixar valor. Não reaproveitar os limites do SPDA.
-- Critério da malha (≤ 10 Ω da concessionária) e do patamar (≤ 10 %).
-- Distância recomendada da estaca C (hoje 5× a diagonal).
-- Corrente de falta pela malha (500 A), tempo de eliminação (0,5 s) e peso de
-  referência do corpo (50 kg × 70 kg) nas expressões da NBR 15751.
-- SPDA da usina fica **fora** deste módulo; se entrar, usar ABNT NBR 5419:2026
-  (convenção do projeto), conferindo a parte aplicável.
+## Resultados pré-calculados (`usinaFvResultados.ts`)
+
+- Tudo **unitário** (ρ = 1 Ω·m, 1 A). A engine escala por ρ (solo) e por I (falta ou
+  ensaio). Dois cenários: `conforme` e `com-defeitos`.
+- Conteúdo:
+  - `rg`;
+  - `curvas[d]`: 101 pontos de R(x) por distância;
+  - `fracoes[id]`: toque ou passo de cada ponto;
+  - `influenciaEstradaM` e `centro`;
+  - `MAPAS_FV`: V/GPR numa grade de 2 m com 40 m de margem, 79 × 67 valores de 0 a
+    255 em base64.
+- `GEOMETRIA_CALCULADA` guarda a assinatura da malha. **Se a malha ou as distâncias
+  mudarem, o teste falha até recalcular.**
+- **Recalcular:** o gerador não fica neste repositório. Hoje está numa pasta
+  temporária da sessão do Claude; o destino privado (repositório GroundPRO) está
+  pendente com o Pablo. O método é o de `Ground New HTZ/src/engines/potential-solver.ts`
+  (`F_heppe`, `DI`, `computeR`, `solveS`, `VV`) com K = 0.
+- Limitações:
+  - só os cabos entram no mapa, como no GroundPRO;
+  - solo homogêneo;
+  - a estaca C é tratada como fonte pontual.
+
+## O que existe no 3D (placeholder do Claude)
+
+**Ambiente:**
+- gramado, estrada, brita;
+- 540 módulos instanciados;
+- pilares e longarinas;
+- skid, trafo com radiadores e buchas, cabine, poste com a derivação MT;
+- cerca alambrado e portão;
+- rótulos.
+
+**Camada didática** (lida do store; **fica mesmo depois do GLB**):
+- **Malha enterrada** vista através do solo (com o vão do anel no cenário com defeitos),
+  hastes e derivações das mesas.
+- **Continuidade:**
+  - maleta do miliohmímetro no BEP, com a leitura em rótulo;
+  - cabo até o ponto ativo;
+  - marcadores coloridos pelo resultado.
+- **Queda de potencial:**
+  - terrômetro junto a E;
+  - estacas P e C com farol;
+  - cabos e setas de corrente animadas (C → solo → malha → E);
+  - marcos a cada 50 m;
+  - **faixa âmbar da zona de influência** e **faixa da janela do patamar** (verde fora
+    da zona, vermelha dentro).
+- **Toque e passo:**
+  - placas de pé coloridas;
+  - **pessoa** no ponto ativo (mão na massa ou pernas abertas 1 m);
+  - **mapa de potencial no solo** com a escala de 16 cores do GroundPRO, ou **modo
+    áreas seguras** (verde, âmbar para toque e vermelho para passo acima do limite),
+    com legenda no HUD.
+
+## ⚠ Pendências com o Pablo
+
+1. Configuração da usina de 300 kW: 555 Wp, 10 mesas 2P×27, 3 × 100 kW, 300 kVA,
+   13,8 kV.
+2. Edições e itens exatos das NBR 16690, 16274, 15749 e 15751.
+3. Critérios adotados:
+   - continuidade: 0,5 / 1,0 Ω;
+   - malha: ≤ 10 Ω;
+   - patamar: ≤ 10 %;
+   - estaca C a 5× a diagonal;
+   - falta: 500 A e 0,5 s;
+   - corpo: 50 kg (ou 70 kg);
+   - brita: 3 000 Ω·m × 10 cm.
+4. Onde guardar o gerador (sugestão: repositório privado do GroundPRO).
+5. Solo em 2 camadas (o GroundPRO tem; aqui é homogêneo). SPDA da usina fora do escopo;
+   se entrar, NBR 5419:2026.
 
 ## Mudanças fora da área do Claude (mínimas, avisadas)
 
-- `src/scene/UsinaFvElements.tsx` — **arquivo novo**, placeholder procedural. O
-  Codex passa a ser dono dele a partir do handoff.
-- `src/scene/Stage.tsx` — só o ramo do cenário `usina-fv`: flag `ehUsina`, câmera e
-  limites (80 m, altura 70 m, distância máx. 160 m), sol ao norte (`SUN_USINA`),
-  frustum de sombra ±32 m, `tourMode`, sem bloom e sem `Outdoor` (terreno próprio).
-- `src/design/tokens.ts` — paleta `color.usinaFv`.
+- `src/scene/UsinaFvElements.tsx`: arquivo novo. O Codex passa a ser dono no handoff.
+- `src/scene/Stage.tsx`: só o ramo `usina-fv` (flag `ehUsina`, câmera e limites para a
+  planta de 300 kW, sol ao norte, frustum de sombra ±50 m, `tourMode`, sem bloom e sem
+  `Outdoor`).
+- `src/design/tokens.ts`: paleta `color.usinaFv`, incluindo `escalaPotencial` (16
+  paradas do GroundPRO) e as cores da pessoa.
+- Reuso de `SetasCorrente` (de `scene/SpdaFluxo.tsx`) sem alterá-lo.
 
 ## Checklist de handoff para o Codex
 
-- [ ] Modelar a usina respeitando as posições acima (mesas, skid, trafo, SE, poste,
-      cerca, portão, brita, estrada). Se precisar mover algo, alinhar antes: as
-      distâncias elétricas e a malha derivam dessas posições.
-- [ ] Bruto em `assets-raw/models/`, otimizado em `public/models/usina-fv.glb`; sem
-      Draco/meshopt; conferir que o `optimize` não rotacionou o modelo (AGENTS.md).
-- [ ] 180 módulos: preferir instâncias ou malha única; respeitar `cfg.tier`.
-- [ ] `usinaFv.modelPath = 'models/usina-fv.glb'` e `escalaAlvo`.
-- [ ] `USINA_PROCEDURAL = false` em `UsinaFvElements.tsx` (a malha enterrada, as
-      estacas e os marcadores dos ensaios continuam vindo do mesmo arquivo).
-- [ ] Recapturar com ⚙ → Calibração: `BEP_SKID`, `pos`/`vista` dos 11 pontos de
-      continuidade e dos 6 de toque/passo, `ESTACAS_FV.e`, `VISTAS_FV` e
-      `vistaInicial`. Não renomear ids.
-- [ ] Opcional: modelos do miliohmímetro/terrômetro na cena (hoje o instrumento é só
-      o painel do HUD; na queda de potencial há uma caixa simples junto ao ponto E).
-- [ ] `npm run build`, `npm test`, conferir desktop e 390 × 844, commit.
+- [ ] Modelar a usina de 300 kW respeitando as posições acima. Mover algo muda a malha
+      e **exige recalcular os resultados**: alinhar antes.
+- [ ] 540 módulos por instância (um módulo modelado uma vez), respeitando `cfg.tier`.
+- [ ] Bruto em `assets-raw/models/`, otimizado em `public/models/usina-fv.glb`, sem
+      Draco/meshopt; conferir se não houve rotação (AGENTS.md).
+- [ ] `usinaFv.modelPath = 'models/usina-fv.glb'`, `escalaAlvo` e
+      `USINA_PROCEDURAL = false`. A camada didática continua.
+- [ ] Recapturar `BEP_SKID`, `pos`/`vista`/`alvo` dos pontos, `ESTACAS_FV.e`,
+      `VISTAS_FV` e `vistaInicial`. Não renomear ids.
+- [ ] Opcional:
+  - trocar a pessoa procedural por um personagem;
+  - modelos do miliohmímetro e do terrômetro;
+  - estacas e carretéis de cabo.
+- [ ] `npm run build`, `npm test`, desktop e 390 × 844; commit.
 
 ## Briefing para colar no Codex
 
-> Leia `AGENTS.md` e `docs/modulos/aterramento-usina-fv.md` (este arquivo). Na
-> branch `feat/aterramento-usina-fv`, o módulo "Aterramento em Usina Fotovoltaica"
-> já roda com cenário procedural em `src/scene/UsinaFvElements.tsx`. Sua tarefa é o
-> ambiente 3D definitivo: modelar a usina de solo de 100 kW (180 módulos em 6 mesas
-> 2P×15 a 20° voltadas para o norte = −Z, skid contêiner com inversores e QGBT,
-> transformador 112,5 kVA a óleo sobre base, cabine de medição e proteção, poste da
-> concessionária com a derivação MT, cerca alambrado com portão ao sul, brita e
-> estrada de acesso), respeitando as posições de `src/catalog/usinaFvPontos.ts`.
-> Entregar em `public/models/usina-fv.glb`, preencher `modelPath` em
-> `src/catalog/equipment/usinaFv.ts`, desligar `USINA_PROCEDURAL` e recalibrar só os
-> campos `CALIBRAR (CODEX)`. Não mexer em engine, store, HUD nem nos dados elétricos.
-> Seguir o checklist de handoff do contrato e registrar o que fez nele.
+> Leia `AGENTS.md` e `docs/modulos/aterramento-usina-fv.md`. Na branch
+> `feat/aterramento-usina-fv`, o módulo "Aterramento em Usina Fotovoltaica" (300 kW)
+> já roda com cenário procedural em `src/scene/UsinaFvElements.tsx`, incluindo a camada
+> didática (malha enterrada, estacas, mapa de potencial, pessoa de toque/passo). Sua
+> tarefa é o ambiente definitivo: modelar a usina de solo respeitando as posições de
+> `src/catalog/usinaFvPontos.ts`:
+> - 540 módulos em 10 mesas 2P×27 a 20°, voltadas para −Z;
+> - skid contêiner, transformador de 300 kVA sobre base;
+> - cabine de medição e proteção, poste MT;
+> - cerca com portão ao sul, brita e estrada.
+>
+> Entregue em `public/models/usina-fv.glb`, preencha `modelPath`, desligue
+> `USINA_PROCEDURAL` e recalibre só os campos `CALIBRAR (CODEX)`. Não mova a planta sem
+> alinhar: a malha e os resultados pré-calculados (`usinaFvResultados.ts`) dependem das
+> posições. Não mexa em engine, store, HUD, resultados nem nos dados elétricos.
+> Registre o que fez neste contrato.
 
-## Validação — 11/09/2026
+## Validação — 11/09/2026 (revisão 300 kW)
 
-- `npm run build` aprovado; `npm test` 120/120 (91 anteriores + 29 do módulo).
-- Navegador (desktop, servidor local 5173): fluxo completo dos 6 passos no cenário
-  com defeitos e solo arenoso — continuidade 8/11 (M4 3,41 Ω, M6 0,630 Ω, portão OL),
-  queda de potencial inconclusiva a 120 m (18,4 %) e adequada a 300 m (6,22 Ω,
-  8,1 %), toque/passo 5/6 (portão reprova), laudo com achados. Sem erros no console.
-- Celular: layout 390 px conferido num iframe (aviso "Melhor no computador", abas
-  Procedimento/Medição, miliohmímetro medindo). A janela do navegador de automação
-  não redimensiona, então a checagem em aparelho real ainda não foi feita.
-- Ajustes após a inspeção visual: rótulos com tamanho fixo e abaixo do HUD, visão
-  geral pelo norte (face dos módulos), vista das estacas a partir da planta, vista
-  dos terminais das mesas pelo corredor central.
+- `npm run build` aprovado; `npm test` 123/123.
+- Navegador desktop (localhost:5174):
+  - planta de 300 kW e mapa de potencial no toque/passo;
+  - toque no trafo 100 V / 711 V, com a pessoa;
+  - portão com o anel interrompido: 392 V / 287 V, reprovado;
+  - modo "Áreas seguras";
+  - queda de potencial com a zona de influência de ~198 m e o aviso a 280 m.
+  - Sem erros no console.
+- O fluxo completo da versão de 100 kW foi validado antes; nesta revisão não refiz os
+  6 passos do início ao fim no navegador. Celular ainda não conferido nesta revisão.
