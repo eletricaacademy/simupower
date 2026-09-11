@@ -1,5 +1,15 @@
 # SimuPower — Módulo NR-10 · Roadmap & Status
 
+### 11/09/2026 — Ambiente GLB da usina FV e montanha de potencial
+
+Usina de 300 kW montada a partir de kit reutilizável com 11 peças nomeadas: 540
+módulos instanciados, estruturas, skid equipado, trafo, cabine, poste MT e cerca.
+Relevo semitransparente de 12 m, interpolação bilinear, equipotenciais, indicação
+do potencial sob os pés e transição de 0,6 s. Qualidade baixa simplificada e vista
+geral ajustada à tela vertical. Engine, store, HUD e resultados preservados.
+Fonte dos modelos, dimensões e validação em `docs/modulos/aterramento-usina-fv.md`.
+Sem deploy.
+
 ### 11/09/2026 — Usina FV passa a 300 kW, com potenciais de solo do GroundPRO
 
 Planta refeita para 300 kW (540 módulos, 10 mesas 2P×27, 3 × 100 kW, trafo 300 kVA).

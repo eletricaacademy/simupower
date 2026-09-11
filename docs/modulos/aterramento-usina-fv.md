@@ -175,12 +175,12 @@ Rg calculada = 0,006983 Ω por Ω·m (6,5 % abaixo de Sverak, checado em teste):
 
 ## Checklist de handoff para o Codex
 
-- [ ] Modelar a usina de 300 kW respeitando as posições acima. Mover algo muda a malha
+- [x] Modelar a usina de 300 kW respeitando as posições acima. Mover algo muda a malha
       e **exige recalcular os resultados**: alinhar antes.
-- [ ] 540 módulos por instância (um módulo modelado uma vez), respeitando `cfg.tier`.
-- [ ] Bruto em `assets-raw/models/`, otimizado em `public/models/usina-fv.glb`, sem
+- [x] 540 módulos por instância (um módulo modelado uma vez), respeitando `cfg.tier`.
+- [x] Bruto em `assets-raw/models/`, otimizado em `public/models/usina-fv.glb`, sem
       Draco/meshopt; conferir se não houve rotação (AGENTS.md).
-- [ ] `usinaFv.modelPath = 'models/usina-fv.glb'`, `escalaAlvo` e
+- [x] `usinaFv.modelPath = 'models/usina-fv.glb'`, `escalaAlvo` e
       `USINA_PROCEDURAL = false`. A camada didática continua.
 - [ ] Recapturar `BEP_SKID`, `pos`/`vista`/`alvo` dos pontos, `ESTACAS_FV.e`,
       `VISTAS_FV` e `vistaInicial`. Não renomear ids.
@@ -191,6 +191,73 @@ Rg calculada = 0,006983 Ω por Ω·m (6,5 % abaixo de Sverak, checado em teste):
 - [ ] `npm run build`, `npm test`, desktop e 390 × 844; commit.
 
 ## Prompt atual do Codex (11/09/2026)
+
+### Entrega Codex — ambiente definitivo e relevo (11/09/2026)
+
+- `public/models/usina-fv.glb`: **2.132.108 bytes**. Kit separado:
+  `public/models/usina-fv-kit.glb`, **1.227.132 bytes**. Sem texturas externas,
+  Draco, meshopt ou quantize. Geometrias compartilhadas e materiais reutilizados.
+- Fonte reproduzível: `scripts/gerar-usina-fv.ts`. Executar
+  `node node_modules/vite-node/vite-node.mjs scripts/gerar-usina-fv.ts`.
+  Também grava os brutos em `assets-raw/models/` (ignorados pelo Git) e o manifesto
+  `public/models/usina-fv-kit.json`, com dimensões completas e pivôs.
+- Mesmas peças usadas no kit e na usina: 540 módulos a 20° para norte, 140 pilares,
+  terças, células e caixas de junção; skid aberto com três inversores numerados,
+  QGBT e porta; trafo com radiadores, buchas e conservador; cabine ventilada,
+  poste com equipamentos MT, alambrado e portão. Solo com grama, estrada e brita;
+  ondulação externa suave, mantendo a planta e o corredor das estacas planos.
+- `UsinaFvModelo.tsx` preserva origem e escala métrica sem a normalização do
+  `Equipment3D`. Agrupa matrizes em `InstancedMesh`; detalhes finos saem no perfil
+  baixo, e linhas das células desaparecem gradualmente à distância. Fallback
+  procedural em carregamento/erro. `USINA_PROCEDURAL = false`.
+- BEP, derivações, oxidação da M6 e cordoalha removível permanecem na camada
+  didática. Nenhum arquivo de engine, store, HUD ou resultados foi alterado.
+
+Dimensões máximas X × Y × Z em metros, incluindo bases, ferragens e portas abertas
+quando presentes. Todos os nós raiz do kit têm transformação identidade e pivô
+no solo; módulos usam a base local da peça. Folgas inferiores da cerca são intencionais.
+
+| Nó | Dimensões (m) |
+|---|---|
+| `kit_modulo` | 1,134 × 0,039 × 2,278 |
+| `kit_mesa_estaca` | 0,090 × 1,000 × 0,055; altura parametrizada na montagem |
+| `kit_mesa_terca` | 1,000 × 0,065 × 0,035; comprimento parametrizado |
+| `kit_skid` | 6,660 × 2,910 × 4,698; contêiner 6,06 × 2,60 × 2,44 |
+| `kit_trafo` | 3,000 × 2,640 × 2,500 |
+| `kit_cabine` | 4,900 × 3,200 × 3,900 |
+| `kit_poste_mt` | 2,500 × 11,000 × 0,835 |
+| `kit_cerca_mourao` | 0,061 × 2,313 × 0,176 |
+| `kit_cerca_painel` | 3,005 × 2,222 × 0,088 |
+| `kit_portao` | 3,992 × 2,002 × 0,060; vão nominal 4 m |
+| `kit_caixa_inspecao` | 0,400 × 0,095 × 0,400 |
+
+**Relevo:** uma malha com cores por vértice, altura `rel × 12 m`, subdivisão
+bilinear nos perfis médio/alto e grade original no baixo. Equipotenciais de 10%
+a 90%, sem desenhar a área constante do platô; rótulos em volts nas curvas pares
+existentes dentro da grade. Transparência, pessoa visível e linha vertical sob os
+pés. Transição de 0,6 s e respeito a movimento reduzido. Buffers visuais descartados
+na substituição. Apenas leitura dos resultados existentes; nenhum solver incluído.
+
+**Calibração:** modelo construído nas coordenadas originais, sem mover planta,
+contatos, E ou câmeras catalogadas. Captura real da câmera do skid confirmou
+`pos: [-3, 7, 7]`, `alvo: [-7, 1, 15.5]`. Um pick da saia do skid retornou
+`[-6.26, 0.40, 15.40]`; não foi usado como contato. Não houve recaptura individual
+de todos os contatos: o checklist correspondente continua aberto, sem inventar
+coordenadas. Os testes conferem as 140 posições de pilares e a orientação dos
+540 módulos. No retrato, a cena afasta a vista geral mantendo sua direção e alvo.
+
+**Conferência no navegador:** desktop 1440 × 900 percorreu os seis passos até
+emitir laudo, com 15 continuidades, curva de queda de potencial a 470 m e seis
+medições de toque/passo. Quatro modos do mapa exercitados. Em 390 × 844, navegação
+pelas seis etapas e quatro modos, enquadramento geral do relevo e pessoa no portão
+conferidos; não repetida toda a sequência de medições mobile. Perfil baixo e
+cenário com defeitos conferidos: portão 392 V / limite 287 V. Console sem erros
+ou avisos nessa conferência. O texto antigo “ambiente provisório” no menu permanece
+porque o HUD foi expressamente excluído do escopo. Sem deploy.
+
+**Validação automatizada:** build e 129 testes (123 existentes + 6 geométricos)
+aprovados. Os novos testes cobrem kit, instâncias, coordenadas, interpolação e
+equipotenciais. O aviso de tamanho do chunk Three no build já existia.
 
 Pablo escolheu duas frentes para o Codex: **modelo 3D definitivo** e **"montanha de
 potencial"** (modo Relevo 3D, com linhas equipotenciais). O texto completo para colar

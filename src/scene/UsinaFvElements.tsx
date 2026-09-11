@@ -23,30 +23,24 @@ import {
   DISTANCIAS_C_M,
   PONTOS_CONTINUIDADE_FV,
   PONTOS_TOQUE_PASSO_FV,
+  VISTAS_FV,
   malhaDoCenario,
 } from '../catalog/usinaFvPontos'
 import type { Vec3 } from '../catalog/types'
 import { useUsinaFv, malhaDoSolo, mapaDoCenario } from '../sim/usinaFvStore'
 import { useSim } from '../sim/store'
+import { useView } from '../sim/viewStore'
 import { I_MALHA_A, POSICOES_PATAMAR, limitePasso, limiteToque } from '../engine/usinaFv'
 import { color } from '../design/tokens'
 import { resolverQualidade } from './quality'
-import { Equipment3D } from './Equipment3D'
+import { UsinaFvModelo } from './UsinaFvModelo'
+import { amostrarGrade, subdividirGrade, equipotenciais } from './usinaFvRelevo'
 import { SetasCorrente } from './SpdaFluxo'
 
-/**
- * UsinaFvElements — cena do módulo ATERRAMENTO EM USINA FOTOVOLTAICA.
- *
- * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║ PLACEHOLDER PROCEDURAL (Claude) — o ambiente definitivo é do CODEX.       ║
- * ║ Tudo aqui deriva de `catalog/usinaFvPontos.ts`. Ao entrar o GLB:          ║
- * ║  • `usinaFv.modelPath` preenchido → o Equipment3D desenha o modelo;       ║
- * ║  • USINA_PROCEDURAL = false desliga mesas/skid/trafo/SE/cerca daqui;      ║
- * ║  • malha enterrada, estacas e marcadores dos ensaios CONTINUAM daqui      ║
- * ║    (são a camada didática, lida do store).                                ║
- * ╚══════════════════════════════════════════════════════════════════════════╝
+/** Cena montada com o kit GLB nas coordenadas originais do catalogo.
+ * A camada didatica continua independente; o procedural cobre falhas de carregamento.
  */
-export const USINA_PROCEDURAL = true
+export const USINA_PROCEDURAL = false
 
 const CU = color.usinaFv
 const TILT = THREE.MathUtils.degToRad(USINA.inclinacaoGraus)
@@ -84,6 +78,7 @@ export function UsinaFvElements() {
     if (camera instanceof THREE.PerspectiveCamera) {
       camera.fov = tamanho.width < tamanho.height ? 62 : 42
       camera.updateProjectionMatrix()
+      if (tamanho.width < tamanho.height) useView.getState().pedirPose(vistaGeralResponsiva(tamanho.width, tamanho.height))
       invalidate()
     }
   }, [camera, tamanho.width, tamanho.height, invalidate])
@@ -96,25 +91,12 @@ export function UsinaFvElements() {
 
   return (
     <group>
-      {equipamento.modelPath !== '' && (
-        <Equipment3D
-          equipment={equipamento}
-          envIntensity={0.7}
-          pickMode={pickMode}
-          onPick={(i) => reportar(new THREE.Vector3(...i.raw), i.mat)}
-        />
-      )}
       <Terreno />
-      {USINA_PROCEDURAL && (
-        <>
-          <Mesas detail={detail} />
-          <Skid />
-          <Transformador detail={detail} />
-          <Subestacao />
-          <Cerca />
-          {detail && <Rotulos />}
-        </>
+      {USINA_PROCEDURAL || !equipamento.modelPath ? <AmbienteProcedural detail={detail} /> : (
+        <UsinaFvModelo caminho={equipamento.modelPath} detalhe={detail}
+          fallback={<AmbienteProcedural detail={detail} />} onPick={pickMode ? reportar : undefined} />
       )}
+      {detail && <Rotulos />}
       <BepSkid />
       <Derivacoes comDefeitos={comDefeitos} />
       <CordoalhaPortao presente={!comDefeitos} />
@@ -205,26 +187,53 @@ function Etiqueta({ pos, texto, destaque = false }: { pos: Vec3; texto: string; 
 function Terreno() {
   // a estaca C chega a 5× a diagonal da malha (~470 m na planta de 300 kW)
   const comprimentoEstrada = Math.max(...DISTANCIAS_C_M) + 80
+  const acabamento = useMemo(() => {
+    const textura = (repetirX: number, repetirY: number, contraste: number) => {
+      const dados = new Uint8Array(128 * 128 * 4)
+      let semente = 300
+      for (let i = 0; i < 128 * 128; i++) {
+        semente = (Math.imul(semente, 1664525) + 1013904223) >>> 0
+        const v = Math.round(255 - (semente / 4294967296) * contraste)
+        dados.set([v, v, v, 255], i * 4)
+      }
+      const t = new THREE.DataTexture(dados, 128, 128)
+      t.wrapS = t.wrapT = THREE.RepeatWrapping
+      t.repeat.set(repetirX, repetirY)
+      t.magFilter = THREE.LinearFilter
+      t.minFilter = THREE.LinearMipmapLinearFilter
+      t.generateMipmaps = true; t.needsUpdate = true
+      return t
+    }
+    const terreno = new THREE.PlaneGeometry(1600, 1600, 128, 128)
+    const p = terreno.attributes.position
+    for (let i = 0; i < p.count; i++) {
+      const x = p.getX(i), z = -p.getY(i)
+      const fora = THREE.MathUtils.smoothstep(Math.max(Math.abs(x) - 45, Math.abs(z) - 35), 0, 45)
+      p.setZ(i, fora * .18 * Math.sin(x * .045) * Math.sin(z * .037) * THREE.MathUtils.smoothstep(Math.abs(x - ESTACAS_FV.e[0]), 15, 30))
+    }
+    terreno.computeVertexNormals()
+    return { terreno, grama: textura(240, 240, 55), brita: textura(20, 8, 130), estrada: textura(2, 160, 45), acesso: textura(6, 2, 45) }
+  }, [])
+  useEffect(() => () => Object.values(acabamento).forEach(a => a.dispose()), [acabamento])
   return (
     <group>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 0]} receiveShadow>
-        <planeGeometry args={[1600, 1600]} />
-        <meshLambertMaterial color={CU.grama} />
+      <mesh geometry={acabamento.terreno} rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 0]} receiveShadow>
+        <meshLambertMaterial color={CU.grama} map={acabamento.grama} />
       </mesh>
       {/* estrada de terra: do portão para o sul, por onde as estacas são levadas */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[ESTACAS_FV.e[0], -0.01, CERCA.zMax + comprimentoEstrada / 2]} receiveShadow>
         <planeGeometry args={[5, comprimentoEstrada]} />
-        <meshLambertMaterial color={CU.terra} />
+        <meshLambertMaterial color={CU.terra} map={acabamento.estrada} />
       </mesh>
       {/* acesso interno do portão ao skid */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[(PORTAO.x + AREA_BRITA.xMin) / 2, -0.01, (CERCA.zMax + AREA_BRITA.zMax) / 2]} receiveShadow>
         <planeGeometry args={[Math.abs(AREA_BRITA.xMin - PORTAO.x) + 4, Math.abs(CERCA.zMax - AREA_BRITA.zMax) + 1]} />
-        <meshLambertMaterial color={CU.terra} />
+        <meshLambertMaterial color={CU.terra} map={acabamento.acesso} />
       </mesh>
       {/* camada de brita sob skid e trafo (eleva o limite de toque/passo) */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[(AREA_BRITA.xMin + AREA_BRITA.xMax) / 2, 0.005, (AREA_BRITA.zMin + AREA_BRITA.zMax) / 2]} receiveShadow>
         <planeGeometry args={[AREA_BRITA.xMax - AREA_BRITA.xMin, AREA_BRITA.zMax - AREA_BRITA.zMin]} />
-        <meshLambertMaterial color={CU.brita} />
+        <meshLambertMaterial color={CU.brita} map={acabamento.brita} />
       </mesh>
     </group>
   )
@@ -577,6 +586,13 @@ function Marcador({ pos, cor, ativo }: { pos: Vec3; cor: string; ativo: boolean 
 
 const corLeitura = (cor?: 'pass' | 'marginal' | 'fail') => (cor ? color.status[cor] : color.textMuted)
 
+/** Mantém o eixo da vista calibrada e afasta a câmera quando a janela é estreita. */
+function vistaGeralResponsiva(largura: number, altura: number) {
+  const v = VISTAS_FV.geral
+  const fator = largura < altura ? Math.max(1, .95 * altura / largura) : 1
+  return { target: v.target, pos: v.pos.map((p, i) => v.target[i] + (p - v.target[i]) * fator) as Vec3 }
+}
+
 /** Ensaio 1: miliohmímetro no BEP do skid, cabo até o ponto ativo, marcadores coloridos. */
 function EnsaioContinuidade() {
   const pontoCont = useUsinaFv((s) => s.pontoCont)
@@ -741,6 +757,15 @@ function EnsaioToquePasso() {
  * resultado. O Codex pode trocar por um personagem modelado.
  */
 function Pessoa({ pos, alvo, passo, cor }: { pos: Vec3; alvo?: Vec3; passo: boolean; cor: string }) {
+  const corpo = useRef<THREE.Group>(null)
+  useLayoutEffect(() => {
+    corpo.current?.traverse(o => {
+      if (!(o instanceof THREE.Mesh)) return
+      o.renderOrder = 24
+      const materiais = Array.isArray(o.material) ? o.material : [o.material]
+      materiais.forEach(m => { m.depthTest = false; m.depthWrite = false; m.transparent = true })
+    })
+  })
   const giro = alvo ? Math.atan2(alvo[0] - pos[0], alvo[2] - pos[2]) : 0
   const pele = CU.pessoa
   const roupa = CU.roupa
@@ -750,7 +775,7 @@ function Pessoa({ pos, alvo, passo, cor }: { pos: Vec3; alvo?: Vec3; passo: bool
   const ombro: Vec3 = [0.2, 1.42, 0]
   const mao: Vec3 = alvo ? [0.12, alvo[1], distAlvo - 0.05] : [0.25, 0.9, 0.1]
   return (
-    <group position={pos} rotation={[0, giro, 0]}>
+    <group ref={corpo} position={pos} rotation={[0, giro, 0]}>
       {/* pernas */}
       {[-1, 1].map((s) => (
         <Barra key={s} a={[s * abertura, 0.05, 0]} b={[s * 0.1, 0.9, 0]} raio={0.07} cor={roupa} />
@@ -796,15 +821,43 @@ function corEscala(t: number, alvo: THREE.Color): THREE.Color {
  * Mapa de potenciais no solo durante a falta: grade pré-calculada (V/GPR) em
  * cores por vértice. Modo "áreas seguras": âmbar onde o toque passaria do
  * limite, vermelho onde o passo passaria (brita no skid/trafo, grama no resto).
- * CODEX: o modo 'relevo' (altura = potencial, com isolinhas) ainda desenha o
- * mapa plano — ver docs/modulos/PROMPT-CODEX-usina-fv.md.
+ * Relevo: exagero visual de 12 m e equipotenciais sobre a grade interpolada.
  */
 function MapaPotencial() {
   const modo = useUsinaFv((s) => s.mapaPotencial)
   const solo = useUsinaFv((s) => s.solo)
   const cenario = useUsinaFv((s) => s.cenario)
+  const reduzido = useSim(s => s.reducedMotion)
+  const pref = useSim(s => s.qualidadePref)
+  const pontoTP = useUsinaFv(s => s.pontoTP)
+  const grupo = useRef<THREE.Group>(null)
+  const invalidate = useThree(s => s.invalidate)
+  const tamanho = useThree(s => s.size)
+  const animacao = useRef({ atual: 0, origem: 0, alvo: 0, tempo: .6 })
+  const m = useMemo(() => subdividirGrade(mapaDoCenario(cenario), modo === 'seguranca' || resolverQualidade(pref).tier === 'baixo' ? 1 : 2), [cenario, pref, modo === 'seguranca'])
+  const curvas = useMemo(() => equipotenciais(m), [m])
+  const linhas = useMemo(() => new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(curvas.vertices, 3)), [curvas])
+  const ativo = PONTOS_TOQUE_PASSO_FV.find(p => p.id === pontoTP)
+  const gpr = malhaDoSolo(solo, cenario).rg * I_MALHA_A
+  useEffect(() => {
+    const a = animacao.current
+    a.origem = a.atual; a.alvo = modo === 'relevo' ? 1 : 0; a.tempo = 0
+    invalidate()
+  }, [modo, reduzido, invalidate])
+  useEffect(() => {
+    // A câmera de toque fica abaixo do platô. A vista geral já calibrada permite ler o relevo.
+    if (modo === 'relevo') useView.getState().pedirPose(vistaGeralResponsiva(tamanho.width, tamanho.height))
+  }, [modo, tamanho.width, tamanho.height])
+  useFrame((_, dt) => {
+    const a = animacao.current
+    a.tempo = Math.min(.6, a.tempo + dt)
+    const t = reduzido ? 1 : a.tempo / .6
+    a.atual = THREE.MathUtils.lerp(a.origem, a.alvo, t * t * (3 - 2 * t))
+    if (grupo.current) grupo.current.scale.y = Math.max(.00001, a.atual)
+    if (t < 1) invalidate()
+  })
+  useEffect(() => () => linhas.dispose(), [linhas])
   const geometria = useMemo(() => {
-    const m = mapaDoCenario(cenario)
     const malha = malhaDoSolo(solo, cenario)
     const gpr = malha.rg * I_MALHA_A
     const pos = new Float32Array(m.nx * m.nz * 3)
@@ -819,7 +872,7 @@ function MapaPotencial() {
         const k = j * m.nx + i
         const x = m.x0 + i * m.passo
         const z = m.z0 + j * m.passo
-        pos.set([x, 0.05, z], k * 3)
+        pos.set([x, rel(i, j) * 12, z], k * 3)
         if (modo === 'seguranca') {
           const brita = x >= AREA_BRITA.xMin && x <= AREA_BRITA.xMax && z >= AREA_BRITA.zMin && z <= AREA_BRITA.zMax
           const sup = brita ? 'brita' : 'grama'
@@ -846,12 +899,28 @@ function MapaPotencial() {
     g.setAttribute('color', new THREE.BufferAttribute(cores, 3))
     g.setIndex(idx)
     return g
-  }, [modo, solo, cenario])
+  }, [modo, solo, cenario, m])
   useEffect(() => () => geometria.dispose(), [geometria])
   if (modo === 'desligado') return null
   return (
-    <mesh geometry={geometria} renderOrder={2}>
-      <meshBasicMaterial vertexColors transparent opacity={0.62} depthWrite={false} side={THREE.DoubleSide} toneMapped={false} />
-    </mesh>
+    <group ref={grupo} position={[0, .05, 0]} scale={[1, .00001, 1]}>
+      <mesh geometry={geometria} renderOrder={2}>
+        <meshBasicMaterial vertexColors transparent opacity={modo === 'relevo' ? .38 : .62} depthWrite={false} side={THREE.DoubleSide} toneMapped={false} />
+      </mesh>
+      {modo === 'relevo' && <>
+        <lineSegments geometry={linhas} renderOrder={3}>
+          <lineBasicMaterial color={color.text} transparent opacity={.55} depthWrite={false} toneMapped={false} />
+        </lineSegments>
+        {curvas.rotulos.map(r => <Etiqueta key={r.nivel} pos={r.pos} texto={Math.round(r.nivel * gpr).toLocaleString('pt-BR') + ' V'} />)}
+        {ativo && <>
+          <Line points={[[ativo.pos[0], 0, ativo.pos[2]], [ativo.pos[0], amostrarGrade(m, ativo.pos[0], ativo.pos[2]) * 12, ativo.pos[2]]]} color={color.text} lineWidth={2} depthTest={false} renderOrder={24} />
+          <Etiqueta pos={[ativo.pos[0], amostrarGrade(m, ativo.pos[0], ativo.pos[2]) * 12 + .15, ativo.pos[2]]} texto={'Sob os pés · ' + Math.round(amostrarGrade(m, ativo.pos[0], ativo.pos[2]) * gpr).toLocaleString('pt-BR') + ' V'} />
+        </>}
+      </>}
+    </group>
   )
+}
+
+function AmbienteProcedural({ detail }: { detail: boolean }) {
+  return <><Mesas detail={detail} /><Skid /><Transformador detail={detail} /><Subestacao /><Cerca /></>
 }
