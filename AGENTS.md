@@ -257,7 +257,10 @@ ler antes de mexer.
   do patamar na estrada, corrente animada nas estacas, pessoa no toque/passo.
 - Números sem fonte fechada estão como constantes `⚠ REVISAR COM O PABLO` na engine.
   Não copiar os limites do SPDA para cá. SPDA da usina fora do escopo (se entrar,
-  NBR 5419:2026).
+  NBR 5419:2026). **Confirmado por Pablo (11/09): corpo de 50 kg** nos limites de
+  toque/passo — não trocar por 70 kg.
+- Pablo pediu para não mexer no GroundPRO nem nos processos do Codex. O gerador dos
+  resultados ainda não tem destino definitivo (ver contrato).
 - Codex: trocar o placeholder `scene/UsinaFvElements.tsx` pelo GLB, desligar
   `USINA_PROCEDURAL`, recalibrar só `CALIBRAR (CODEX)`; a camada didática continua.
 - Validado: build, 123/123 testes e, no navegador desktop, todas as etapas sem erro

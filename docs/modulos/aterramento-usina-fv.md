@@ -75,7 +75,8 @@ norte, borda baixa ao norte. Portão, estrada e acesso ao **sul (+Z)**.
    - só a 470 m há patamar (9,3 %). Nas outras distâncias a variação é de 14,8 %,
      20,7 % e 35,4 %;
    - **zona de influência** (V > 10 % do GPR pela estrada): ~198 m de E.
-3. **Toque e passo** (NBR 15749 / NBR 15751, 50 kg ⚠, 500 A ⚠, 0,5 s ⚠):
+3. **Toque e passo** (NBR 15749 / NBR 15751, corpo de 50 kg confirmado por Pablo em
+   11/09/2026, 500 A ⚠, 0,5 s ⚠):
    - toque = GPR − V(pés); passo = |V(pé 1) − V(pé 2)|, frações dos resultados;
    - o defeito é físico: sem o trecho do anel no portão, o toque ali vai de 10 % para
      22 % do GPR. No solo arenoso isso reprova (392 V > 287 V);
@@ -154,7 +155,6 @@ Rg calculada = 0,006983 Ω por Ω·m (6,5 % abaixo de Sverak, checado em teste):
    - patamar: ≤ 10 %;
    - estaca C a 5× a diagonal;
    - falta: 500 A e 0,5 s;
-   - corpo: 50 kg (ou 70 kg);
    - brita: 3 000 Ω·m × 10 cm.
 4. Onde guardar o gerador (sugestão: repositório privado do GroundPRO).
 5. Solo em 2 camadas (o GroundPRO tem; aqui é homogêneo). SPDA da usina fora do escopo;

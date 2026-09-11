@@ -286,9 +286,9 @@ export function fatorCs(rho: number, rhoS: number, hS: number): number {
 }
 
 /**
- * Coeficiente 0,116 = corpo de 50 kg (IEEE 80, eqs. 32–33).
- * ⚠ REVISAR COM O PABLO: conferir na NBR 15751 o peso de referência (50 kg ou
- * 70 kg — 0,157) e as expressões adotadas pela edição vigente.
+ * Coeficiente 0,116 = corpo de 50 kg (IEEE 80, eqs. 32–33). Peso de referência
+ * CONFIRMADO PELO PABLO em 11/09/2026: 50 kg (o mais conservador; 70 kg seria
+ * 0,157). Não trocar sem ele.
  */
 export const K_CORPO_50KG = 0.116
 
