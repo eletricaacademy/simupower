@@ -13,6 +13,14 @@ import {
 } from '../catalog'
 import { asset } from '../lib/asset'
 import { color } from '../design/tokens'
+import {
+  groundProDisponivel,
+  entrarNoGroundPro,
+  sairDoGroundPro,
+  verificarAcessoGroundPro,
+  URL_COMPRA_GROUNDPRO,
+  type MotivoGroundPro,
+} from '../lib/contaGroundPro'
 
 interface Modulo {
   id: string
@@ -36,7 +44,19 @@ const TRIAL_EXPIRA = 1782749816000
 const LS_FULL = 'calibra:full'
 const LS_TRIAL = 'calibra:trial'
 
-type Acesso = { liberado: boolean; promo: boolean }
+/** `conta` = liberado pela conta GroundPRO (trial ou paga, dentro da data de fim). */
+type Acesso = { liberado: boolean; promo: boolean; conta?: boolean }
+
+/** Texto de erro do login pela conta GroundPRO, por motivo. */
+function msgGroundPro(motivo: MotivoGroundPro): string {
+  switch (motivo) {
+    case 'sem-conta': return 'Conta não encontrada no GroundPRO. Confira o e-mail ou crie sua conta pelo link da turma.'
+    case 'encerrado': return 'Seu acesso ao GroundPRO terminou. Adquira o acesso completo para continuar.'
+    case 'desativado': return 'Login pela conta GroundPRO não está disponível nesta versão.'
+    case 'sem-sessao': return 'E-mail ou senha incorretos.'
+    default: return 'Não foi possível verificar sua conta agora. Tente novamente.'
+  }
+}
 
 /** Estado de acesso inicial: total permanente, promocional dentro do prazo, ou bloqueado. */
 function lerAcesso(): Acesso {
@@ -194,6 +214,66 @@ export function MainMenu() {
   const [erroSenha, setErroSenha] = useState(false)
   const [msgErro, setMsgErro] = useState('Senha incorreta. Tente novamente.')
 
+  // ── login pela conta GroundPRO (12/09/2026) ──
+  // Mesmo e-mail e senha do GroundPRO; vale enquanto a conta de lá estiver
+  // vigente (trial ou paga). Caminho ADICIONAL: as senhas acima continuam.
+  const [gpEmail, setGpEmail] = useState('')
+  const [gpSenha, setGpSenha] = useState('')
+  const [gpErro, setGpErro] = useState<string | null>(null)
+  const [gpOcupado, setGpOcupado] = useState(false)
+  const [gpConta, setGpConta] = useState<{ email: string | null; fim: string | null; status: string | null } | null>(null)
+
+  // Sessão GroundPRO salva no navegador: revalida ao abrir (a data de fim pode
+  // ter passado). Só quando as senhas locais não liberaram.
+  useEffect(() => {
+    if (acesso.liberado || !groundProDisponivel()) return
+    let cancelado = false
+    verificarAcessoGroundPro().then((r) => {
+      if (cancelado) return
+      if (r.liberado) {
+        setGpConta({ email: r.email ?? null, fim: r.fim ?? null, status: r.status ?? null })
+        setAcesso({ liberado: true, promo: false, conta: true })
+      } else if (r.motivo === 'encerrado') {
+        setGpErro(msgGroundPro('encerrado'))
+      }
+    })
+    return () => {
+      cancelado = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  async function entrarComGroundPro(e: { preventDefault(): void }) {
+    e.preventDefault()
+    if (gpOcupado) return
+    setGpErro(null)
+    setGpOcupado(true)
+    try {
+      const { error } = await entrarNoGroundPro(gpEmail, gpSenha)
+      if (error) {
+        setGpErro(msgGroundPro('sem-sessao'))
+        return
+      }
+      const r = await verificarAcessoGroundPro()
+      if (r.liberado) {
+        setGpConta({ email: r.email ?? null, fim: r.fim ?? null, status: r.status ?? null })
+        setAcesso({ liberado: true, promo: false, conta: true })
+        setGpSenha('')
+      } else {
+        setGpErro(msgGroundPro(r.motivo))
+        await sairDoGroundPro()
+      }
+    } finally {
+      setGpOcupado(false)
+    }
+  }
+
+  async function sairDaContaGroundPro() {
+    await sairDoGroundPro()
+    setGpConta(null)
+    setAcesso(lerAcesso())
+  }
+
   // relógio de segundo em segundo — só roda enquanto o acesso é promocional (senha 10).
   const [agora, setAgora] = useState(() => Date.now())
   useEffect(() => {
@@ -325,6 +405,67 @@ export function MainMenu() {
             >
               Liberar acesso
             </button>
+
+            {/* ── ou: entrar com a conta GroundPRO (12/09/2026) ── */}
+            {groundProDisponivel() && (
+              <div className="mt-5 pt-4 text-left" style={{ borderTop: `1px solid ${color.hairline}` }}>
+                <div
+                  className="font-mono text-[11px] tracking-[0.2em] uppercase mb-2 text-center"
+                  style={{ color: color.textMuted }}
+                >
+                  ou entre com a conta GroundPRO
+                </div>
+                <input
+                  type="email"
+                  autoComplete="email"
+                  value={gpEmail}
+                  onChange={(e) => {
+                    setGpEmail(e.target.value)
+                    if (gpErro) setGpErro(null)
+                  }}
+                  placeholder="E-mail do GroundPRO"
+                  aria-label="E-mail do GroundPRO"
+                  className="w-full font-mono text-[14px] rounded-[10px] px-4 py-2.5 mb-2 outline-none"
+                  style={{ background: '#0c1117', color: color.text, border: `1px solid ${gpErro ? color.status.fail : color.hairline}` }}
+                />
+                <input
+                  type="password"
+                  autoComplete="current-password"
+                  value={gpSenha}
+                  onChange={(e) => {
+                    setGpSenha(e.target.value)
+                    if (gpErro) setGpErro(null)
+                  }}
+                  placeholder="Senha do GroundPRO"
+                  aria-label="Senha do GroundPRO"
+                  onKeyDown={(e) => {
+                    // Enter aqui entra pela conta, não pela senha numérica do formulário de cima.
+                    if (e.key === 'Enter') entrarComGroundPro(e)
+                  }}
+                  className="w-full font-mono text-[14px] rounded-[10px] px-4 py-2.5 mb-3 outline-none"
+                  style={{ background: '#0c1117', color: color.text, border: `1px solid ${gpErro ? color.status.fail : color.hairline}` }}
+                />
+                {gpErro && (
+                  <div className="text-[12px] mb-3 text-center" style={{ color: color.status.fail }}>
+                    {gpErro}{' '}
+                    {gpErro.startsWith('Seu acesso ao GroundPRO terminou') && (
+                      <a href={URL_COMPRA_GROUNDPRO} target="_blank" rel="noopener" className="underline" style={{ color: color.accent }}>
+                        Falar no WhatsApp
+                      </a>
+                    )}
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={entrarComGroundPro}
+                  disabled={gpOcupado || !gpEmail.trim() || !gpSenha}
+                  className="w-full font-display font-semibold text-[14px] px-5 py-2.5 rounded-[10px] transition-all disabled:opacity-50"
+                  style={{ background: 'transparent', color: color.accent, border: `1px solid ${color.accent}` }}
+                >
+                  {gpOcupado ? 'Verificando…' : 'Entrar com a conta GroundPRO'}
+                </button>
+              </div>
+            )}
           </form>
         </div>
       )}
@@ -361,6 +502,29 @@ export function MainMenu() {
             Simulador liberado por <b>48h</b> — expira em{' '}
             <b className="font-mono" style={{ color: color.accent }}>{fmtRestante(TRIAL_EXPIRA - agora)}</b>
           </span>
+        </div>
+      )}
+
+      {/* conta GroundPRO: quem entrou por ela vê o e-mail, até quando vale, e pode sair */}
+      {liberado && acesso.conta && (
+        <div
+          className="fixed left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 hud-glass rounded-[12px] px-4 py-2.5"
+          style={{ bottom: 'max(14px, env(safe-area-inset-bottom))', maxWidth: '92vw', border: `1px solid ${color.accent}55` }}
+        >
+          <span aria-hidden className="text-[16px]">👤</span>
+          <span className="text-[13px] leading-snug" style={{ color: color.text }}>
+            Conta GroundPRO{gpConta?.email ? <> · <b>{gpConta.email}</b></> : null}
+            {gpConta?.status === 'trial' && gpConta.fim ? (
+              <> · trial até <b className="font-mono" style={{ color: color.accent }}>{new Date(gpConta.fim).toLocaleDateString('pt-BR')}</b></>
+            ) : null}
+          </span>
+          <button
+            onClick={sairDaContaGroundPro}
+            className="ml-1 text-[12px] underline"
+            style={{ color: color.textMuted }}
+          >
+            Sair
+          </button>
         </div>
       )}
 

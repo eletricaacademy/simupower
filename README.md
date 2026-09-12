@@ -192,3 +192,12 @@ GPU dedicada.
 Foco visível, contraste AA, `prefers-reduced-motion` (desliga auto-rotação,
 bloom pulsante e slides de câmera). OrbitControls dá pinça/zoom no toque; HUD
 colapsável em abas no celular.
+
+## Login pela conta GroundPRO (12/09/2026)
+
+Quem tem conta no GroundPRO (trial ou paga, dentro da data de fim) entra no SimuPower com o
+mesmo e-mail e senha. A regra de fim de acesso é a do GroundPRO (	rial_ends_at /
+subscription_ends_at). As senhas locais continuam valendo. Código em src/lib/contaGroundPro.ts.
+
+Para o caminho existir no build, crie um .env.local (gitignored) a partir do .env.example com
+VITE_GROUNDPRO_ANON_KEY (a anon key do GroundPRO). Sem a chave, o formulário de conta não aparece.
