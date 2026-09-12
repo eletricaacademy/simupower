@@ -175,6 +175,30 @@ Rg calculada = 0,006983 Ω por Ω·m (6,5 % abaixo de Sverak, checado em teste):
 
 ## Checklist de handoff para o Codex
 
+### Aula rápida, Inbrat e menu — Codex, 11/09/2026
+
+- Pedido do Pablo: botão opcional “Executar todos os testes da etapa”. Em
+  continuidade, compensa as pontas e mede 15 massas; em resistência, crava e
+  registra 52/62/72% na distância C escolhida, calculando o patamar; em toque e
+  passo, mede os seis pontos. Marca a etapa concluída, sem avançar para outro
+  ensaio nem emitir o laudo da usina automaticamente. Preparação/inspeção continuam
+  pré-requisitos. Resultado inconclusivo/reprovado não é convertido em aprovação.
+- `sim/testesEmLote.ts` orquestra as ações manuais existentes; sete testes de
+  equivalência/travas cobrem FV e ambos os SPDA. Mudanças autorizadas fora da área
+  exclusiva: novo orquestrador/testes e controles nos HUDs, inclusive mobile.
+  Engine, critérios, resultados pré-calculados e stores existentes preservados.
+- Continuidade FV agora reutiliza `scene/Inbrat.tsx`: maleta ampliada, duas garras,
+  dois PP com P1/C1 e P2/C2. Entrada externa reduzida a coordenadas, sem inventar
+  parâmetros elétricos de SPDA para FV. Posição original da maleta mantida;
+  “Ver Inbrat” usa a câmera calibrada do skid apontando para essa posição.
+- Menu: filtros superiores Todos os ensaios, Aterramento e usina FV, SPDA.
+  Texto da usina atualizado para mencionar mapa/relevo e Inbrat.
+- Validação: build e 136/136 testes. Navegador confirmou 15/15 continuidades,
+  resistência a 190 m inconclusiva por ausência de patamar, 6/6 toque/passo,
+  Inbrat com cabos e filtros 2+2 no menu. Sem deploy.
+- Potenciais continuam na etapa 5, botões Potencial, Relevo 3D e Seguras. A malha
+  enterrada mostra condutores; é uma visualização distinta do potencial do solo.
+
 ### Painéis recolhíveis e oclusão do subsolo — Codex, 11/09/2026
 
 - Pedido do Pablo: minimizar os painéis laterais em todas as simulações.

@@ -116,7 +116,7 @@ function GarraKelvin({ alvo, origem, cor, baixo }: { alvo: Vec3; origem: Vec3; c
 }
 
 /** Entrada visual opcional para cenários com outra geometria de conexão. */
-export function Inbrat({ externo }: { externo?: { ponto: PontoSPDA; pos: Vec3; rotas: Vec3[][]; conectado: boolean; display?: string; fluxo?: boolean } } = {}) {
+export function Inbrat({ externo }: { externo?: { ponto: Pick<PontoSPDA, 'pos' | 'posOrigem'>; pos: Vec3; rotas: Vec3[][]; conectado: boolean; display?: string; fluxo?: boolean } } = {}) {
   const id = useSpda(s => s.pontoAtivo)
   const leitura = useSpda(s => s.medicoes[id])
   const zerado = useSpda(s => s.pontasZeradas)
@@ -124,8 +124,9 @@ export function Inbrat({ externo }: { externo?: { ponto: PontoSPDA; pos: Vec3; r
   const passo = externo ? (externo.conectado ? 'spda-medir' : 'spda-zerar') : passoAtual
   const pref = useSim(s => s.qualidadePref)
   const baixo = resolverQualidade(pref).tier === 'baixo'
-  const ponto = externo?.ponto ?? getPontoSPDA(passo === 'spda-zerar' ? 'd1-d2-sup' : id)!
-  const pos = externo?.pos ?? posicaoInbrat(ponto)
+  const pontoSpda = getPontoSPDA(passo === 'spda-zerar' ? 'd1-d2-sup' : id)!
+  const ponto = externo?.ponto ?? pontoSpda
+  const pos = externo?.pos ?? posicaoInbrat(pontoSpda)
   const display = externo ? externo.display ?? '— — —' : leitura?.display ?? '— — —'
   const painel = useMemo(() => criarPainel(display, externo ? !!externo.display : zerado), [display, zerado, !!externo, externo?.display])
   useEffect(() => () => painel.dispose(), [painel])
@@ -144,7 +145,7 @@ export function Inbrat({ externo }: { externo?: { ponto: PontoSPDA; pos: Vec3; r
       }
     })
     // Uma única garra por extremidade, alimentada pelas duas vias do respectivo PP.
-    const direcao = externo ? new THREE.Vector3(alvo[0] < 0 ? 1 : -1, -0.5, 0.35).normalize() : ponto.nivel === 'bep' && lado === 1
+    const direcao = externo ? new THREE.Vector3(alvo[0] < 0 ? 1 : -1, -0.5, 0.35).normalize() : pontoSpda.nivel === 'bep' && lado === 1
       ? new THREE.Vector3(0, -0.5, -1).normalize()
       : new THREE.Vector3(Math.sign(alvo[0]), -0.5, Math.sign(alvo[2]) * 0.35).normalize()
     const traseira = new THREE.Vector3(...alvo).addScaledVector(direcao, 0.31).toArray() as Vec3
@@ -154,7 +155,7 @@ export function Inbrat({ externo }: { externo?: { ponto: PontoSPDA; pos: Vec3; r
     const rota: Vec3[] = [uniao, piso]
     if (externo) {
       rota.push(...externo.rotas[lado])
-    } else if (ponto.nivel === 'bep') {
+    } else if (pontoSpda.nivel === 'bep') {
       if (lado === 0) rota.push([-3.5, 0.39, -2.5], [-3.7, 0.39, -3.7], [-3.7, 0.06, -5.5], [-7.5, 0.06, -5.5])
       else rota.push([-4.7, 0.39, -0.6])
     } else {
@@ -205,7 +206,7 @@ export function Inbrat({ externo }: { externo?: { ponto: PontoSPDA; pos: Vec3; r
       <CaboKelvin pontos={c.pontos} cor={color.inbrat.borracha} baixo={baixo} raio={0.01} apoiado />
       <GarraKelvin alvo={c.alvo} origem={c.traseira} cor={c.cor} baixo={baixo} />
     </group>)}
-    {!externo && passo === 'spda-medir' && <SpdaFluxo ponto={ponto} cabos={cabos} baixo={baixo} />}
+    {!externo && passo === 'spda-medir' && <SpdaFluxo ponto={pontoSpda} cabos={cabos} baixo={baixo} />}
     {externo?.fluxo && passo === 'spda-medir' && curvasExternas.map((curva,i) => <SetasCorrente key={i} curva={curva} cor={i ? color.accentCool : color.accent} baixo={baixo} reverso={i === 1} />)}
   </group>
 }

@@ -1,3 +1,5 @@
+import { Inbrat } from './Inbrat'
+import { INBRAT_FV_POS } from './usinaFvInstrumento'
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { Html, Line } from '@react-three/drei'
 import { useFrame, useThree } from '@react-three/fiber'
@@ -601,24 +603,22 @@ function EnsaioContinuidade() {
   const leituras = useUsinaFv((s) => s.continuidade)
   const ativo = PONTOS_CONTINUIDADE_FV.find((p) => p.id === pontoCont)
   const leitura = ativo ? leituras[ativo.id] : undefined
-  const instrumento: Vec3 = [BEP_SKID[0] + 0.9, 0, BEP_SKID[2] - 1]
-  const rota = useMemo(() => {
-    if (!ativo) return null
-    const y = 0.06
-    const saida: Vec3 = [instrumento[0], y, instrumento[2] - 0.3]
-    return [[instrumento[0], 0.2, instrumento[2]], saida, [ativo.pos[0], y, saida[2]], [ativo.pos[0], y, ativo.pos[2]], ativo.pos] as Vec3[]
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ativo])
+  const instrumento = INBRAT_FV_POS
+  const inbrat = useMemo(() => ativo ? {
+    ponto: { posOrigem: BEP_SKID, pos: ativo.pos }, pos: instrumento,
+    conectado: true, display: leitura?.display,
+    rotas: [BEP_SKID, ativo.pos].map(alvo => [
+      [instrumento[0] + .9, .06, instrumento[2]],
+      [alvo[0], .06, instrumento[2]],
+      [alvo[0], .06, alvo[2]],
+    ] as Vec3[]),
+  } : undefined, [ativo, leitura])
   return (
     <group>
       {PONTOS_CONTINUIDADE_FV.map((p) => (
         <Marcador key={p.id} pos={p.pos} cor={corLeitura(leituras[p.id]?.cor)} ativo={p.id === pontoCont} />
       ))}
-      {/* instrumento provisório: maleta com o visor; cabo da garra fixa até o BEP */}
-      <Caixa pos={[instrumento[0], 0.12, instrumento[2]]} dim={[0.42, 0.24, 0.32]} cor={color.inbrat.maleta} rough={0.5} />
-      <Line points={[[instrumento[0], 0.2, instrumento[2]], [BEP_SKID[0], 0.1, BEP_SKID[2] - 0.3], BEP_SKID]} color={color.accentCool} lineWidth={2.5} />
-      {rota && <Line points={rota} color={color.accent} lineWidth={2.5} />}
-      <Etiqueta pos={[instrumento[0], 0.7, instrumento[2]]} texto={leitura ? `${leitura.display} Ω` : 'miliohmímetro'} destaque={!!leitura} />
+      {inbrat && <Inbrat externo={inbrat} />}
       {ativo && <Etiqueta pos={[ativo.pos[0], ativo.pos[1] + 0.9, ativo.pos[2]]} texto={ativo.nome} destaque />}
       <Etiqueta pos={[BEP_SKID[0], BEP_SKID[1] + 0.8, BEP_SKID[2] - 0.2]} texto="BEP do skid · garra fixa" />
     </group>

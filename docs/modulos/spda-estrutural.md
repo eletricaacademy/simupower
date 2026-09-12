@@ -1,5 +1,15 @@
 # SPDA natural/estrutural — galpão industrial
 
+### Execução rápida opcional — Codex, 11/09/2026
+
+Autorizado pelo Pablo: após confirmar preparação, o botão “Executar todos os
+testes da etapa” seleciona cada par, conecta as garras, mede as oito cruzadas e a
+comprobatória e abre a conclusão do relatório. Preserva fase e defeito escolhidos,
+sem modificar engine ou critérios. Mudanças fora da área exclusiva em
+`ui/EstruturalHud.tsx` e novo `sim/testesEmLote.ts`. Navegador confirmou 9/9 e
+conclusão; build e 136 testes aprovados, incluindo equivalência manual/lote.
+Sem deploy.
+
 ## Contrato Claude × Codex — 09/09/2026
 
 Autorizado por Pablo: novo módulo separado do SPDA convencional, com ferragens,

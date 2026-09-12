@@ -1,5 +1,13 @@
 # SimuPower — Módulo NR-10 · Roadmap & Status
 
+### 11/09/2026 — Atalhos para aula e categorias de ensaios
+
+Execução opcional de todas as medições da etapa em ambos os SPDA e na usina FV,
+mantendo resultados e pré-requisitos do modo manual. Inbrat INMD1 PRO reutilizado
+na continuidade FV, com duas garras e dois cabos PP. Menu com grupos superiores
+Aterramento e usina FV, SPDA e Todos os ensaios. Build e 136 testes aprovados;
+contratos dos três módulos atualizados. Sem deploy.
+
 ### 11/09/2026 — Visão livre do cenário
 
 Painéis desktop recolhíveis individualmente nos nove módulos, com botão para

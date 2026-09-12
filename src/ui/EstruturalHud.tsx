@@ -1,3 +1,5 @@
+import { BotaoTestesEmLote } from './BotaoTestesEmLote'
+import { executarEstruturalEmLote } from '../sim/testesEmLote'
 import { PainelRecolhivel } from './PainelRecolhivel'
 import { useEffect, useState } from 'react'
 import { useEstrutural } from '../sim/estruturalStore'
@@ -60,6 +62,7 @@ function PainelEstrutural() {
       {leitura && <p>{leitura.aprovado ? 'Trecho dentro do limite' : 'Trecho fora do limite — corrigir e repetir'}</p>}
     </div>
     <button className="w-full" style={{...botao, opacity:s.preparado && s.garras ? 1 : 0.5, color:color.accent}} disabled={!s.preparado || !s.garras} onClick={s.medir}>{leitura ? 'Remedir trecho' : 'Medir trecho'}</button>
+    <BotaoTestesEmLote habilitado={s.preparado} executar={executarEstruturalEmLote} detalhe="Conecta as garras em cada par, mede as oito cruzadas e a comprobatória e abre a conclusão do relatório." />
     {leitura && s.garras && <button style={botao} onClick={() => s.setFluxo(!s.fluxo)}>{s.fluxo ? 'Ocultar corrente' : 'Mostrar corrente'}</button>}
     <div className="flex gap-2"><button style={botao} onClick={() => useView.getState().pedir('foco')}>Ver Inbrat</button><button style={botao} onClick={() => useView.getState().pedir('reset')}>Ver galpão</button></div>
     <p style={{ color:color.textMuted }}>Setas: C1 → rede de armaduras → C2; P1/P2 medem tensão. Sentidos calculados na rede resistiva; tamanho e velocidade das setas são ilustrativos. A fundação aparece através do solo durante a animação.</p>

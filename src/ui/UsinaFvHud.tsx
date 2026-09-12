@@ -1,3 +1,6 @@
+import { BotaoTestesEmLote } from './BotaoTestesEmLote'
+import { VISTA_INBRAT_FV } from '../scene/usinaFvInstrumento'
+import { executarEtapaEmLote } from '../sim/testesEmLote'
 import { PainelRecolhivel } from './PainelRecolhivel'
 import { useEffect, useState, type ReactNode } from 'react'
 import { useSim, passoHabilitado } from '../sim/store'
@@ -336,6 +339,8 @@ function GuidedCard() {
         </div>
       )}
 
+      {['fv-continuidade', 'fv-resistencia', 'fv-toque-passo'].includes(passo.id) && <BotaoTestesEmLote habilitado={habilitado} executar={executarEtapaEmLote} detalhe="Compensa as pontas ou posiciona as estacas automaticamente; conserva solo, defeitos e distância C." />}
+
       <button
         onClick={concluir}
         disabled={!acaoLiberada || jaCumprido}
@@ -465,7 +470,8 @@ function Miliohmimetro() {
   }
 
   return (
-    <Painel titulo="Miliohmímetro · continuidade" subtitulo={`${nMedidos}/${PONTOS_CONTINUIDADE_FV.length} medidos`}>
+    <Painel titulo="Inbrat INMD1 PRO · continuidade" subtitulo={`${nMedidos}/${PONTOS_CONTINUIDADE_FV.length} medidos`}>
+      <button type="button" onClick={() => useView.getState().pedirPose(VISTA_INBRAT_FV)} className="w-full mb-2 py-2 rounded-[9px] text-[12px]" style={{ ...botao, color: color.accentCool }}>Ver Inbrat</button>
       <div className="flex items-center justify-between mb-2 text-[10.5px]">
         <span style={{ color: color.textMuted }}>Garra fixa no <b style={{ color: color.text }}>BEP do skid</b></span>
         <span className="font-mono" style={{ color: pontasZeradas ? color.status.pass : color.status.marginal }}>

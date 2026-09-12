@@ -1,3 +1,5 @@
+import { BotaoTestesEmLote } from './BotaoTestesEmLote'
+import { executarEtapaEmLote } from '../sim/testesEmLote'
 import { PainelRecolhivel } from './PainelRecolhivel'
 import { useEffect, useState } from 'react'
 import { useSim, passoHabilitado } from '../sim/store'
@@ -269,6 +271,8 @@ function GuidedCard() {
           <span className="font-mono" style={{ color: color.accentCool }}>{nMedidos}/{SPDA_PONTOS.length} trechos</span>.
         </div>
       )}
+
+      {passo.id === 'spda-medir' && <BotaoTestesEmLote habilitado={habilitado} executar={executarEtapaEmLote} detalhe="Mede todos os trechos e mostra a etapa concluída." />}
 
       <button
         onClick={concluir}

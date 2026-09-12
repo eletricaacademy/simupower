@@ -72,10 +72,10 @@ const MODULOS: Modulo[] = [
     id: 'aterramento-usina-fv',
     titulo: 'Aterramento em Usina Fotovoltaica',
     equipamento: 'Usina FV de solo · 300 kW (skid, trafo e SE)',
-    instrumento: 'Miliohmímetro · terrômetro · toque e passo',
+    instrumento: 'Inbrat INMD1 PRO · terrômetro · toque e passo',
     norma: 'NBR 16690 · NBR 16274 · NBR 15749 · NBR 15751',
     descricao:
-      'Equipotencialização das mesas, resistência da malha por queda de potencial e tensões de toque e passo numa usina de solo, com laudo consolidado. Ambiente 3D provisório.',
+      'Equipotencialização das mesas, resistência da malha por queda de potencial e tensões de toque e passo numa usina de solo, com mapa de potenciais, relevo 3D e laudo consolidado.',
     disponivel: true,
     par: PAR_USINA_FV,
   },
@@ -168,6 +168,7 @@ const MODULOS: Modulo[] = [
 ]
 
 export function MainMenu() {
+  const [categoria, setCategoria] = useState('todos')
   const carregarPar = useSim((s) => s.carregarPar)
   const setView = useSim((s) => s.setView)
   const [dicaSom, setDicaSom] = useState(() => {
@@ -263,7 +264,9 @@ export function MainMenu() {
     abrir(m)
   }
   const aterMod = MODULOS.find((m) => m.id === 'aterramento')
-  const visiveis = MODULOS.filter((m) => !m.oculto)
+  const visiveis = MODULOS.filter((m) => !m.oculto && (categoria === 'todos'
+    || (categoria === 'aterramento' && ['aterramento', 'aterramento-usina-fv'].includes(m.id))
+    || (categoria === 'spda' && ['continuidade-spda', 'spda-estrutural'].includes(m.id))))
 
   return (
     <div
@@ -484,6 +487,15 @@ export function MainMenu() {
             </span>
           </div>
 
+          <nav aria-label="Categorias de ensaios" className="flex flex-wrap gap-2 mb-4">
+            {([['todos', 'Todos os ensaios'], ['aterramento', 'Aterramento e usina FV'], ['spda', 'SPDA']] as const).map(([id, nome]) => (
+              <button key={id} type="button" aria-pressed={categoria === id} onClick={() => setCategoria(id)}
+                className="rounded-[10px] px-4 py-2.5 text-[13px] font-medium"
+                style={{ background: categoria === id ? color.accent : color.surface, color: categoria === id ? color.viewport : color.text, border: `1px solid ${color.hairline}` }}>
+                {nome}
+              </button>
+            ))}
+          </nav>
           <div className="grid gap-4 sm:grid-cols-2">
             {visiveis.map((m) => (
               <Card key={m.id} m={m} onOpen={() => aoAbrirCard(m)} />

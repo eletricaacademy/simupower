@@ -1,5 +1,15 @@
 # Módulo 7 — Continuidade do SPDA (NBR 5419-3)
 
+### Execução rápida opcional — Codex, 11/09/2026
+
+Autorizado pelo Pablo: “Executar todos os testes da etapa” mede os 13 trechos
+usando as ações existentes e marca apenas a etapa de medições como concluída.
+Mantém preparação, inspeção e compensação de pontas como pré-requisitos, assim
+como o cenário e as reprovações. Modo manual preservado. Alterações fora da área
+exclusiva: `ui/SpdaHud.tsx`, novo `sim/testesEmLote.ts` e seus testes. Build e
+136 testes aprovados, incluindo equivalência lote/manual; conferência deste botão
+no navegador ficou incompleta por desconexão da automação. Sem deploy.
+
 ### Cabo PP acima do solo — 09/09/2026
 
 Corrigido o afundamento causado pela interpolação Catmull-Rom antes de subidas
