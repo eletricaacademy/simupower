@@ -1,5 +1,16 @@
 # Módulo 9 — Aterramento em Usina Fotovoltaica de solo (300 kW)
 
+## Publicação autorizada — 11/09/2026
+
+Pablo autorizou salvar a memória e publicar, ciente das pendências da revisão.
+Fonte funcional `eb66214`, enviada para `origin/feat/aterramento-usina-fv`.
+GitHub Pages `9c7f904`, sobre `a7a82b7`, sem force push e com CNAME/.nojekyll.
+Build e 146 testes aprovados. Produção confirmada pelo HTML com
+`assets/index-Cq4NgIn1.js` e `assets/index-D9z9LDeo.css`; hashes SHA-256 iguais
+ao build para JS principal, `Stage-DIdyDl4G.js`, os dois GLBs FV e manifesto.
+Nenhum solver, pasta privada ou PDF de consulta foi publicado. Permanecem
+abertas a revisão de critérios didáticos e a regressão integral desktop/mobile.
+
 ## Contrato Claude × Codex — revisão de 11/09/2026
 
 Pedido do Pablo em 11/09/2026: simulação "aterramento em usina fotovoltaica" de solo
@@ -35,9 +46,9 @@ para o `main`). Card no menu: "Aterramento em Usina Fotovoltaica".
 | Procedimento `src/catalog/tests/usinaFv.ts` | Claude | ✅ textos derivados dos dados |
 | Store `src/sim/usinaFvStore.ts` + testes | Claude | ✅ |
 | HUD `src/ui/UsinaFvHud.tsx` (desktop + mobile) | Claude | ✅ + legenda do mapa |
-| Cena `src/scene/UsinaFvElements.tsx` | Claude (placeholder) → **Codex** | 🟡 procedural + camada didática |
-| GLB `public/models/usina-fv.glb` | **Codex** | ⬜ pendente |
-| Calibração (`CALIBRAR (CODEX)`) | **Codex** | ⬜ pendente |
+| Cena `src/scene/UsinaFvElements.tsx` | **Codex** | ✅ GLB + camada didática e relevo; fallback procedural |
+| GLB `public/models/usina-fv.glb` | **Codex** | ✅ entregue, com kit reutilizável |
+| Calibração (`CALIBRAR (CODEX)`) | **Codex** | 🟡 planta preservada; recaptura individual completa pendente |
 
 ## A planta (fonte: `catalog/usinaFvPontos.ts`)
 
@@ -258,11 +269,10 @@ sem mudanças nos cálculos, dados elétricos ou resultados.
       `USINA_PROCEDURAL = false`. A camada didática continua.
 - [ ] Recapturar `BEP_SKID`, `pos`/`vista`/`alvo` dos pontos, `ESTACAS_FV.e`,
       `VISTAS_FV` e `vistaInicial`. Não renomear ids.
-- [ ] Opcional:
-  - trocar a pessoa procedural por um personagem;
-  - modelos do miliohmímetro e do terrômetro;
-  - estacas e carretéis de cabo.
-- [ ] `npm run build`, `npm test`, desktop e 390 × 844; commit.
+- [x] Personagem com EPIs, pernas e mão revisados; Inbrat e Minipa reutilizados.
+- [ ] Opcional: detalhar carretéis de cabo.
+- [x] `npm run build`, `npm test` (146 testes), commits.
+- [ ] Regressão integral final em desktop e 390 × 844 após todos os ajustes.
 
 ## Prompt atual do Codex (11/09/2026)
 

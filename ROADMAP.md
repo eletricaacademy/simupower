@@ -1,5 +1,14 @@
 # SimuPower — Módulo NR-10 · Roadmap & Status
 
+### 11/09/2026 — Publicação da usina FV e melhorias
+
+Deploy autorizado por Pablo: fonte `eb66214`, Pages `9c7f904`, sem force push.
+Nove módulos publicados. Build e 146 testes aprovados. HTML de produção com
+`index-Cq4NgIn1.js`; SHA-256 do JS, Stage, GLBs FV e manifesto iguais ao build.
+Estado e pendências salvos em AGENTS.md e nos contratos. Revisão normativa,
+recaptura completa dos contatos FV, regressão integral desktop/mobile e acesso
+individual continuam pendentes; não apresentar esta publicação como homologação.
+
 ### 11/09/2026 — Conexão do BEP, revisão Kelvin e inspeção por fotos
 
 Cabo e garra fixa do Inbrat chegam ao BEP pela frente da base do skid. Barramento

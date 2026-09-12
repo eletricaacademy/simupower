@@ -1,5 +1,39 @@
 # SimuPower — contexto para agentes (Claude Code · Codex)
 
+### Continuação mais recente — 11/09/2026, fechamento FV e publicação
+
+- Pablo autorizou registrar tudo na memória e fazer deploy. Fonte funcional
+  `eb66214`, branch `feat/aterramento-usina-fv`; build e 146/146 testes aprovados.
+  Publicação enviada em `9c7f904`, filha da referência remota `a7a82b7`, por
+  cópia limpa de `gh-pages`, sem force push. Preservados CNAME e .nojekyll.
+  Produção confirmada no domínio: HTML referencia `index-Cq4NgIn1.js` e
+  `index-D9z9LDeo.css`; SHA-256 do JS principal, `Stage-DIdyDl4G.js`, GLB da
+  usina, GLB do kit e manifesto são iguais aos do build local.
+- Entregues usina FV 300 kW com kit GLB reutilizável e relevo de potencial,
+  nomes/valores ocultáveis em todos os mapas, painéis recolhíveis nos nove módulos,
+  testes em lote opcionais nos SPDA/FV, categorias de ensaios, Inbrat na FV e
+  Minipa do ensaio de queda de potencial. Operador usa tronco/EPIs do arco,
+  pernas independentes sem cruzamento e luva rígida nos quatro contatos.
+- Cabo e garra fixa chegam pela frente do BEP do skid sem atravessar a laje.
+  Barramento mantido por pedido explícito. Destaque da malha dos equipamentos
+  é somente visual: nenhuma nova quadrícula nem recálculo dos resultados.
+- Inspeção por fotos do SPDA recebeu botão amarelo maior. Estudo do Inbrat em
+  `docs/modulos/inbrat-corrente.md`: C1/C2 vermelhos são vias de corrente,
+  P1/P2 pretos são vias de medição. C1 → instalação → C2 é convenção didática;
+  manual não explicita polo positivo. Não inferir polaridade pela cor da garra.
+- Pendências preservadas: validar critérios didáticos FV marcados REVISAR,
+  concluir revisão técnica do SPDA convencional para 2026, conferir todos os
+  contatos/câmeras FV e realizar regressão completa dos nove módulos até o
+  laudo em desktop/mobile. 146 testes não equivalem a essa regressão completa.
+- Acesso atual: senha compartilhada validada no frontend, liberação salva no
+  navegador, sem contas individuais/backend. Promoção tem prazo fixo expirado
+  em 29/06/2026. Não tratar como proteção de acesso pago; não gravar senhas aqui.
+- Plano de portar o 3D para GroundPRO continua LOCAL em
+  `privado/levar-3d-para-ground/PLANO.md`. Não iniciado nesta publicação.
+- `.claude/` preexistente permanece fora dos commits; `.sim-shots/`, `privado/`,
+  PDFs de consulta e fontes privadas não entram no deploy. Revalidar Git e hashes
+  de produção na retomada. Estado detalhado nos contratos dos módulos.
+
 > **Este arquivo é a memória compartilhada dos dois agentes.** O Codex lê `AGENTS.md`
 > automaticamente; o Claude Code lê `CLAUDE.md`, que importa este arquivo. Mudou uma
 > convenção? Muda **aqui**, não em cópias.
