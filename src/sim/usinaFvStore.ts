@@ -74,6 +74,7 @@ interface UsinaFvState {
   cenario: CenarioFv
   /** Malha enterrada visível através do solo (cena). */
   mostrarMalha: boolean
+  mostrarNomes: boolean
   /** Mapa de potencial no solo durante a falta (cena, etapa de toque/passo). */
   mapaPotencial: ModoMapaFv
 
@@ -98,6 +99,7 @@ interface UsinaFvState {
   setSolo: (s: PerfilSoloFv) => void
   setCenario: (c: CenarioFv) => void
   setMostrarMalha: (v: boolean) => void
+  setMostrarNomes: (v: boolean) => void
   setMapaPotencial: (v: ModoMapaFv) => void
   zerarPontas: () => void
   setPontoCont: (id: string) => void
@@ -119,6 +121,7 @@ const inicial = {
   solo: 'arenoso' as PerfilSoloFv,
   cenario: 'com-defeitos' as CenarioFv,
   mostrarMalha: false,
+  mostrarNomes: true,
   mapaPotencial: 'potencial' as ModoMapaFv,
   pontasZeradas: false,
   pontoCont: PONTOS_CONTINUIDADE_FV[0].id,
@@ -142,6 +145,7 @@ export const useUsinaFv = create<UsinaFvState>((set, get) => ({
   // trocar o cenário invalida tudo que já foi medido
   setCenario: (cenario) => set({ cenario, continuidade: {}, curva: [], malha: null, toquePasso: {}, laudo: null }),
   setMostrarMalha: (mostrarMalha) => set({ mostrarMalha }),
+  setMostrarNomes: (mostrarNomes) => set({ mostrarNomes }),
   setMapaPotencial: (mapaPotencial) => set({ mapaPotencial }),
 
   zerarPontas: () => set({ pontasZeradas: true }),

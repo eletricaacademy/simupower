@@ -57,6 +57,7 @@ export function UsinaFvElements() {
   const detail = resolverQualidade(pref).tier !== 'baixo'
   const etapa = useSim((s) => s.ensaio.steps[s.passoIndex]?.id)
   const mostrarMalha = useUsinaFv((s) => s.mostrarMalha)
+  const mostrarNomes = useUsinaFv((s) => s.mostrarNomes)
   const comDefeitos = useUsinaFv((s) => s.cenario === 'com-defeitos')
   const camera = useThree((s) => s.camera)
   const invalidate = useThree((s) => s.invalidate)
@@ -96,7 +97,7 @@ export function UsinaFvElements() {
         <UsinaFvModelo caminho={equipamento.modelPath} detalhe={detail}
           fallback={<AmbienteProcedural detail={detail} />} onPick={pickMode ? reportar : undefined} />
       )}
-      {detail && <Rotulos />}
+      {detail && mostrarNomes && <Rotulos />}
       <BepSkid />
       <Derivacoes comDefeitos={comDefeitos} />
       <CordoalhaPortao presente={!comDefeitos} />

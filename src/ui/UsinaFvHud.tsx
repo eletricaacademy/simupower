@@ -141,6 +141,7 @@ export function UsinaFvHud() {
             <SoloPicker />
             <Divisor />
             <MalhaToggle />
+            <NomesToggle />
             <Divisor />
             <QualityPicker />
             <Calibracao />
@@ -403,6 +404,7 @@ function PainelPlanta({ onAbrirLaudo }: { onAbrirLaudo: () => void }) {
       <Linha rotulo="Solo (instrutor)" valor={`${ROTULO_SOLO[solo]} · ${RESISTIVIDADE_SOLO[solo]} Ω·m`} />
       <div className="my-2 h-px" style={{ background: color.hairline }} />
       <MalhaToggle />
+      <NomesToggle />
       <div className="grid grid-cols-3 gap-1.5 mt-2 text-[11px]">
         {(['geral', 'planta', 'skid', 'trafo', 'estacas'] as const).map((v) => (
           <button key={v} onClick={() => vista(v)} className="rounded-[8px] py-1.5 capitalize" style={{ ...botao, color: color.accentCool }}>
@@ -416,6 +418,17 @@ function PainelPlanta({ onAbrirLaudo }: { onAbrirLaudo: () => void }) {
         </button>
       )}
     </Painel>
+  )
+}
+
+function NomesToggle() {
+  const mostrar = useUsinaFv((s) => s.mostrarNomes)
+  const setMostrar = useUsinaFv((s) => s.setMostrarNomes)
+  return (
+    <label className="flex items-center gap-2 mt-2 text-[12px] cursor-pointer" style={{ color: color.textMuted }}>
+      <input type="checkbox" checked={mostrar} onChange={(e) => setMostrar(e.target.checked)} style={{ accentColor: color.accent }} />
+      Mostrar nomes dos itens
+    </label>
   )
 }
 

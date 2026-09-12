@@ -175,6 +175,15 @@ Rg calculada = 0,006983 Ω por Ω·m (6,5 % abaixo de Sverak, checado em teste):
 
 ## Checklist de handoff para o Codex
 
+### Controle dos nomes — Codex, 11/09/2026
+
+Pedido do Pablo: opção “Mostrar nomes dos itens” nas configurações e no painel
+da usina, compartilhados por desktop/mobile. Oculta os rótulos gerais das mesas,
+skid, trafo, subestação e portão; indicações do ensaio e valores do mapa continuam
+visíveis. Ativada ao iniciar um ensaio. Alterações mínimas autorizadas pelo pedido
+em `src/ui/UsinaFvHud.tsx` e `src/sim/usinaFvStore.ts`: controle e estado visual;
+sem mudanças nos cálculos, dados elétricos ou resultados.
+
 - [x] Modelar a usina de 300 kW respeitando as posições acima. Mover algo muda a malha
       e **exige recalcular os resultados**: alinhar antes.
 - [x] 540 módulos por instância (um módulo modelado uma vez), respeitando `cfg.tier`.
