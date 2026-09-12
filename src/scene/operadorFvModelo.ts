@@ -74,6 +74,8 @@ export function prepararOperadorFv(cena: THREE.Group, passo: boolean, alvo?: THR
   const escala = 1.75 / caixa.getSize(new THREE.Vector3()).y
   const normalizar = (v: THREE.Vector3) => v.set((v.x - centro.x) * escala, (v.y - caixa.min.y) * escala, (v.z - centro.z) * escala)
   const ponta = new THREE.Vector3(0, 0, -Infinity)
+  const punho = new THREE.Vector3()
+  let verticesPunho = 0
   const partes: THREE.Mesh[] = []
   cena.traverse(o => {
     if (!(o instanceof THREE.Mesh)) return
@@ -91,6 +93,9 @@ export function prepararOperadorFv(cena: THREE.Group, passo: boolean, alvo?: THR
       p.setXYZ(i, v.x, v.y, v.z)
       // A luva é uma região separada da viseira no material original.
       if ((o.material as THREE.Material).name === 'DefaultMaterial' && v.y < 1.3 && v.z > ponta.z) ponta.copy(v)
+      if ((o.material as THREE.Material).name === 'DefaultMaterial' && v.y < 1.3 && v.z < .28) {
+        punho.add(v); verticesPunho++
+      }
     }
     const material = (o.material as THREE.MeshStandardMaterial).clone()
     if (material.name === '[Color I04]') material.color.set(color.usinaFv.roupa)
@@ -101,13 +106,25 @@ export function prepararOperadorFv(cena: THREE.Group, passo: boolean, alvo?: THR
     partes.push(m)
   })
   const inclinacao = (y: number) => alvo ? .22 * THREE.MathUtils.smoothstep(y, .8, 1.3) : 0
-  const deltaMao = alvo?.clone().sub(ponta.clone().add(new THREE.Vector3(0, 0, inclinacao(ponta.y))))
+  punho.divideScalar(verticesPunho || 1)
+  // A luva e o punho recebem uma única rotação rígida: pesos por vértice torciam os dedos.
+  const rotacaoMao = new THREE.Quaternion().setFromUnitVectors(
+    ponta.clone().sub(punho).normalize(), new THREE.Vector3(-.18, -.06, .5).normalize(),
+  )
+  const destinoPunho = alvo?.clone().sub(ponta.clone().sub(punho).applyQuaternion(rotacaoMao))
   for (const m of partes) {
     const p = m.geometry.attributes.position
     for (let i = 0; i < p.count; i++) {
       const v = new THREE.Vector3().fromBufferAttribute(p, i), original = v.clone()
       v.z += inclinacao(original.y)
-      if (deltaMao) v.addScaledVector(deltaMao, THREE.MathUtils.smoothstep(original.z, .12, .42) * (1 - THREE.MathUtils.smoothstep(original.y, 1.3, 1.42)))
+      if (destinoPunho) {
+        const luva = (m.material as THREE.Material).name === 'DefaultMaterial' && original.y < 1.3
+        const juntoAoPunho = 1 - THREE.MathUtils.smoothstep(original.distanceTo(punho), .09, .3)
+        const manga = Math.max(juntoAoPunho, THREE.MathUtils.smoothstep(original.z, .18, .34))
+          * (1 - THREE.MathUtils.smoothstep(original.y, 1.3, 1.42))
+        const reposicionado = original.clone().sub(punho).applyQuaternion(rotacaoMao).add(destinoPunho)
+        v.lerp(reposicionado, luva ? 1 : manga)
+      }
       p.setXYZ(i, v.x, v.y, v.z)
     }
     p.needsUpdate = true

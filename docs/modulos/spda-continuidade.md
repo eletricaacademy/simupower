@@ -1,5 +1,15 @@
 # Módulo 7 — Continuidade do SPDA (NBR 5419-3)
 
+### Destaque da inspeção por fotos e revisão Kelvin — 11/09/2026
+
+Pedido do Pablo: entrada maior, amarela, com ícone de câmera, chamada
+“Iniciar inspeção por fotos” e descrição das quatro situações. Abertura do tour
+validada no navegador; largura CSS de 390 px conferida por DOM (botão de
+358 px, margens de 16 px). Captura visual do SPDA indisponível por timeout.
+Alteração mínima autorizada em `ui/SpdaHud.tsx`. Incluída a explicação comum
+de terminais Kelvin; auditoria em `inbrat-corrente.md`. Sem inverter fluxos
+por cor de garra. Build e 146 testes aprovados. Sem deploy.
+
 ### Execução rápida opcional — Codex, 11/09/2026
 
 Autorizado pelo Pablo: “Executar todos os testes da etapa” mede os 13 trechos

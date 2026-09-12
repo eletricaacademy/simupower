@@ -3,11 +3,35 @@ import { beforeAll, expect, it } from 'vitest'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { prepararOperadorFv, descartarOperadorFv } from './operadorFvModelo'
+import { PONTOS_TOQUE_PASSO_FV } from '../catalog/usinaFvPontos'
 
 let fonte: THREE.Group
 beforeAll(async () => {
   const b = readFileSync('public/models/colaborador.glb')
   fonte = (await new GLTFLoader().parseAsync(Uint8Array.from(b).buffer, '')).scene
+})
+
+it.each(PONTOS_TOQUE_PASSO_FV.filter(p => p.tipo === 'toque'))('preserva a forma da luva e o contato em $id', ponto => {
+  const alvo = new THREE.Vector3(0, ponto.alvo![1] - ponto.pos[1], Math.hypot(ponto.alvo![0] - ponto.pos[0], ponto.alvo![2] - ponto.pos[2]))
+  const repouso = prepararOperadorFv(fonte, false)
+  const toque = prepararOperadorFv(fonte, false, alvo)
+  const luva = (modelo: THREE.Group) => (modelo.children.find(m => ((m as THREE.Mesh).material as THREE.Material).name === 'DefaultMaterial') as THREE.Mesh).geometry.attributes.position
+  const a = luva(repouso), b = luva(toque)
+  let distancia = Infinity, triangulos = 0
+  for (let i = 0; i < a.count; i += 3) {
+    if ([0, 1, 2].some(j => a.getY(i + j) >= 1.3)) continue
+    triangulos++
+    for (let j = 0; j < 3; j++) {
+      const v = new THREE.Vector3().fromBufferAttribute(a, i + j)
+      const w = new THREE.Vector3().fromBufferAttribute(b, i + j)
+      const proximo = i + (j + 1) % 3
+      expect(w.distanceTo(new THREE.Vector3().fromBufferAttribute(b, proximo))).toBeCloseTo(v.distanceTo(new THREE.Vector3().fromBufferAttribute(a, proximo)), 5)
+      distancia = Math.min(distancia, w.distanceTo(alvo))
+    }
+  }
+  expect(triangulos).toBeGreaterThan(100)
+  expect(distancia).toBeLessThan(.00001)
+  descartarOperadorFv(repouso); descartarOperadorFv(toque)
 })
 
 it.each([false, true])('mantém cada perna no seu lado e ambas as botas paralelas (passo=%s)', passo => {

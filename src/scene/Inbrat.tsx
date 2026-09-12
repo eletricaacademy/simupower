@@ -116,7 +116,7 @@ function GarraKelvin({ alvo, origem, cor, baixo }: { alvo: Vec3; origem: Vec3; c
 }
 
 /** Entrada visual opcional para cenários com outra geometria de conexão. */
-export function Inbrat({ externo }: { externo?: { ponto: Pick<PontoSPDA, 'pos' | 'posOrigem'>; pos: Vec3; rotas: Vec3[][]; conectado: boolean; display?: string; fluxo?: boolean } } = {}) {
+export function Inbrat({ externo }: { externo?: { ponto: Pick<PontoSPDA, 'pos' | 'posOrigem'>; pos: Vec3; rotas: Vec3[][]; direcoesGarras?: Vec3[]; conectado: boolean; display?: string; fluxo?: boolean } } = {}) {
   const id = useSpda(s => s.pontoAtivo)
   const leitura = useSpda(s => s.medicoes[id])
   const zerado = useSpda(s => s.pontasZeradas)
@@ -145,7 +145,7 @@ export function Inbrat({ externo }: { externo?: { ponto: Pick<PontoSPDA, 'pos' |
       }
     })
     // Uma única garra por extremidade, alimentada pelas duas vias do respectivo PP.
-    const direcao = externo ? new THREE.Vector3(alvo[0] < 0 ? 1 : -1, -0.5, 0.35).normalize() : pontoSpda.nivel === 'bep' && lado === 1
+    const direcao = externo?.direcoesGarras?.[lado] ? new THREE.Vector3(...externo.direcoesGarras[lado]).normalize() : externo ? new THREE.Vector3(alvo[0] < 0 ? 1 : -1, -0.5, 0.35).normalize() : pontoSpda.nivel === 'bep' && lado === 1
       ? new THREE.Vector3(0, -0.5, -1).normalize()
       : new THREE.Vector3(Math.sign(alvo[0]), -0.5, Math.sign(alvo[2]) * 0.35).normalize()
     const traseira = new THREE.Vector3(...alvo).addScaledVector(direcao, 0.31).toArray() as Vec3

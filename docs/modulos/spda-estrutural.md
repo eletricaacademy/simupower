@@ -1,5 +1,14 @@
 # SPDA natural/estrutural — galpão industrial
 
+### Revisão Kelvin — Codex, 11/09/2026
+
+A pedido do Pablo, explicação compartilhada em `ui/ConexoesInbrat.tsx` incluída
+em `ui/EstruturalHud.tsx`: C1/C2 são vias de corrente vermelhas; P1/P2, vias de
+medição pretas. Cor do punho da garra não define polaridade. C1 → rede → C2
+permanece como sentido didático, pois o manual não explicita o polo positivo.
+Fonte, ressalva e auditoria em `inbrat-corrente.md`. Sem alterar engine, store,
+leituras ou sentidos dos ramos calculados. Build e 146 testes aprovados; sem deploy.
+
 ### Execução rápida opcional — Codex, 11/09/2026
 
 Autorizado pelo Pablo: após confirmar preparação, o botão “Executar todos os

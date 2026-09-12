@@ -1,3 +1,4 @@
+import { ConexoesInbrat } from './ConexoesInbrat'
 import { BotaoTestesEmLote } from './BotaoTestesEmLote'
 import { VISTA_INBRAT_FV } from '../scene/usinaFvInstrumento'
 import { executarEtapaEmLote } from '../sim/testesEmLote'
@@ -433,7 +434,7 @@ function NomesToggle() {
   return (
     <label className="flex items-center gap-2 mt-2 text-[12px] cursor-pointer" style={{ color: color.textMuted }}>
       <input type="checkbox" checked={mostrar} onChange={(e) => setMostrar(e.target.checked)} style={{ accentColor: color.accent }} />
-      Mostrar nomes dos itens
+      Mostrar nomes e valores na cena
     </label>
   )
 }
@@ -471,6 +472,7 @@ function Miliohmimetro() {
 
   return (
     <Painel titulo="Inbrat INMD1 PRO · continuidade" subtitulo={`${nMedidos}/${PONTOS_CONTINUIDADE_FV.length} medidos`}>
+      <ConexoesInbrat />
       <button type="button" onClick={() => useView.getState().pedirPose(VISTA_INBRAT_FV)} className="w-full mb-2 py-2 rounded-[9px] text-[12px]" style={{ ...botao, color: color.accentCool }}>Ver Inbrat</button>
       <div className="flex items-center justify-between mb-2 text-[10.5px]">
         <span style={{ color: color.textMuted }}>Garra fixa no <b style={{ color: color.text }}>BEP do skid</b></span>
@@ -785,6 +787,7 @@ function LegendaMapa() {
   return (
     <div>
       <Rotulo>Mapa no solo durante a falta</Rotulo>
+      <NomesToggle />
       <div className="flex gap-1.5 mb-2">
         {opcoes.map((o) => (
           <button

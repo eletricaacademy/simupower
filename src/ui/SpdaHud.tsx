@@ -1,4 +1,5 @@
 import { BotaoTestesEmLote } from './BotaoTestesEmLote'
+import { ConexoesInbrat } from './ConexoesInbrat'
 import { executarEtapaEmLote } from '../sim/testesEmLote'
 import { PainelRecolhivel } from './PainelRecolhivel'
 import { useEffect, useState } from 'react'
@@ -102,14 +103,23 @@ export function SpdaHud() {
 
       {!diagnosticoAberto && (
         <button
+          aria-label="Iniciar inspeção por fotos"
           onClick={() => {
             setConfigAberto(false)
             setDiagnosticoAberto(true)
           }}
-          className="absolute left-1/2 -translate-x-1/2 z-40 pointer-events-auto rounded-[9px] px-3 py-2 text-[12px] font-display font-semibold"
-          style={{ top: 68, background: color.surface, color: color.accent, border: `1px solid ${color.accent}` }}
+          className="absolute left-1/2 -translate-x-1/2 z-40 pointer-events-auto flex items-center gap-3 rounded-[14px] px-4 py-3 text-left shadow-xl transition-transform hover:scale-[1.02] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4"
+          style={{ top: 68, width: 'min(360px, calc(100% - 32px))', background: color.accent, color: color.viewport, border: `2px solid ${color.accent}` }}
         >
-          Diagnóstico por fotos
+          <svg aria-hidden="true" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="shrink-0">
+            <path d="M4 6h4l2-3h4l2 3h4a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z" />
+            <circle cx="12" cy="13" r="4" />
+          </svg>
+          <span className="flex-1">
+            <span className="block font-display font-bold text-[16px] md:text-[17px] leading-tight">Iniciar inspeção por fotos</span>
+            <span className="block text-[11px] mt-1 leading-snug">4 situações reais · veja, avalie e confira o diagnóstico</span>
+          </span>
+          <span aria-hidden="true" className="text-[25px] leading-none">›</span>
         </button>
       )}
 
@@ -342,9 +352,10 @@ function Miliohmimetro() {
           <button onClick={() => useView.getState().pedir('fluxo')}>Ver percurso completo</button>
         </div>
         <p><span style={{ color: color.accent }}>C1 → condutores</span> → <span style={{ color: color.accentCool }}>C2 · retorno</span></p>
-        <p>P1/P2: leitura de tensão. Animação ilustrativa da medição; setas indicam sentido, não intensidade.</p>
+        <p>P1/P2: leitura de tensão. Sentido didático C1 → C2; setas não indicam intensidade.</p>
         <p>{ponto?.nivel === 'inferior' ? 'Anel enterrado esquemático, visível através do solo.' : 'Percurso visível através das superfícies.'}</p>
       </div>}
+      <ConexoesInbrat />
       <div className="flex items-center justify-between mb-2">
         <span className="text-[10px] uppercase tracking-[0.18em]" style={{ color: color.textFaint }}>
           Continuidade · RLO

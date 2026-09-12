@@ -1,3 +1,4 @@
+import { ConexoesInbrat } from './ConexoesInbrat'
 import { BotaoTestesEmLote } from './BotaoTestesEmLote'
 import { executarEstruturalEmLote } from '../sim/testesEmLote'
 import { PainelRecolhivel } from './PainelRecolhivel'
@@ -48,6 +49,7 @@ function PainelEstrutural() {
     {s.fase === 'obra' && <p style={{ color:color.textMuted }}>Na obra, o ensaio é demonstrativo. O acompanhamento documentado das condições de construção pode dispensar a primeira verificação — F.1.2.2.</p>}
     <details><summary>Preparação e escopo · F.1</summary><p>Verificar APR, clima, acesso seguro, projeto estrutural e documentação. Suspender em condição de tempestade. Inspecionar conexões e assegurar contato metálico das garras.</p><p>Este cenário usa oito topos e quatro bases espaçadas a cada 20 m no perímetro de 80 m, incluindo a base ligada ao BEP. Não representa pré-moldado (F.2) nem fundação isolada (F.3).</p></details>
     <button style={botao} className="w-full" disabled={s.preparado} onClick={s.preparar}>{s.preparado ? 'Preparação confirmada · 1 A CC' : 'Confirmar preparação · Kelvin 1 A CC'}</button>
+    <ConexoesInbrat />
     <p style={{color:color.textMuted}}>Quatro terminais, dois cabos PP: P1/C1 e P2/C2. Corrente simulada de 1 A CC conforme F.1.3; sem emular as faixas do firmware Inbrat.</p>
     <label className="block">Pontos de conexão
       <select className="block w-full mt-1" style={botao} value={s.par} onChange={e => s.setPar(e.target.value)}>

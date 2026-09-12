@@ -1,7 +1,7 @@
 import { OperadorFv } from './OperadorFv'
 import { Inbrat } from './Inbrat'
 import { ModeloTerrometro } from './Terrometro'
-import { INBRAT_FV_POS } from './usinaFvInstrumento'
+import { INBRAT_FV_POS, DIRECAO_GARRA_BEP_FV, ROTA_CABO_BEP_FV } from './usinaFvInstrumento'
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { Html, Line } from '@react-three/drei'
 import { useFrame, useThree } from '@react-three/fiber'
@@ -163,6 +163,8 @@ function Barra({ a, b, raio, cor, atravessaSolo = false }: { a: Vec3; b: Vec3; r
 }
 
 function Etiqueta({ pos, texto, destaque = false }: { pos: Vec3; texto: string; destaque?: boolean }) {
+  const mostrar = useUsinaFv((s) => s.mostrarNomes)
+  if (!mostrar) return null
   return (
     // tamanho fixo em pixels (com escala por distância o rótulo tomava a tela de
     // perto) e camada zero, para ficar sob os painéis e o laudo do HUD
@@ -550,11 +552,16 @@ function MalhaEnterrada({ visivel, comDefeitos }: { visivel: boolean; comDefeito
   return (
     <group>
       {malhaDoCenario(comDefeitos).map((c) => (
-        <Barra key={c.id} a={c.a} b={c.b} raio={c.equalizacao ? 0.05 : 0.07} cor={c.equalizacao ? color.accentCool : CU.malha} atravessaSolo />
+        <Barra key={c.id} a={c.a} b={c.b} raio={c.equalizacao ? 0.05 : c.id === 'transv-skid' || c.id.startsWith('anel-se') ? 0.11 : 0.07} cor={c.equalizacao ? color.accentCool : CU.malha} atravessaSolo />
       ))}
       {HASTES_FV.map((h, i) => (
         <Barra key={i} a={h} b={[h[0], h[1] - COMPRIMENTO_HASTE, h[2]]} raio={0.05} cor={CU.malha} atravessaSolo />
       ))}
+      {/* Conectores destacados nas hastes dos equipamentos; sem acrescentar eletrodos à malha calculada. */}
+      {HASTES_FV.slice(10).map((h, i) => <mesh key={`conector-${i}`} position={h} renderOrder={20}>
+        <sphereGeometry args={[.16, 12, 8]} />
+        <meshStandardMaterial color={CU.malha} metalness={.6} roughness={.4} transparent opacity={.7} depthTest depthWrite={false} />
+      </mesh>)}
       {/* derivações das mesas: do pé do terminal até a linha de pilares */}
       {PONTOS_CONTINUIDADE_FV.filter((p) => p.grupo === 'Mesas').map((p) => (
         <Barra key={p.id} a={[p.pos[0], -0.02, p.pos[2]]} b={[p.pos[0], -PROFUNDIDADE_MALHA, p.pos[2]]} raio={0.03} cor={color.spda.cobre} atravessaSolo />
@@ -609,7 +616,8 @@ function EnsaioContinuidade() {
   const inbrat = useMemo(() => ativo ? {
     ponto: { posOrigem: BEP_SKID, pos: ativo.pos }, pos: instrumento,
     conectado: true, display: leitura?.display,
-    rotas: [BEP_SKID, ativo.pos].map(alvo => [
+    direcoesGarras: [DIRECAO_GARRA_BEP_FV],
+    rotas: [BEP_SKID, ativo.pos].map((alvo, i) => i === 0 ? ROTA_CABO_BEP_FV : [
       [instrumento[0] + .9, .06, instrumento[2]],
       [alvo[0], .06, instrumento[2]],
       [alvo[0], .06, alvo[2]],

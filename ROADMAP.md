@@ -1,5 +1,21 @@
 # SimuPower — Módulo NR-10 · Roadmap & Status
 
+### 11/09/2026 — Conexão do BEP, revisão Kelvin e inspeção por fotos
+
+Cabo e garra fixa do Inbrat chegam ao BEP pela frente da base do skid. Barramento
+preservado; maior destaque visual aos condutores existentes junto aos equipamentos.
+Botão amarelo maior “Iniciar inspeção por fotos” no SPDA, com ícone e explicação.
+Revisão do manual INMD1 PRO documentada em `docs/modulos/inbrat-corrente.md`:
+vias C vermelhas, P pretas; C1 → C2 identificado como sentido didático nos HUDs.
+Build e 146 testes aprovados. Sem deploy.
+
+### 11/09/2026 — Punho e etiquetas do mapa FV
+
+Luva reposicionada por rotação rígida nos quatro contatos, preservando a forma
+dos dedos e do punho. Controle “Mostrar nomes e valores na cena” junto aos modos
+do mapa oculta também as etiquetas de volts, ponto ativo e “Sob os pés”.
+Build e 145 testes aprovados. Sem deploy.
+
 ### 11/09/2026 — Correção da postura do operador FV
 
 Pernas independentes substituem a deformação da pose escalonada do GLB: joelhos

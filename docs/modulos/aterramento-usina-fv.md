@@ -340,6 +340,31 @@ no HUD (`ModoMapaFv`); falta só desenhar em `MapaPotencial`.
 
 ## Revisão das pernas do operador — Codex, 11/09/2026
 
+### Complemento — mão no toque e limpeza dos mapas
+
+- Cabo fixo do Inbrat sobe fora da laje e chega horizontalmente ao BEP pela
+  frente. Direção da garra parametrizada apenas para essa conexão; barramento
+  preservado, conforme correção explícita do Pablo. Rota verificada no navegador
+  e por 301 amostras da curva contra a laje no teste geométrico.
+- Reforço visual, sem novos condutores: transversal do skid/trafo e anel da SE
+  mais espessos na representação; conectores destacados nas hastes existentes
+  dos equipamentos. Nenhuma mudança na malha calculada ou nos resultados.
+- Estudo dos terminais do Inbrat: `inbrat-corrente.md`; explicação compartilhada
+  adicionada ao HUD por solicitação do Pablo. Validação final: 146 testes e build.
+
+- Luva e punho agora recebem uma transformação rígida, com transição na manga,
+  eliminando a deformação dos dedos pelo deslocamento individual dos vértices.
+  Quatro regressões geométricas conferem a preservação das arestas da luva e
+  o contato exato nos alvos catalogados de trafo, skid, mesa e portão.
+- Por pedido explícito do Pablo, alteração mínima em `src/ui/UsinaFvHud.tsx`:
+  controle “Mostrar nomes e valores na cena” junto aos modos do mapa. Reutiliza
+  o estado existente; todas as etiquetas da cena passam a respeitá-lo, inclusive
+  volts das equipotenciais, “Sob os pés” e nomes dos pontos de ensaio.
+- Conferidos no navegador desktop o operador nos quatro pontos (perfil do
+  portão), relevo sem etiquetas, alternância dos mapas e restauração dos textos.
+  Console sem erros. Mobile não repetido. Build e 145/145 testes aprovados;
+  permanece o aviso preexistente de tamanho do chunk Three. Sem deploy.
+
 - Corrigida a torção causada pelo deslocamento dos vértices das pernas do GLB,
   cuja pose original tinha um pé adiantado. O tronco e os EPIs são preservados;
   quadril, pernas e botas são construídos separadamente para a postura FV.
