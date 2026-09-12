@@ -1,5 +1,13 @@
 # SimuPower — Módulo NR-10 · Roadmap & Status
 
+### 11/09/2026 — Correção da postura do operador FV
+
+Pernas independentes substituem a deformação da pose escalonada do GLB: joelhos
+permanecem no próprio lado, botas paralelas e apoiadas no piso. Toque com pés
+lado a lado e passo com centros separados por 1 m. Conferidos os dois modos no
+navegador; regressões geométricas incluem alternância de postura. Build e 141
+testes aprovados. Sem deploy.
+
 ### 11/09/2026 — Terrômetro e operador da usina FV
 
 Reutilização do Minipa MTR-1522 do ensaio de queda de potencial, substituindo a

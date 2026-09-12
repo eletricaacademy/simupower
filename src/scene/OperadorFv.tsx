@@ -12,7 +12,7 @@ export function OperadorFv({ pos, alvo, passo, cor }: { pos: Vec3; alvo?: Vec3; 
   useEffect(() => () => descartarOperadorFv(modelo), [modelo])
   return <group position={pos} rotation={[0, giro, 0]}>
     <primitive object={modelo} dispose={null} />
-    {[-1, 1].map(s => <mesh key={s} position={[s * (passo ? .5 : .12), .03, .05]} rotation={[-Math.PI / 2, 0, 0]} renderOrder={23}>
+    {[-1, 1].map(s => <mesh key={s} position={[s * (passo ? .5 : .12), .03, 0]} rotation={[-Math.PI / 2, 0, 0]} renderOrder={23}>
       <ringGeometry args={[.13, .18, 20]} />
       <meshBasicMaterial color={cor} transparent opacity={.95} depthTest={false} depthWrite={false} side={THREE.DoubleSide} toneMapped={false} />
     </mesh>)}

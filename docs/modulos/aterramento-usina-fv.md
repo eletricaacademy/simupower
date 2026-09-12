@@ -338,6 +338,21 @@ potencial"** (modo Relevo 3D, com linhas equipotenciais). O texto completo para 
 está em `docs/modulos/PROMPT-CODEX-usina-fv.md`. O modo `relevo` já existe no store e
 no HUD (`ModoMapaFv`); falta só desenhar em `MapaPotencial`.
 
+## Revisão das pernas do operador — Codex, 11/09/2026
+
+- Corrigida a torção causada pelo deslocamento dos vértices das pernas do GLB,
+  cuja pose original tinha um pé adiantado. O tronco e os EPIs são preservados;
+  quadril, pernas e botas são construídos separadamente para a postura FV.
+- Cada joelho permanece do mesmo lado do respectivo pé. Botas paralelas, solas
+  no piso e marcadores centralizados: 0,24 m entre os centros no toque e 1 m no
+  passo. Modelo original do arco e coordenadas elétricas permanecem intactos.
+- Conferência visual desktop no navegador: toque no tanque e passo junto ao
+  transformador, com painéis recolhidos. Mobile não repetido nesta correção.
+- Testes geométricos verificam pernas sem cruzamento, botas com orientação
+  idêntica, apoio no piso e ausência de deformação acumulada ao alternar modos.
+  Build aprovado, 141/141 testes; aviso preexistente de tamanho do chunk Three.
+  Sem deploy.
+
 ## Briefing para colar no Codex (versão curta anterior)
 
 > Leia `AGENTS.md` e `docs/modulos/aterramento-usina-fv.md`. Na branch

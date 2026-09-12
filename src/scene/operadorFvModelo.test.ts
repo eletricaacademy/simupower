@@ -10,6 +10,43 @@ beforeAll(async () => {
   fonte = (await new GLTFLoader().parseAsync(Uint8Array.from(b).buffer, '')).scene
 })
 
+it.each([false, true])('mantém cada perna no seu lado e ambas as botas paralelas (passo=%s)', passo => {
+  const modelo = prepararOperadorFv(fonte, passo, passo ? undefined : new THREE.Vector3(0, 1.1, 1))
+  for (const lado of [-1, 1]) {
+    const perna = modelo.getObjectByName(`perna-${lado}`) as THREE.Mesh
+    const p = perna.geometry.attributes.position
+    for (let i = 0; i < p.count; i++) {
+      // Inclui joelhos e coxas, não apenas a localização final das solas.
+      expect(p.getX(i) * lado).toBeGreaterThan(0)
+    }
+    const sola = modelo.getObjectByName(`sola-${lado}`) as THREE.Mesh
+    const caixa = new THREE.Box3().setFromObject(sola)
+    expect(caixa.min.y).toBeCloseTo(0, 6)
+    expect(caixa.getCenter(new THREE.Vector3()).x).toBeCloseTo(lado * (passo ? .5 : .12), 6)
+  }
+  for (const nome of ['bota', 'sola', 'cano']) {
+    const a = (modelo.getObjectByName(`${nome}--1`) as THREE.Mesh).geometry.attributes.position
+    const b = (modelo.getObjectByName(`${nome}-1`) as THREE.Mesh).geometry.attributes.position
+    expect(a.count).toBe(b.count)
+    for (let i = 0; i < a.count; i++) {
+      expect(a.getY(i)).toBe(b.getY(i))
+      expect(a.getZ(i)).toBe(b.getZ(i))
+      expect(b.getX(i) - a.getX(i)).toBeCloseTo(passo ? 1 : .24, 6)
+    }
+  }
+  descartarOperadorFv(modelo)
+})
+
+it('alternar toque e passo não acumula deformações nem troca os pés', () => {
+  const primeiro = prepararOperadorFv(fonte, false, new THREE.Vector3(0, 1.1, 1))
+  for (const passo of [true, false, true]) descartarOperadorFv(prepararOperadorFv(fonte, passo))
+  const ultimo = prepararOperadorFv(fonte, false, new THREE.Vector3(0, 1.1, 1))
+  primeiro.children.forEach((m, i) => {
+    expect((ultimo.children[i] as THREE.Mesh).geometry.attributes.position.array).toEqual((m as THREE.Mesh).geometry.attributes.position.array)
+  })
+  descartarOperadorFv(primeiro); descartarOperadorFv(ultimo)
+})
+
 it('conserva altura, pés no piso e a geometria original quantizada', () => {
   const antes = new THREE.Box3().setFromObject(fonte)
   const modelo = prepararOperadorFv(fonte, false, new THREE.Vector3(0, 1.1, 1))
