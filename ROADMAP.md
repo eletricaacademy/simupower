@@ -1,5 +1,12 @@
 # SimuPower — Módulo NR-10 · Roadmap & Status
 
+### 11/09/2026 — Visão livre do cenário
+
+Painéis desktop recolhíveis individualmente nos nove módulos, com botão para
+restaurar sem perder entradas. Na usina FV, a malha enterrada atravessa somente
+o terreno na visualização, respeitando a oclusão dos módulos e equipamentos.
+Build e 129 testes aprovados; sem deploy.
+
 ### 11/09/2026 — Ambiente GLB da usina FV e montanha de potencial
 
 Usina de 300 kW montada a partir de kit reutilizável com 11 peças nomeadas: 540

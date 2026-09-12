@@ -1,3 +1,4 @@
+import { PainelRecolhivel } from './PainelRecolhivel'
 import { useEffect, useState } from 'react'
 import { useSim, passoHabilitado } from '../sim/store'
 import { useSpda, todosMedidos } from '../sim/spdaStore'
@@ -139,14 +140,14 @@ export function SpdaHud() {
       )}
 
       {/* DESKTOP */}
-      <div className={`${diagnosticoAberto ? 'hidden' : 'hidden md:block'} absolute left-4 bottom-4 pointer-events-auto`}>
+      <PainelRecolhivel titulo="procedimento" className={`${diagnosticoAberto ? 'hidden' : 'hidden md:block'} absolute left-4 bottom-4 pointer-events-auto`}>
         <GuidedCard />
-      </div>
+      </PainelRecolhivel>
 
       {mostrarPainel && !diagnosticoAberto && (
-        <div className="hidden md:block absolute right-4 bottom-4 pointer-events-auto">
+        <PainelRecolhivel titulo="painel de ensaio" className="hidden md:block absolute right-4 bottom-4 pointer-events-auto">
           <Miliohmimetro />
-        </div>
+        </PainelRecolhivel>
       )}
 
       {/* MOBILE */}

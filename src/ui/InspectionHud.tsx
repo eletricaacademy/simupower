@@ -1,3 +1,4 @@
+import { PainelRecolhivel } from './PainelRecolhivel'
 import { useState, useEffect } from 'react'
 import { useSim, passoHabilitado } from '../sim/store'
 import { useInsp } from '../sim/inspStore'
@@ -90,7 +91,7 @@ export function InspectionHud() {
       )}
 
       {/* DESKTOP */}
-      <div className="hidden md:flex absolute left-4 bottom-4 flex-col gap-3 pointer-events-auto">
+      <PainelRecolhivel titulo="procedimento" className="hidden md:flex absolute left-4 bottom-4 flex-col gap-3 pointer-events-auto">
         {tourAtivo ? <InspGuidedPanel /> : <IntroCard />}
         <div className="hud-glass rounded-[14px] p-3 w-[360px]">
           <div className="text-[10px] uppercase tracking-wider mb-2" style={{ color: color.textFaint }}>
@@ -98,11 +99,11 @@ export function InspectionHud() {
           </div>
           <Checklist />
         </div>
-      </div>
+      </PainelRecolhivel>
 
-      <div className="hidden md:block absolute right-4 bottom-4 pointer-events-auto">
+      <PainelRecolhivel titulo="painel de ensaio" className="hidden md:block absolute right-4 bottom-4 pointer-events-auto">
         <InspResult />
-      </div>
+      </PainelRecolhivel>
 
       {/* MOBILE */}
       <MobileSheet

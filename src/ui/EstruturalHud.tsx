@@ -1,3 +1,4 @@
+import { PainelRecolhivel } from './PainelRecolhivel'
 import { useEffect, useState } from 'react'
 import { useEstrutural } from '../sim/estruturalStore'
 import { useSim } from '../sim/store'
@@ -15,7 +16,7 @@ export function EstruturalHud() {
   return <div className="absolute inset-0 pointer-events-none">
     <HudTopBar onConfig={() => setConfig(!config)} configAberto={config} />
     {config && <div className="absolute right-4 top-16 z-50 pointer-events-auto hud-glass rounded-xl p-4"><QualityPicker /></div>}
-    <div className="hidden md:block absolute right-4 top-20 bottom-4 pointer-events-auto"><PainelEstrutural /></div>
+    <PainelRecolhivel titulo="painel de ensaio" className="hidden md:block absolute right-4 top-20 bottom-4 pointer-events-auto"><PainelEstrutural /></PainelRecolhivel>
     <MobileSheet onReiniciar={() => useEstrutural.getState().reset()}><PainelEstrutural /></MobileSheet>
   </div>
 }

@@ -1,3 +1,4 @@
+import { PainelRecolhivel } from './PainelRecolhivel'
 import { useEffect, useState } from 'react'
 import { useSim, passoHabilitado } from '../sim/store'
 import { useInsp } from '../sim/inspStore'
@@ -115,14 +116,14 @@ export function AterramentoHud() {
       )}
 
       {/* DESKTOP — só o cartão guiado (essencial); o progresso vai embutido nele */}
-      <div className="hidden md:block absolute left-4 bottom-4 pointer-events-auto">
+      <PainelRecolhivel titulo="procedimento" className="hidden md:block absolute left-4 bottom-4 pointer-events-auto">
         <GuidedCard />
-      </div>
+      </PainelRecolhivel>
 
       {mostrarPainel && (
-        <div className="hidden md:block absolute right-4 bottom-4 pointer-events-auto">
+        <PainelRecolhivel titulo="painel de ensaio" className="hidden md:block absolute right-4 bottom-4 pointer-events-auto">
           <Terrometro />
-        </div>
+        </PainelRecolhivel>
       )}
 
       {/* MOBILE */}

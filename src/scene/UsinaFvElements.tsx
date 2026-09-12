@@ -153,7 +153,7 @@ function Barra({ a, b, raio, cor, atravessaSolo = false }: { a: Vec3; b: Vec3; r
   return (
     <mesh position={meio} quaternion={quat} renderOrder={atravessaSolo ? 20 : 0}>
       <cylinderGeometry args={[raio, raio, comprimento, 6]} />
-      <meshStandardMaterial color={cor} metalness={0.5} roughness={0.5} depthTest={!atravessaSolo} transparent={atravessaSolo} opacity={atravessaSolo ? 0.9 : 1} />
+      <meshStandardMaterial color={cor} metalness={0.5} roughness={0.5} depthTest depthWrite={!atravessaSolo} transparent={atravessaSolo} opacity={atravessaSolo ? 0.55 : 1} />
     </mesh>
   )
 }
@@ -218,23 +218,24 @@ function Terreno() {
   useEffect(() => () => Object.values(acabamento).forEach(a => a.dispose()), [acabamento])
   return (
     <group>
-      <mesh geometry={acabamento.terreno} rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 0]} receiveShadow>
-        <meshLambertMaterial color={CU.grama} map={acabamento.grama} />
+      {/* Solo desenhado primeiro, sem bloquear o subsolo; equipamentos mantêm sua oclusão. */}
+      <mesh geometry={acabamento.terreno} renderOrder={-10} rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 0]} receiveShadow>
+        <meshLambertMaterial color={CU.grama} map={acabamento.grama} depthWrite={false} />
       </mesh>
       {/* estrada de terra: do portão para o sul, por onde as estacas são levadas */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[ESTACAS_FV.e[0], -0.01, CERCA.zMax + comprimentoEstrada / 2]} receiveShadow>
+      <mesh renderOrder={-9} rotation={[-Math.PI / 2, 0, 0]} position={[ESTACAS_FV.e[0], -0.01, CERCA.zMax + comprimentoEstrada / 2]} receiveShadow>
         <planeGeometry args={[5, comprimentoEstrada]} />
-        <meshLambertMaterial color={CU.terra} map={acabamento.estrada} />
+        <meshLambertMaterial color={CU.terra} map={acabamento.estrada} depthWrite={false} />
       </mesh>
       {/* acesso interno do portão ao skid */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[(PORTAO.x + AREA_BRITA.xMin) / 2, -0.01, (CERCA.zMax + AREA_BRITA.zMax) / 2]} receiveShadow>
+      <mesh renderOrder={-9} rotation={[-Math.PI / 2, 0, 0]} position={[(PORTAO.x + AREA_BRITA.xMin) / 2, -0.01, (CERCA.zMax + AREA_BRITA.zMax) / 2]} receiveShadow>
         <planeGeometry args={[Math.abs(AREA_BRITA.xMin - PORTAO.x) + 4, Math.abs(CERCA.zMax - AREA_BRITA.zMax) + 1]} />
-        <meshLambertMaterial color={CU.terra} map={acabamento.acesso} />
+        <meshLambertMaterial color={CU.terra} map={acabamento.acesso} depthWrite={false} />
       </mesh>
       {/* camada de brita sob skid e trafo (eleva o limite de toque/passo) */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[(AREA_BRITA.xMin + AREA_BRITA.xMax) / 2, 0.005, (AREA_BRITA.zMin + AREA_BRITA.zMax) / 2]} receiveShadow>
+      <mesh renderOrder={-8} rotation={[-Math.PI / 2, 0, 0]} position={[(AREA_BRITA.xMin + AREA_BRITA.xMax) / 2, 0.005, (AREA_BRITA.zMin + AREA_BRITA.zMax) / 2]} receiveShadow>
         <planeGeometry args={[AREA_BRITA.xMax - AREA_BRITA.xMin, AREA_BRITA.zMax - AREA_BRITA.zMin]} />
-        <meshLambertMaterial color={CU.brita} map={acabamento.brita} />
+        <meshLambertMaterial color={CU.brita} map={acabamento.brita} depthWrite={false} />
       </mesh>
     </group>
   )

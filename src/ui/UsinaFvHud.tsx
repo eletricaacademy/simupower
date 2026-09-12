@@ -1,3 +1,4 @@
+import { PainelRecolhivel } from './PainelRecolhivel'
 import { useEffect, useState, type ReactNode } from 'react'
 import { useSim, passoHabilitado } from '../sim/store'
 import { useUsinaFv, continuidadeCompleta, toquePassoCompleto, malhaDoSolo } from '../sim/usinaFvStore'
@@ -150,12 +151,12 @@ export function UsinaFvHud() {
       )}
 
       {/* DESKTOP */}
-      <div className="hidden md:block absolute left-4 bottom-4 pointer-events-auto">
+      <PainelRecolhivel titulo="procedimento" className="hidden md:block absolute left-4 bottom-4 pointer-events-auto">
         <GuidedCard />
-      </div>
-      <div className="hidden md:block absolute right-4 bottom-4 pointer-events-auto">
+      </PainelRecolhivel>
+      <PainelRecolhivel titulo="painel de ensaio" className="hidden md:block absolute right-4 bottom-4 pointer-events-auto">
         <PainelEtapa onAbrirLaudo={() => setLaudoFechado(false)} />
-      </div>
+      </PainelRecolhivel>
 
       {/* MOBILE */}
       <MobileSheet

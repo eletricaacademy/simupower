@@ -1,3 +1,4 @@
+import { PainelRecolhivel } from './PainelRecolhivel'
 import { useEffect, useState } from 'react'
 import { useSim } from '../sim/store'
 import { useView } from '../sim/viewStore'
@@ -103,18 +104,18 @@ export function VerificacaoHud() {
       )}
 
       {/* painel guiado dos ensaios — DESKTOP (esquerda) */}
-      <div className="hidden md:block absolute left-4 bottom-4 pointer-events-auto" style={{ maxWidth: 'min(92vw, 380px)' }}>
+      <PainelRecolhivel titulo="procedimento" className="hidden md:block absolute left-4 bottom-4 pointer-events-auto" style={{ maxWidth: 'min(92vw, 380px)' }}>
         <EnsaioPanel />
-      </div>
+      </PainelRecolhivel>
       {/* MOBILE: dock inferior com minimizar + opções */}
       <MobileSheet onReiniciar={() => useVerif.getState().reset()}>
         <EnsaioPanel />
       </MobileSheet>
 
       {/* visor do Fluke 1662 (direita) */}
-      <div className="hidden md:block absolute right-4 bottom-4 pointer-events-auto">
+      <PainelRecolhivel titulo="painel de ensaio" className="hidden md:block absolute right-4 bottom-4 pointer-events-auto">
         <FlukeDisplay />
-      </div>
+      </PainelRecolhivel>
 
       {!pronto && <IntroVerif onClose={() => setPronto(true)} />}
       <RelatorioVerif />

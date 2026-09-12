@@ -175,6 +175,21 @@ Rg calculada = 0,006983 Ω por Ω·m (6,5 % abaixo de Sverak, checado em teste):
 
 ## Checklist de handoff para o Codex
 
+### Painéis recolhíveis e oclusão do subsolo — Codex, 11/09/2026
+
+- Pedido do Pablo: minimizar os painéis laterais em todas as simulações.
+  `ui/PainelRecolhivel.tsx` aplicado aos 17 painéis desktop dos nove HUDs.
+  Controles independentes, acessíveis por teclado, mantêm os filhos montados;
+  ocultar não reinicia entradas nem medições. MobileSheet existente preservado.
+  Alterações fora da área exclusiva do Codex limitadas aos contêineres dos HUDs.
+- Malha FV: retirado o desenho sobre todos os objetos (`depthTest=false`).
+  Solo, acesso, estrada e brita desenhados primeiro sem escrever profundidade;
+  condutores mantêm as coordenadas enterradas, teste de profundidade e opacidade
+  de 55%. Equipamentos e módulos ocultam os condutores que ficam atrás deles.
+  Nenhuma alteração de geometria elétrica, engine, store ou resultados.
+- Navegador: malha sem sobreposição às mesas, ambos os painéis minimizados e
+  reabertos com opções preservadas; console sem erros. Build e 129 testes aprovados.
+
 ### Controle dos nomes — Codex, 11/09/2026
 
 Pedido do Pablo: opção “Mostrar nomes dos itens” nas configurações e no painel
