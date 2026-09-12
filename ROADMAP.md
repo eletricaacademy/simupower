@@ -1,5 +1,12 @@
 # SimuPower — Módulo NR-10 · Roadmap & Status
 
+### 11/09/2026 — Terrômetro e operador da usina FV
+
+Reutilização do Minipa MTR-1522 do ensaio de queda de potencial, substituindo a
+caixa provisória na FV. Operador usa o GLB do arco elétrico, adaptado aos contatos
+de toque e às posições dos pés, com capacete, viseira, uniforme e botas.
+Cálculos e resultados preservados. Build e 138 testes aprovados. Sem deploy.
+
 ### 11/09/2026 — Atalhos para aula e categorias de ensaios
 
 Execução opcional de todas as medições da etapa em ambos os SPDA e na usina FV,

@@ -1,4 +1,6 @@
+import { OperadorFv } from './OperadorFv'
 import { Inbrat } from './Inbrat'
+import { ModeloTerrometro } from './Terrometro'
 import { INBRAT_FV_POS } from './usinaFvInstrumento'
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { Html, Line } from '@react-three/drei'
@@ -654,8 +656,8 @@ function EnsaioQuedaPotencial({ baixo }: { baixo: boolean }) {
   const marcos = useMemo(() => Array.from({ length: Math.floor(distanciaC / 50) }, (_, i) => (i + 1) * 50), [distanciaC])
   const [j0, j1] = [POSICOES_PATAMAR[0] * distanciaC, POSICOES_PATAMAR[2] * distanciaC]
   const janelaForaDaZona = j0 > zona
-  const correnteC = useMemo(() => caminho([[terrometro[0], 0.25, terrometro[2]], ao(1, 0.5, 0.25), ao(distanciaC, 0.5, 0.25), [posC[0], 0.6, posC[2]]]), [distanciaC])
-  const correnteE = useMemo(() => caminho([[e[0], 0.35, e[2]], [terrometro[0], 0.25, terrometro[2]]]), [])
+  const correnteC = useMemo(() => caminho([[terrometro[0], 0.06, terrometro[2]], ao(1, 0.5, 0.25), ao(distanciaC, 0.5, 0.25), [posC[0], 0.6, posC[2]]]), [distanciaC])
+  const correnteE = useMemo(() => caminho([[e[0], 0.35, e[2]], [terrometro[0], 0.06, terrometro[2]]]), [])
   return (
     <group>
       {/* faixas no chão da estrada: zona de influência e janela do patamar */}
@@ -666,14 +668,14 @@ function EnsaioQuedaPotencial({ baixo }: { baixo: boolean }) {
       {/* ponto E: caixa de inspeção no anel de equalização */}
       <Caixa pos={[e[0], 0.05, e[2]]} dim={[0.4, 0.1, 0.4]} cor={CU.alvenaria} />
       <Estaca pos={e} cor={CU.estacaE} rotulo="E · malha" />
-      <Caixa pos={[terrometro[0], 0.12, terrometro[2]]} dim={[0.28, 0.24, 0.2]} cor={color.inbrat.painel} rough={0.5} />
-      <Line points={[[terrometro[0], 0.2, terrometro[2]], [e[0], 0.3, e[2]]]} color={CU.estacaE} lineWidth={2} />
+      <ModeloTerrometro posicao={terrometro} />
+      <Line points={[[terrometro[0], 0.06, terrometro[2]], [e[0], 0.3, e[2]]]} color={CU.estacaE} lineWidth={2} />
       {cravadas && (
         <>
           <Estaca pos={posC} cor={CU.estacaC} rotulo={`C · ${distanciaC} m`} alta />
           <Estaca pos={posPe} cor={CU.estacaP} rotulo={`P · ${Math.round(posP * 100)} %`} alta />
-          <Line points={[[terrometro[0], 0.2, terrometro[2]], ao(1, 0.5), ao(distanciaC, 0.5), [posC[0], 0.5, posC[2]]]} color={CU.estacaC} lineWidth={2} />
-          <Line points={[[terrometro[0], 0.2, terrometro[2]], ao(1, -0.5), ao(posP * distanciaC, -0.5), [posPe[0], 0.5, posPe[2]]]} color={CU.estacaP} lineWidth={2} />
+          <Line points={[[terrometro[0], 0.06, terrometro[2]], ao(1, 0.5), ao(distanciaC, 0.5), [posC[0], 0.5, posC[2]]]} color={CU.estacaC} lineWidth={2} />
+          <Line points={[[terrometro[0], 0.06, terrometro[2]], ao(1, -0.5), ao(posP * distanciaC, -0.5), [posPe[0], 0.5, posPe[2]]]} color={CU.estacaP} lineWidth={2} />
           <SetasCorrente curva={correnteC} cor={color.accent} baixo={baixo} />
           <SetasCorrente curva={correnteE} cor={color.accent} baixo={baixo} />
           {marcos.map((m) => (
@@ -744,63 +746,11 @@ function EnsaioToquePasso() {
               ))}
               {!ativo && <Marcador pos={[0, 0.9, 0]} cor={cor} ativo={false} />}
             </group>
-            {ativo && <Pessoa pos={p.pos} alvo={p.alvo} passo={p.tipo === 'passo'} cor={cor} />}
+            {ativo && <OperadorFv pos={p.pos} alvo={p.alvo} passo={p.tipo === 'passo'} cor={cor} />}
             {ativo && <Etiqueta pos={[p.pos[0], 2.2, p.pos[2]]} texto={leituras[p.id] ? `${p.nome} · ${Math.round(leituras[p.id].vFalta)} V` : p.nome} destaque />}
           </group>
         )
       })}
-    </group>
-  )
-}
-
-/**
- * Figura humana simplificada (1,75 m): no toque, de frente para a massa com a
- * mão nela; no passo, pernas abertas 1 m. O contorno dos pés ganha a cor do
- * resultado. O Codex pode trocar por um personagem modelado.
- */
-function Pessoa({ pos, alvo, passo, cor }: { pos: Vec3; alvo?: Vec3; passo: boolean; cor: string }) {
-  const corpo = useRef<THREE.Group>(null)
-  useLayoutEffect(() => {
-    corpo.current?.traverse(o => {
-      if (!(o instanceof THREE.Mesh)) return
-      o.renderOrder = 24
-      const materiais = Array.isArray(o.material) ? o.material : [o.material]
-      materiais.forEach(m => { m.depthTest = false; m.depthWrite = false; m.transparent = true })
-    })
-  })
-  const giro = alvo ? Math.atan2(alvo[0] - pos[0], alvo[2] - pos[2]) : 0
-  const pele = CU.pessoa
-  const roupa = CU.roupa
-  const abertura = passo ? 0.5 : 0.12
-  // braço de toque: do ombro até a mão na massa (no referencial da pessoa)
-  const distAlvo = alvo ? Math.hypot(alvo[0] - pos[0], alvo[2] - pos[2]) : 0
-  const ombro: Vec3 = [0.2, 1.42, 0]
-  const mao: Vec3 = alvo ? [0.12, alvo[1], distAlvo - 0.05] : [0.25, 0.9, 0.1]
-  return (
-    <group ref={corpo} position={pos} rotation={[0, giro, 0]}>
-      {/* pernas */}
-      {[-1, 1].map((s) => (
-        <Barra key={s} a={[s * abertura, 0.05, 0]} b={[s * 0.1, 0.9, 0]} raio={0.07} cor={roupa} />
-      ))}
-      {/* tronco e cabeça */}
-      <mesh position={[0, 1.18, 0]} castShadow>
-        <capsuleGeometry args={[0.17, 0.42, 4, 10]} />
-        <meshStandardMaterial color={roupa} roughness={0.8} />
-      </mesh>
-      <mesh position={[0, 1.64, 0]} castShadow>
-        <sphereGeometry args={[0.11, 14, 14]} />
-        <meshStandardMaterial color={pele} roughness={0.7} />
-      </mesh>
-      {/* braços: um relaxado e, no toque, o outro esticado até a massa */}
-      <Barra a={[-0.2, 1.42, 0]} b={[-0.26, 0.92, 0.02]} raio={0.045} cor={roupa} />
-      <Barra a={ombro} b={mao} raio={0.045} cor={alvo ? pele : roupa} />
-      {/* contorno dos pés com a cor do resultado */}
-      {[-1, 1].map((s) => (
-        <mesh key={s} position={[s * abertura, 0.03, 0.05]} rotation={[-Math.PI / 2, 0, 0]} renderOrder={23}>
-          <ringGeometry args={[0.13, 0.18, 20]} />
-          <meshBasicMaterial color={cor} transparent opacity={0.95} depthTest={false} side={THREE.DoubleSide} toneMapped={false} />
-        </mesh>
-      ))}
     </group>
   )
 }

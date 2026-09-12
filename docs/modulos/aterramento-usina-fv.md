@@ -175,6 +175,32 @@ Rg calculada = 0,006983 Ω por Ω·m (6,5 % abaixo de Sverak, checado em teste):
 
 ## Checklist de handoff para o Codex
 
+### Terrômetro compartilhado — Codex, 11/09/2026
+
+Pedido do Pablo: usar o terrômetro do módulo de queda de potencial na FV.
+Extraído `ModeloTerrometro` de `scene/Terrometro.tsx`, reutilizando o mesmo GLB
+`models/terrometro-minipa.glb` (Minipa MTR-1522), escala, orientação e tapete.
+O módulo original continua usando o mesmo componente. Na FV substitui apenas a
+caixa provisória, mantendo a posição junto a E e ajustando a saída visual dos
+cabos à altura do aparelho. Estacas, distâncias, leituras, mapa e critérios
+preservados. Leitura no HUD, como no módulo original. Sem deploy.
+
+### Operador com modelo do arco — Codex, 11/09/2026
+
+Pedido do Pablo: substituir a figura simplificada por um operador mais detalhado.
+`OperadorFv.tsx` reutiliza `models/colaborador.glb` (capacete, viseira, uniforme,
+luvas e botas), normalizado para 1,75 m. O original estático do arco permanece
+intacto; a cópia da FV adapta a postura aos pontos existentes, com geometria e
+materiais próprios. Posições quantizadas do asset são convertidas para Float32
+antes da adaptação; transição suave das pernas evita descontinuidades no uniforme.
+Centros das solas no passo em X = ±0,5 m, Z = 0; mão alinhada ao alvo catalogado.
+Mantém anéis/placas de pé e renderiza depois do relevo, com teste de profundidade
+para impedir que faces do próprio uniforme se sobreponham incorretamente.
+Buffers próprios descartados ao trocar de ponto. Nenhuma alteração na física,
+no modelo de corpo de 50 kg, nos pontos ou nos resultados pré-calculados.
+Navegador conferiu toque e passo; console sem erros. Build e 138 testes aprovados,
+incluindo testes geométricos de altura, contato, pés e preservação do GLB original.
+
 ### Aula rápida, Inbrat e menu — Codex, 11/09/2026
 
 - Pedido do Pablo: botão opcional “Executar todos os testes da etapa”. Em

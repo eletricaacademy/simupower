@@ -71,7 +71,7 @@ function Haste({ em, cor }: { em: [number, number, number]; cor: string }) {
   )
 }
 
-export function Terrometro3D() {
+export function ModeloTerrometro({ posicao }: { posicao: [number, number, number] }) {
   const { scene } = useGLTF(asset('models/terrometro-minipa.glb'))
   const modelo = useMemo(() => {
     const c = scene.clone(true)
@@ -94,6 +94,29 @@ export function Terrometro3D() {
     return { escala: (COMPRIMENTO_M * UNIDADES_POR_METRO) / maior, seat: -b.min.y }
   }, [modelo])
 
+  return (
+    <group position={posicao}>
+      {/* tapete marcador (BRANCO, borda âmbar) */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.006, 0]}>
+        <planeGeometry args={[TAPETE[0] + 0.06, TAPETE[1] + 0.06]} />
+        <meshBasicMaterial color={color.accent} />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.012, 0]} receiveShadow>
+        <planeGeometry args={TAPETE} />
+        <meshStandardMaterial color={color.text} roughness={0.9} metalness={0} />
+      </mesh>
+
+      {/* aparelho em escala real */}
+      <group rotation={[0, ROT_Y, 0]} scale={escala}>
+        <group position={[0, seat, 0]}>
+          <primitive object={modelo} dispose={null} />
+        </group>
+      </group>
+    </group>
+  )
+}
+
+export function Terrometro3D() {
   const posP = useAter((s) => s.posP)
   // a cena ACOMPANHA os passos: elementos aparecem conforme o procedimento.
   const cumpridos = useSim((s) => s.cumpridos)
@@ -111,24 +134,7 @@ export function Terrometro3D() {
     <>
       {temTerrometro && (
         <>
-          <group position={POS}>
-            {/* tapete marcador (BRANCO, borda âmbar) */}
-            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.006, 0]}>
-              <planeGeometry args={[TAPETE[0] + 0.06, TAPETE[1] + 0.06]} />
-              <meshBasicMaterial color={color.accent} />
-            </mesh>
-            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.012, 0]} receiveShadow>
-              <planeGeometry args={TAPETE} />
-              <meshStandardMaterial color="#f2f2f2" roughness={0.9} metalness={0} />
-            </mesh>
-
-            {/* aparelho em escala real */}
-            <group rotation={[0, ROT_Y, 0]} scale={escala}>
-              <group position={[0, seat, 0]}>
-                <primitive object={modelo} />
-              </group>
-            </group>
-          </group>
+          <ModeloTerrometro posicao={POS} />
 
           {/* eletrodo sob ensaio (E) — onde conecta o cabo E/verde */}
           <group position={PONTO_MEDICAO}>
