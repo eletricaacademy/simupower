@@ -21,6 +21,12 @@ import {
   URL_COMPRA_GROUNDPRO,
   type MotivoGroundPro,
 } from '../lib/contaGroundPro'
+import {
+  entrarNoPowerDim,
+  sairDoPowerDim,
+  verificarAcessoPowerDim,
+  type MotivoPowerDim,
+} from '../lib/contaPowerDim'
 
 interface Modulo {
   id: string
@@ -44,8 +50,20 @@ const TRIAL_EXPIRA = 1782749816000
 const LS_FULL = 'calibra:full'
 const LS_TRIAL = 'calibra:trial'
 
-/** `conta` = liberado pela conta GroundPRO (trial ou paga, dentro da data de fim). */
-type Acesso = { liberado: boolean; promo: boolean; conta?: boolean }
+/** `conta` = liberado por uma conta externa: PowerDim (14/09/2026) ou GroundPRO (12/09/2026). */
+type OrigemConta = 'powerdim' | 'groundpro'
+type Acesso = { liberado: boolean; promo: boolean; conta?: OrigemConta }
+
+/** Texto de erro do login pela conta PowerDim, por motivo. */
+function msgPowerDim(motivo: MotivoPowerDim): string {
+  switch (motivo) {
+    case 'sem-conta': return 'Conta não encontrada no PowerDim. Confira o e-mail.'
+    case 'sem-simupower': return 'Sua conta do PowerDim não inclui o SimuPower. Fale com o suporte para liberar.'
+    case 'encerrado': return 'Seu acesso ao PowerDim terminou. Renove para continuar.'
+    case 'sem-sessao': return 'E-mail ou senha incorretos.'
+    default: return 'Não foi possível verificar sua conta agora. Tente novamente.'
+  }
+}
 
 /** Texto de erro do login pela conta GroundPRO, por motivo. */
 function msgGroundPro(motivo: MotivoGroundPro): string {
@@ -214,62 +232,99 @@ export function MainMenu() {
   const [erroSenha, setErroSenha] = useState(false)
   const [msgErro, setMsgErro] = useState('Senha incorreta. Tente novamente.')
 
-  // ── login pela conta GroundPRO (12/09/2026) ──
-  // Mesmo e-mail e senha do GroundPRO; vale enquanto a conta de lá estiver
-  // vigente (trial ou paga). Caminho ADICIONAL: as senhas acima continuam.
+  // ── login por conta externa: PowerDim (14/09/2026) ou GroundPRO (12/09/2026) ──
+  // Um formulário só (e-mail + senha). Tenta o PowerDim primeiro; se não entrar
+  // ou a conta não incluir o SimuPower, tenta o GroundPRO com as MESMAS
+  // credenciais. Caminho ADICIONAL: as senhas numéricas acima continuam.
   const [gpEmail, setGpEmail] = useState('')
   const [gpSenha, setGpSenha] = useState('')
   const [gpErro, setGpErro] = useState<string | null>(null)
   const [gpOcupado, setGpOcupado] = useState(false)
-  const [gpConta, setGpConta] = useState<{ email: string | null; fim: string | null; status: string | null } | null>(null)
+  const [gpConta, setGpConta] = useState<{ origem: OrigemConta; email: string | null; fim: string | null; status: string | null } | null>(null)
 
-  // Sessão GroundPRO salva no navegador: revalida ao abrir (a data de fim pode
-  // ter passado). Só quando as senhas locais não liberaram.
+  // Sessão salva no navegador (PowerDim ou GroundPRO): revalida ao abrir — a
+  // data de fim pode ter passado, ou o flag pode ter sido retirado. Só quando as
+  // senhas locais não liberaram.
   useEffect(() => {
-    if (acesso.liberado || !groundProDisponivel()) return
+    if (acesso.liberado) return
     let cancelado = false
-    verificarAcessoGroundPro().then((r) => {
+    ;(async () => {
+      const pd = await verificarAcessoPowerDim()
       if (cancelado) return
-      if (r.liberado) {
-        setGpConta({ email: r.email ?? null, fim: r.fim ?? null, status: r.status ?? null })
-        setAcesso({ liberado: true, promo: false, conta: true })
-      } else if (r.motivo === 'encerrado') {
+      if (pd.liberado) {
+        setGpConta({ origem: 'powerdim', email: pd.email ?? null, fim: pd.fim ?? null, status: pd.status ?? null })
+        setAcesso({ liberado: true, promo: false, conta: 'powerdim' })
+        return
+      }
+      if (!groundProDisponivel()) return
+      const gp = await verificarAcessoGroundPro()
+      if (cancelado) return
+      if (gp.liberado) {
+        setGpConta({ origem: 'groundpro', email: gp.email ?? null, fim: gp.fim ?? null, status: gp.status ?? null })
+        setAcesso({ liberado: true, promo: false, conta: 'groundpro' })
+      } else if (pd.motivo === 'encerrado' || pd.motivo === 'sem-simupower') {
+        setGpErro(msgPowerDim(pd.motivo))
+      } else if (gp.motivo === 'encerrado') {
         setGpErro(msgGroundPro('encerrado'))
       }
-    })
+    })()
     return () => {
       cancelado = true
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  async function entrarComGroundPro(e: { preventDefault(): void }) {
+  async function entrarComConta(e: { preventDefault(): void }) {
     e.preventDefault()
     if (gpOcupado) return
     setGpErro(null)
     setGpOcupado(true)
     try {
-      const { error } = await entrarNoGroundPro(gpEmail, gpSenha)
-      if (error) {
-        setGpErro(msgGroundPro('sem-sessao'))
-        return
+      // 1) PowerDim
+      let motivoPd: MotivoPowerDim = 'sem-sessao'
+      const { error: ePd } = await entrarNoPowerDim(gpEmail, gpSenha)
+      if (!ePd) {
+        const r = await verificarAcessoPowerDim()
+        if (r.liberado) {
+          setGpConta({ origem: 'powerdim', email: r.email ?? null, fim: r.fim ?? null, status: r.status ?? null })
+          setAcesso({ liberado: true, promo: false, conta: 'powerdim' })
+          setGpSenha('')
+          return
+        }
+        motivoPd = r.motivo
+        await sairDoPowerDim()
       }
-      const r = await verificarAcessoGroundPro()
-      if (r.liberado) {
-        setGpConta({ email: r.email ?? null, fim: r.fim ?? null, status: r.status ?? null })
-        setAcesso({ liberado: true, promo: false, conta: true })
-        setGpSenha('')
-      } else {
-        setGpErro(msgGroundPro(r.motivo))
-        await sairDoGroundPro()
+      // 2) GroundPRO, com as mesmas credenciais
+      let motivoGp: MotivoGroundPro = 'desativado'
+      if (groundProDisponivel()) {
+        const { error: eGp } = await entrarNoGroundPro(gpEmail, gpSenha)
+        if (!eGp) {
+          const r = await verificarAcessoGroundPro()
+          if (r.liberado) {
+            setGpConta({ origem: 'groundpro', email: r.email ?? null, fim: r.fim ?? null, status: r.status ?? null })
+            setAcesso({ liberado: true, promo: false, conta: 'groundpro' })
+            setGpSenha('')
+            return
+          }
+          motivoGp = r.motivo
+          await sairDoGroundPro()
+        } else {
+          motivoGp = 'sem-sessao'
+        }
       }
+      // 3) nenhum liberou: mostra o motivo mais informativo. A senha bateu em
+      // algum dos dois? Então o problema é a conta, não a credencial.
+      if (motivoPd !== 'sem-sessao') setGpErro(msgPowerDim(motivoPd))
+      else if (motivoGp !== 'sem-sessao' && motivoGp !== 'desativado') setGpErro(msgGroundPro(motivoGp))
+      else setGpErro(msgPowerDim('sem-sessao'))
     } finally {
       setGpOcupado(false)
     }
   }
 
-  async function sairDaContaGroundPro() {
-    await sairDoGroundPro()
+  async function sairDaConta() {
+    if (gpConta?.origem === 'powerdim') await sairDoPowerDim()
+    else await sairDoGroundPro()
     setGpConta(null)
     setAcesso(lerAcesso())
   }
@@ -406,14 +461,14 @@ export function MainMenu() {
               Liberar acesso
             </button>
 
-            {/* ── ou: entrar com a conta GroundPRO (12/09/2026) ── */}
-            {groundProDisponivel() && (
+            {/* ── ou: entrar com a conta PowerDim (14/09/2026) ou GroundPRO (12/09/2026) ── */}
+            {(
               <div className="mt-5 pt-4 text-left" style={{ borderTop: `1px solid ${color.hairline}` }}>
                 <div
                   className="font-mono text-[11px] tracking-[0.2em] uppercase mb-2 text-center"
                   style={{ color: color.textMuted }}
                 >
-                  ou entre com a conta GroundPRO
+                  ou entre com a conta PowerDim{groundProDisponivel() ? ' ou GroundPRO' : ''}
                 </div>
                 <input
                   type="email"
@@ -423,8 +478,8 @@ export function MainMenu() {
                     setGpEmail(e.target.value)
                     if (gpErro) setGpErro(null)
                   }}
-                  placeholder="E-mail do GroundPRO"
-                  aria-label="E-mail do GroundPRO"
+                  placeholder="E-mail da sua conta"
+                  aria-label="E-mail da sua conta"
                   className="w-full font-mono text-[14px] rounded-[10px] px-4 py-2.5 mb-2 outline-none"
                   style={{ background: '#0c1117', color: color.text, border: `1px solid ${gpErro ? color.status.fail : color.hairline}` }}
                 />
@@ -436,11 +491,11 @@ export function MainMenu() {
                     setGpSenha(e.target.value)
                     if (gpErro) setGpErro(null)
                   }}
-                  placeholder="Senha do GroundPRO"
-                  aria-label="Senha do GroundPRO"
+                  placeholder="Senha da sua conta"
+                  aria-label="Senha da sua conta"
                   onKeyDown={(e) => {
                     // Enter aqui entra pela conta, não pela senha numérica do formulário de cima.
-                    if (e.key === 'Enter') entrarComGroundPro(e)
+                    if (e.key === 'Enter') entrarComConta(e)
                   }}
                   className="w-full font-mono text-[14px] rounded-[10px] px-4 py-2.5 mb-3 outline-none"
                   style={{ background: '#0c1117', color: color.text, border: `1px solid ${gpErro ? color.status.fail : color.hairline}` }}
@@ -457,12 +512,12 @@ export function MainMenu() {
                 )}
                 <button
                   type="button"
-                  onClick={entrarComGroundPro}
+                  onClick={entrarComConta}
                   disabled={gpOcupado || !gpEmail.trim() || !gpSenha}
                   className="w-full font-display font-semibold text-[14px] px-5 py-2.5 rounded-[10px] transition-all disabled:opacity-50"
                   style={{ background: 'transparent', color: color.accent, border: `1px solid ${color.accent}` }}
                 >
-                  {gpOcupado ? 'Verificando…' : 'Entrar com a conta GroundPRO'}
+                  {gpOcupado ? 'Verificando…' : 'Entrar com a minha conta'}
                 </button>
               </div>
             )}
@@ -513,13 +568,13 @@ export function MainMenu() {
         >
           <span aria-hidden className="text-[16px]">👤</span>
           <span className="text-[13px] leading-snug" style={{ color: color.text }}>
-            Conta GroundPRO{gpConta?.email ? <> · <b>{gpConta.email}</b></> : null}
+            Conta {gpConta?.origem === 'powerdim' ? 'PowerDim' : 'GroundPRO'}{gpConta?.email ? <> · <b>{gpConta.email}</b></> : null}
             {gpConta?.status === 'trial' && gpConta.fim ? (
               <> · trial até <b className="font-mono" style={{ color: color.accent }}>{new Date(gpConta.fim).toLocaleDateString('pt-BR')}</b></>
             ) : null}
           </span>
           <button
-            onClick={sairDaContaGroundPro}
+            onClick={sairDaConta}
             className="ml-1 text-[12px] underline"
             style={{ color: color.textMuted }}
           >
