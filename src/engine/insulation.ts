@@ -22,6 +22,25 @@ export type TensaoEnsaio = 250 | 500 | 1000 | 2500
 /** Veredito final do ensaio, do melhor ao pior. */
 export type Veredito = 'Excelente' | 'Aprovado' | 'Questionável' | 'Reprovado'
 
+/**
+ * Código estável do veredito, sem acento nem idioma: é por ele que a UI busca
+ * o texto traduzido (`isolamento:veredito.<codigo>`). A frase PT acima continua
+ * existindo para os testes e para quem lê o resultado cru.
+ */
+export type CodigoVeredito = 'excelente' | 'aprovado' | 'questionavel' | 'reprovado'
+
+const CODIGO_DO_VEREDITO: Record<Veredito, CodigoVeredito> = {
+  Excelente: 'excelente',
+  Aprovado: 'aprovado',
+  Questionável: 'questionavel',
+  Reprovado: 'reprovado',
+}
+
+/** Código do veredito para a tradução na interface. */
+export function codigoDoVeredito(v: Veredito): CodigoVeredito {
+  return CODIGO_DO_VEREDITO[v]
+}
+
 export interface PerfilParametros {
   A: number
   tau1: number
@@ -128,6 +147,8 @@ export interface ResultadoEnsaio {
   dar: number
   pi: number
   veredito: Veredito
+  /** código do veredito (a UI traduz a partir dele) */
+  codigo: CodigoVeredito
   cor: 'pass' | 'marginal' | 'fail'
 }
 
@@ -147,5 +168,15 @@ export function executarEnsaio(
   const dar = calcularDAR(r30, r60)
   const pi = calcularPI(r60, r600)
   const veredito = avaliar(dar, pi, r40)
-  return { r30, r60, r600, r40, dar, pi, veredito, cor: corDoVeredito(veredito) }
+  return {
+    r30,
+    r60,
+    r600,
+    r40,
+    dar,
+    pi,
+    veredito,
+    codigo: codigoDoVeredito(veredito),
+    cor: corDoVeredito(veredito),
+  }
 }

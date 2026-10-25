@@ -5,21 +5,25 @@ describe('avaliarInspecao', () => {
   it('em andamento enquanto há pendentes', () => {
     const r = avaliarInspecao(['conforme', 'pendente', 'conforme'])
     expect(r.veredito).toBe('Em andamento')
+    expect(r.codigo).toBe('andamento')
     expect(r.cor).toBe('marginal')
   })
   it('aprovado quando tudo conforme', () => {
     const r = avaliarInspecao(['conforme', 'conforme', 'conforme'])
     expect(r.veredito).toBe('Aprovado')
+    expect(r.codigo).toBe('aprovado')
     expect(r.percentual).toBe(100)
   })
   it('aprovado com pendências quando ≤25% não conforme', () => {
     const r = avaliarInspecao(['conforme', 'conforme', 'conforme', 'nao-conforme'])
     expect(r.veredito).toBe('Aprovado com pendências')
+    expect(r.codigo).toBe('aprovado-pendencias')
     expect(r.cor).toBe('marginal')
   })
   it('reprovado quando >25% não conforme', () => {
     const r = avaliarInspecao(['nao-conforme', 'nao-conforme', 'conforme', 'conforme'])
     expect(r.veredito).toBe('Reprovado')
+    expect(r.codigo).toBe('reprovado')
     expect(r.cor).toBe('fail')
   })
   it('conta conformes/não conformes/pendentes', () => {

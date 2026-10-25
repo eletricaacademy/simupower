@@ -1,0 +1,269 @@
+{
+  "medicao": "Medición",
+  "guia": {
+    "cuidados": "Precauciones:",
+    "comoConcluir": "Cómo concluir:",
+    "pendCont": "mida los <b>{{n}} puntos</b> con el miliohmímetro (a la derecha).",
+    "pendMalha": "hinque las estacas, registre P al <b>52 %, 62 % y 72 %</b> y haga clic en <b>Calcular</b>.",
+    "pendTP": "mida los <b>{{n}} puntos</b> de contacto y de paso.",
+    "curva": "curva",
+    "loteDetalhe": "Compensa las puntas o posiciona las estacas automáticamente; conserva el suelo, los defectos y la distancia C."
+  },
+  "planta": {
+    "titulo": "Planta FV en suelo",
+    "subtitulo": "{{kw}} kW CA",
+    "arranjo": "Generador FV",
+    "mesas": "Mesas fijas",
+    "mesasValor": "{{n}} × 2P{{m}} · {{g}}° norte",
+    "skid": "Skid",
+    "skidValor": "{{n}} inversores × {{kw}} kW + TGBT",
+    "trafo": "Transformador",
+    "subestacao": "Subestación",
+    "subestacaoValor": "Celda de medición y protección",
+    "malha": "Malla",
+    "malhaValor": "{{a}} m² · {{l}} m enterrados",
+    "rg": "Rg calculada",
+    "solo": "Suelo (instructor)",
+    "abrirLaudo": "Abrir informe",
+    "vista": {
+      "geral": "Vista general",
+      "planta": "Vista superior",
+      "skid": "skid",
+      "trafo": "transformador",
+      "estacas": "estacas"
+    }
+  },
+  "toggle": {
+    "nomes": "Mostrar nombres y valores en la escena",
+    "malha": "Mostrar malla enterrada (anillo, transversales y jabalinas)"
+  },
+  "cont": {
+    "titulo": "Inbrat INMD1 PRO · continuidad",
+    "medidos": "{{n}}/{{total}} medidos",
+    "verInbrat": "Ver Inbrat",
+    "garraFixa": "Pinza fija en la <b>BEP del skid</b>",
+    "pontasZeradas": "✓ puntas compensadas",
+    "pontasNao": "⚠ +{{r}} Ω puntas",
+    "zerar": "Compensar puntas (cortocircuito entre las pinzas + REL)",
+    "percurso": "BEP del skid → {{ate}}",
+    "conexoes": "{{n}} conexiones",
+    "rTeorica": "R teórica {{r}} Ω",
+    "remedir": "↻ Volver a medir",
+    "medir": "▶ Medir",
+    "descartar": "Descartar",
+    "compense": "Compense las puntas antes de medir: sin eso, los cables entran en la lectura.",
+    "criterio": "Criterio adoptado: ≤ {{a}} Ω conforme · ≤ {{b}} Ω atención",
+    "veredito": {
+      "aberto": "Discontinuidad: circuito abierto",
+      "pass": "Continuo: conforme",
+      "marginal": "Atención: conexión con resistencia elevada",
+      "fail": "No conforme: equipotencialización comprometida"
+    }
+  },
+  "grupo": {
+    "Mesas": "Mesas",
+    "Equipamentos": "Equipos",
+    "Cerca": "Cerco"
+  },
+  "terr": {
+    "titulo": "Telurómetro · caída de potencial",
+    "distanciaC": "Distancia de la estaca C",
+    "multiplo": "≈ {{k}}× la diagonal de la malla ({{d}} m). Cambiar la distancia vuelve a hincar las estacas y borra la curva.",
+    "zona": "Zona de influencia de la malla a lo largo del camino: ~{{z}} m desde E (potencial superior al 10 % del GPR, franja ámbar en el 3D).",
+    "zonaFora": " P al 52 % ya queda fuera de ella.",
+    "zonaDentro": " P al 52 % todavía queda dentro de ella: la curva no se va a aplanar.",
+    "cravar": "Hincar estacas C y P · conectar E",
+    "estacaP": "Estaca P",
+    "posP": "{{p}} % · {{m}} m desde E",
+    "pA": "P al {{p}} %",
+    "registrar": "+ Registrar ({{n}})",
+    "calcular": "Calcular",
+    "apagarCurva": "Borrar curva",
+    "patamarRegistrado": "Meseta registrada: calcule o registre más puntos para ver la curva completa.",
+    "registreMin": "Registre al menos P al 52 %, 62 % y 72 % para verificar la meseta.",
+    "leitura62": "Lectura al 62 %",
+    "variacao": "Variación 52–72 %",
+    "variacaoValor": "{{v}} % (≤ {{l}} %)",
+    "patamarOk": "Meseta estable: la lectura representa la malla. Criterio adoptado ≤ {{l}} Ω.",
+    "semPatamar": "Sin meseta: la estaca C está dentro de la zona de influencia de la malla. Aléjela y repita.",
+    "graficoVazio": "mueva la estaca P y registre los puntos",
+    "veredito": {
+      "inconclusivo": "No concluyente: sin meseta",
+      "pass": "Adecuada",
+      "marginal": "Atención: por encima de lo recomendado",
+      "fail": "Inadecuada"
+    }
+  },
+  "tp": {
+    "titulo": "Contacto y paso · inyección de corriente",
+    "intro": "Inyección de <b>{{it}} A</b> en la malla; lectura extrapolada a <b>{{im}} A</b> de falla (t = {{t}} s). Suelo {{rho}} Ω·m · grava {{rb}} Ω·m, {{h}} cm.",
+    "tipo": {
+      "toque": "contacto",
+      "passo": "paso"
+    },
+    "superficie": {
+      "brita": "grava",
+      "grama": "césped"
+    },
+    "lido": "Leído con {{i}} A",
+    "extrapolado": "Extrapolado ({{i}} A)",
+    "limite": "Límite soportable",
+    "aviso": "Límites según las expresiones de la NBR 15751 / IEEE 80 (cuerpo de 50 kg). Los valores de falla son del escenario didáctico.",
+    "veredito": {
+      "toque": {
+        "fail": "Tensión de contacto por encima de lo soportable",
+        "pass": "Tensión de contacto dentro del límite"
+      },
+      "passo": {
+        "fail": "Tensión de paso por encima de lo soportable",
+        "pass": "Tensión de paso dentro del límite"
+      },
+      "marginal": "Dentro del límite, con poco margen"
+    }
+  },
+  "mapa": {
+    "titulo": "Mapa en el suelo durante la falla",
+    "potencial": "Potencial",
+    "relevo": "Relieve 3D",
+    "seguranca": "Seguras",
+    "desligado": "Ocultar",
+    "gpr": "GPR {{v}} V",
+    "textoRelevo": "La altura del relieve es el potencial del suelo: la “meseta” es la malla en el GPR; la ladera fuera del cerco es donde crecen el paso y el contacto.",
+    "textoPotencial": "Potencial de la superficie durante la falla. Contacto = GPR − potencial bajo los pies: donde el suelo queda “frío” (azul) cerca de una masa puesta a tierra, el contacto es alto.",
+    "segOk": "■ contacto y paso dentro del límite",
+    "segToque": "■ contacto por encima del límite (si hay una masa al alcance)",
+    "segPasso": "■ paso por encima del límite",
+    "segNota": "Límites con grava en el skid/transformador y césped en el resto."
+  },
+  "laudo": {
+    "titulo": "Informe de ensayo",
+    "subtitulo": "Puesta a tierra de la planta FV · {{kw}} kW",
+    "continuidade": "Continuidad",
+    "malha62": "Malla (62 %)",
+    "toquePasso": "Contacto y paso",
+    "resumoMalha": "Estaca C a {{d}} m · variación de la meseta {{v}} % ({{estado}}).",
+    "estavel": "estable",
+    "semPatamar": "sin meseta",
+    "rgRef": "Rg calculada de la malla (método de los momentos, suelo de {{rho}} Ω·m): {{rg}} Ω.",
+    "conforme": "Puesta a tierra conforme a los criterios adoptados",
+    "naoConforme": "Puesta a tierra no conforme",
+    "incompleto": "Informe incompleto",
+    "parecerIncompleto": "Inspección INCOMPLETA: concluya los tres ensayos (continuidad, resistencia de la malla y contacto/paso) antes de emitir el informe.",
+    "parecerConforme": "El sistema de puesta a tierra de la planta CUMPLE con los criterios adoptados: equipotencialización continua en los {{n}} puntos, malla con {{r}} Ω y meseta estable, y tensiones de contacto y de paso por debajo de los límites soportables.",
+    "parecerNaoConforme": "Se identificaron {{n}} hallazgo(s). El sistema de puesta a tierra NO CUMPLE con los criterios adoptados hasta que se corrijan los puntos señalados y se repitan los ensayos.",
+    "achados": "Hallazgos y acciones",
+    "acao": "Acción:",
+    "rodape": {
+      "continuidade": "Continuidad: NBR 16274 · NBR 16690",
+      "malha": "Malla: NBR 15749 (caída de potencial)",
+      "toquePasso": "Contacto/paso: NBR 15749 · NBR 15751",
+      "didatico": "Resultado de simulación didáctica: no es un informe de una instalación real"
+    }
+  },
+  "achado": {
+    "ensaio": {
+      "cont": "Continuidad",
+      "malha": "Resistencia de la malla",
+      "tp": "Contacto y paso"
+    },
+    "itemEstacaC": "Estaca C a {{d}} m",
+    "itemMalha": "Malla de la planta",
+    "leituraVariacao": "variación {{v}} %",
+    "acao": {
+      "cont-aberto": "Localizar la interrupción (trenza/derivación ausente o rota), rehacer y volver a medir.",
+      "cont-refazer-conexao": "Rehacer la conexión con arandela dentada/grapa que perfore el anodizado y volver a medir.",
+      "cont-reapertar": "Limpiar, tratar y volver a apretar el conector; volver a medir.",
+      "malha-sem-patamar": "Sin meseta: alejar la estaca de corriente (≥ 5× la diagonal de la malla) y repetir la curva.",
+      "malha-alta": "Ampliar la malla, agregar jabalinas o tratar el suelo; reevaluar contacto y paso.",
+      "tp-portao": "Rehacer el anillo de equipotencialización frente al portón (a 1 m del cerco) y reevaluar; en suelo muy resistivo, agregar grava del lado de afuera.",
+      "tp-reforcar": "Reforzar la malla en el lugar, aplicar grava (≥ 10 cm) y reevaluar."
+    }
+  },
+  "instrutor": {
+    "condicao": "Condición de la instalación",
+    "integra": "Íntegra",
+    "comDefeitos": "Con defectos",
+    "notaCondicao": "Cambiar la condición borra todas las mediciones.",
+    "solo": "Suelo",
+    "notaSolo": "El suelo cambia la malla: borra la curva y el contacto/paso (la continuidad se mantiene)."
+  },
+  "solo": {
+    "umido": "Arcilloso húmedo",
+    "arenoso": "Arenoso",
+    "rochoso": "Rocoso / seco"
+  },
+  "calibracao": {
+    "titulo": "Calibración del entorno 3D",
+    "desligar": "Desactivar identificación",
+    "identificar": "Identificar punto",
+    "capturar": "Capturar posición de la cámara"
+  },
+  "pontos": {
+    "mesa": {
+      "nome": "Mesa {{m}}: estructura",
+      "ate": "Terminal de puesta a tierra de la Mesa {{m}}",
+      "dica": "Derivación de la mesa a la malla, puentes entre perfiles y grapas con arandela dentada."
+    },
+    "m4": {
+      "dica": "Grapa de puesta a tierra sobre perfil anodizado: sin arandela dentada, el anodizado aísla."
+    },
+    "m6": {
+      "dica": "Conector de la derivación expuesto a la humedad: busque oxidación y verifique el apriete."
+    },
+    "inversores": {
+      "nome": "Carcasa de los inversores (skid)",
+      "ate": "Terminal PE de los inversores",
+      "dica": "Conductor PE de cada inversor a la barra de tierra del skid."
+    },
+    "trafo": {
+      "nome": "Carcasa y neutro del transformador",
+      "ate": "Terminal de tierra de la cuba del transformador",
+      "dica": "Cuba y neutro de BT conectados a la malla en puntos distintos; sin trenza rota."
+    },
+    "se": {
+      "nome": "Barra de tierra de la subestación",
+      "ate": "Barra de tierra de la celda de medición y protección",
+      "dica": "Malla de la subestación interconectada con la malla de la planta: sin mallas separadas en el mismo sitio."
+    },
+    "portao": {
+      "nome": "Portón del cerco",
+      "ate": "Hoja del portón (mediante trenza flexible)",
+      "dica": "La hoja móvil necesita una trenza flexible hasta el poste puesto a tierra: la bisagra no conduce."
+    },
+    "cerca-no": {
+      "nome": "Cerco: poste de la esquina noroeste",
+      "ate": "Poste puesto a tierra de la esquina NO",
+      "dica": "Cerco metálico puesto a tierra a intervalos y en las esquinas, conectado al anillo de equipotencialización."
+    },
+    "t-trafo": {
+      "nome": "Contacto: cuba del transformador",
+      "local": "Mano en la cuba, pies a 1 m sobre la grava",
+      "dica": "Punto crítico: una falla en la MT del transformador eleva el potencial de toda la malla."
+    },
+    "t-skid": {
+      "nome": "Contacto: puerta del TGBT en el skid",
+      "local": "Mano en la puerta metálica, pies sobre la grava",
+      "dica": "Puertas y tableros metálicos al mismo potencial de la malla."
+    },
+    "t-mesa": {
+      "nome": "Contacto: estructura de la mesa M1",
+      "local": "Mano en el pilar de la mesa, pies sobre el césped",
+      "dica": "El conductor transversal de la malla bajo la fila reduce la diferencia entre la estructura y el suelo."
+    },
+    "t-portao": {
+      "nome": "Contacto: portón, lado externo",
+      "local": "Mano en el portón, pies fuera del cerco, sobre el césped",
+      "dica": "Fuera del cerco no hay grava ni malla bajo los pies: es el anillo de equipotencialización a 1 m el que sostiene el potencial del suelo. Con el tramo frente al portón interrumpido, el contacto sube."
+    },
+    "p-trafo": {
+      "nome": "Paso: junto a la base del transformador",
+      "local": "Pies separados 1 m, sobre la grava",
+      "dica": "La capa de grava aumenta la resistencia de contacto de los pies."
+    },
+    "p-cerca": {
+      "nome": "Paso: perímetro externo del cerco",
+      "local": "Pies separados 1 m, fuera del cerco, sobre el césped",
+      "dica": "El gradiente de potencial es mayor en el borde de la malla."
+    }
+  }
+}

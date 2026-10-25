@@ -1,4 +1,5 @@
 import { color } from '../design/tokens'
+import { useTranslation } from 'react-i18next'
 
 /**
  * Apresentador — avatar estilizado (técnico de capacete) que "fala" enquanto a
@@ -6,6 +7,7 @@ import { color } from '../design/tokens'
  * `onReplay` repete a narração da etapa.
  */
 export function Apresentador({ falando, onReplay }: { falando: boolean; onReplay: () => void }) {
+  const { t } = useTranslation()
   return (
     <div
       className={`hud-glass rounded-[14px] p-2.5 flex items-center gap-2.5 ${falando ? 'voz-falando' : ''}`}
@@ -41,16 +43,16 @@ export function Apresentador({ falando, onReplay }: { falando: boolean; onReplay
 
       <div className="min-w-0 flex-1">
         <div className="font-display font-semibold text-[12px] leading-tight" style={{ color: color.text }}>
-          Instrutor
+          {t('apresentador.instrutor')}
         </div>
         <div className="text-[10px] leading-tight" style={{ color: falando ? color.status.pass : color.textFaint }}>
-          {falando ? 'narrando…' : 'locução'}
+          {falando ? t('apresentador.narrando') : t('apresentador.locucao')}
         </div>
       </div>
 
       <button
         onClick={onReplay}
-        aria-label="Repetir narração"
+        aria-label={t('apresentador.repetir')}
         className="text-[14px] leading-none px-1.5 py-1 rounded-[8px]"
         style={{ color: color.accentCool, border: `1px solid ${color.hairline}` }}
       >

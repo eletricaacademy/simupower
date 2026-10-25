@@ -1,19 +1,16 @@
 import { useMemo } from 'react'
 import { useSim } from '../sim/store'
 import { color } from '../design/tokens'
+import { useTranslation } from 'react-i18next'
 import { resolverQualidade, lerRenderer, type QualidadePref } from '../scene/quality'
 
-const QUALIDADES: { id: QualidadePref; rotulo: string }[] = [
-  { id: 'auto', rotulo: 'Auto' },
-  { id: 'alto', rotulo: 'Alto' },
-  { id: 'medio', rotulo: 'Médio' },
-  { id: 'baixo', rotulo: 'Baixo' },
-]
+const QUALIDADES: QualidadePref[] = ['auto', 'alto', 'medio', 'baixo']
 
 /** Seletor de qualidade gráfica + indicador da GPU em uso (reutilizável). */
 export function QualityPicker() {
   const qualidadePref = useSim((s) => s.qualidadePref)
   const setQualidadePref = useSim((s) => s.setQualidadePref)
+  const { t } = useTranslation()
   const tierAtivo = resolverQualidade(qualidadePref).tier
 
   const gpu = useMemo(() => {
@@ -28,7 +25,7 @@ export function QualityPicker() {
     <div>
       <div className="flex items-center justify-between mb-1">
         <span className="text-[10px] uppercase tracking-wider" style={{ color: color.textFaint }}>
-          Qualidade gráfica
+          {t('qualidade.titulo')}
         </span>
         {qualidadePref === 'auto' && (
           <span className="text-[10px] font-mono" style={{ color: color.accentCool }}>
@@ -38,11 +35,11 @@ export function QualityPicker() {
       </div>
       <div className="grid grid-cols-4 gap-1.5 mb-2">
         {QUALIDADES.map((q) => {
-          const ativo = q.id === qualidadePref
+          const ativo = q === qualidadePref
           return (
             <button
-              key={q.id}
-              onClick={() => setQualidadePref(q.id)}
+              key={q}
+              onClick={() => setQualidadePref(q)}
               className="text-[11px] py-1.5 rounded-[8px] transition-colors"
               style={{
                 background: ativo ? color.accent : '#0c1117',
@@ -51,7 +48,7 @@ export function QualityPicker() {
                 fontWeight: ativo ? 700 : 400,
               }}
             >
-              {q.rotulo}
+              {t(`qualidade.${q}`)}
             </button>
           )
         })}
@@ -70,7 +67,7 @@ export function QualityPicker() {
         />
         <span className="text-[10px] truncate" style={{ color: color.textMuted }}>
           GPU: <span className="font-mono">{gpu}</span>
-          {usandoIntegrada && ' (integrada)'}
+          {usandoIntegrada && ` ${t('qualidade.integrada')}`}
         </span>
       </div>
     </div>

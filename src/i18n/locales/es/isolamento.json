@@ -1,0 +1,67 @@
+{
+  "abaInstrumento": "Instrumento",
+  "passo": "PASO {{n}}/{{total}}",
+  "tensaoEnsaio": "Tensión de ensayo",
+  "energizado": "Energizado",
+  "emEnsaio": "Ensayando…",
+  "cumpraAnteriores": "Complete los pasos anteriores para habilitarlo.",
+  "info": {
+    "titulo": "Entienda el ensayo de aislamiento",
+    "porque": "Por qué hacerlo",
+    "porque1": "Verifica la integridad del aislamiento entre el devanado y la carcasa.",
+    "porque2": "Detecta humedad, contaminación y envejecimiento antes de que se conviertan en una falla.",
+    "resultados": "Resultados habituales (motor de BT)",
+    "resultados1": "IEEE 43: mínimo ≈ (kV + 1) MΩ corregido a 40 °C.",
+    "resultados2": "Motores en buen estado: de cientos de MΩ a GΩ.",
+    "resultados3": "IP (R10min/R1min) > 2 bueno · 1–2 cuestionable · < 1 malo.",
+    "resultados4": "DAR (R60s/R30s) > 1,4 bueno (≥ 1,25 aceptable).",
+    "observar": "Qué observar",
+    "observar1": "Curva ascendente = absorción dieléctrica → aislamiento seco/en buen estado.",
+    "observar2": "Curva plana o valor bajo = humedad o contaminación.",
+    "observar3": "La temperatura altera mucho la lectura: corrija siempre a 40 °C.",
+    "entendi": "Entendido"
+  },
+  "instrutor": {
+    "titulo": "⠿ Modo instructor",
+    "fechar": "Cerrar modo instructor",
+    "condicao": "Condición del aislamiento",
+    "perfil": {
+      "bom": "Bueno",
+      "atencao": "Atención",
+      "ruim": "Malo / húmedo"
+    },
+    "temperatura": "Temperatura",
+    "temperaturaRotulo": "Temperatura del devanado",
+    "velocidade": "Velocidad del ensayo",
+    "notaQualidade": "Los niveles bajos desactivan brillo/sombras y renderizan bajo demanda: ideal para celulares y computadoras modestas.",
+    "calibrar": "Calibrar conexión (pinzas)",
+    "clicando": "Clic activo (encendido)",
+    "identificar": "Identificar punto",
+    "ajudaCalibrar": "Actívelo y haga clic en el punto del motor (caja de bornes para LINE, carcasa para EARTH); la coordenada se copia: envíemela y grabo los anclajes.",
+    "reiniciar": "↺ Reiniciar ensayo"
+  },
+  "instrumento": {
+    "titulo": "Instrumento · Megóhmetro",
+    "curva": "Curva de resistencia en función del tiempo",
+    "dar": "DAR",
+    "pi": "IP",
+    "r40": "R@40°C",
+    "veredito": "Veredicto"
+  },
+  "veredito": {
+    "excelente": "Excelente",
+    "aprovado": "Aprobado",
+    "questionavel": "Cuestionable",
+    "reprovado": "Reprobado"
+  },
+  "seguranca": {
+    "energizado": "ENERGIZADO",
+    "bloqueado": "BLOQUEADO (LOTO)",
+    "verificar": "VERIFICAR SEGURIDAD",
+    "tensao": "Tensión"
+  },
+  "ancoras": {
+    "carcaca-terra": "Carcasa (puesta a tierra)",
+    "borne-u": "Terminal U (devanado)"
+  }
+}

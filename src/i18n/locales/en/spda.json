@@ -1,0 +1,175 @@
+{
+  "fotos": {
+    "iniciar": "Start photo inspection",
+    "sub": "4 real-world cases · look, assess and check the diagnosis"
+  },
+  "medicao": "Measurement",
+  "semPainel": "The instrument becomes available at the “Prepare the instrument” step.",
+  "cuidados": "Precautions:",
+  "comoConcluir": "<b>How to finish:</b> on the instrument (on the right), select each section and click <b>“Measure”</b>. You must measure <b>all</b> sections of the LPS.",
+  "trechosDe": "{{n}}/{{total}} sections",
+  "loteDetalhe": "Measures every section and shows the step as completed.",
+  "concluirMedicoes": "Finish measurements ({{n}}/{{total}})",
+  "instrumento": {
+    "ver3d": "View 3D instrument",
+    "simulacao": "Training simulation · Continuity",
+    "verConexao": "View connection",
+    "verGarra1": "View P1/C1 clip",
+    "verGarra2": "View P2/C2 clip",
+    "moverBaixo": "Move both clips down · Lower",
+    "moverCima": "Move both clips up · Upper",
+    "entrarBep": "Enter the electrical room · BEP",
+    "ocultarFluxo": "Hide current flow",
+    "mostrarFluxo": "Show current flow",
+    "verPercurso": "View full path",
+    "fluxoC1": "C1 → conductors",
+    "fluxoC2": "C2 · return",
+    "fluxoP": "P1/P2: voltage sensing. Teaching convention C1 → C2; arrows do not indicate magnitude.",
+    "anelEnterrado": "Buried ring shown schematically, visible through the ground.",
+    "percursoVisivel": "Path visible through the surfaces.",
+    "funcao": "Continuity · RLO",
+    "pontasZeradas": "✓ leads zeroed",
+    "pontasNaoZeradas": "⚠ +{{r}} Ω from leads",
+    "serie": "Series {{l}} m + ring in parallel",
+    "comprimento": "{{l}} m",
+    "rTeorica": " · theoretical R {{r}} Ω",
+    "cruzada": "Diagonal · ",
+    "medir": "▶ Measure",
+    "remedir": "↻ Re-measure",
+    "descartar": "Discard",
+    "compense": "Zero the test leads at the “Prepare the instrument” step; otherwise the lead resistance is added to the reading.",
+    "avance": "Go on to the “Measure between down conductors and to the BEP” step.",
+    "criterio": "Criterion: ≤ {{c}} Ω compliant · ≤ {{a}} Ω warning · {{n}}/{{total}} measured"
+  },
+  "veredito": {
+    "aberto": "Discontinuity — open circuit",
+    "conforme": "Continuous — compliant",
+    "atencao": "Warning — high-resistance connection",
+    "nao-conforme": "Non-compliant — continuity compromised"
+  },
+  "material": {
+    "cobre-nu": "bare copper",
+    "aluminio": "aluminum",
+    "aco-galvanizado": "galvanized steel"
+  },
+  "subsistema": {
+    "captacao": "Air termination",
+    "descida": "Down conductor",
+    "aterramento": "Grounding continuity",
+    "equipotencializacao": "Bonding"
+  },
+  "nivel": {
+    "superior": "Upper",
+    "inferior": "Lower"
+  },
+  "nivelMin": {
+    "superior": "upper",
+    "inferior": "lower"
+  },
+  "ponto": {
+    "nome": "{{par}} · {{nivel}}",
+    "terminal": "{{d}} — {{nivel}} terminal",
+    "bepNome": "D1–BEP · Electrical room",
+    "bepDe": "D1 — lower terminal",
+    "bepAte": "Indoor BEP, next to the main LV switchboard"
+  },
+  "cenario": {
+    "titulo": "LPS condition",
+    "conforme": "Intact",
+    "comDefeitos": "With defects",
+    "aviso": "Changing the scenario clears the measurements already recorded."
+  },
+  "diagnostico": {
+    "tour": "Diagnostic tour — {{i}}/{{n}}",
+    "fechar": "Close diagnosis",
+    "verificacao": "Field verification",
+    "naoConformidade": "Nonconformity",
+    "reenquadrar": "Reframe 3D point",
+    "observe": "Look and answer",
+    "revelarExplicacao": "Reveal explanation",
+    "revelarDiagnostico": "Reveal diagnosis",
+    "rotuloDiagnostico": "Diagnosis",
+    "rotuloRisco": "Risk",
+    "rotuloAcao": "Recommended action",
+    "anterior": "‹ Previous",
+    "concluir": "Finish tour",
+    "proxima": "Next stop ›",
+    "paradas": {
+      "conexao-bimetalica": {
+        "titulo": "Direct Cu-Al contact",
+        "local": "Test joint box D4",
+        "alt": "Open test joint box with copper and aluminum conductors and no bimetallic connector",
+        "pergunta": "What is wrong with this connection between dissimilar metals?",
+        "diagnostico": "Copper and aluminum were left in direct contact, without a suitable bimetallic connector.",
+        "risco": "The galvanic couple promotes corrosion, increases contact resistance and may compromise LPS continuity.",
+        "acao": "Remake the joint with a compatible, corrosion-protected component; clean, tighten and check continuity after the repair.",
+        "referencia": "ABNT NBR 5419-3:2026 — material compatibility and corrosion protection."
+      },
+      "dps-inoperante": {
+        "titulo": "SPD out of service",
+        "local": "Main LV switchboard in the electrical room",
+        "alt": "Electrical panel with surge protective devices out of service",
+        "pergunta": "What condition must be checked before the surge protection can be considered operational?",
+        "diagnostico": "The SPDs are out of service and cannot be considered active protection for the installation.",
+        "risco": "Internal equipment is left without the intended protection against conducted overvoltages, including those associated with lightning.",
+        "acao": "Replace the SPDs, check the backup protection, connections and coordination, and record the inspection of the whole assembly.",
+        "referencia": "ABNT NBR 5419-4:2026 — surge protection measures; also check how NBR 5410 applies."
+      },
+      "distancia-seguranca": {
+        "titulo": "Insufficient separation distance",
+        "local": "Down conductor D2 — north/east facade",
+        "alt": "Conductors and building services installed very close to an LPS down conductor",
+        "pergunta": "What must be checked when other services run next to the down conductor?",
+        "diagnostico": "Conductors and building services are close to the down conductor, at less than the applicable separation distance.",
+        "risco": "The proximity may allow dangerous sparking and transfer part of the lightning current into internal installations.",
+        "acao": "Calculate the separation distance for the case, move the services away, or apply the technically specified bonding/isolation measure.",
+        "referencia": "ABNT NBR 5419-3:2026 — electrical insulation and separation distance."
+      },
+      "continuidade-cobertura": {
+        "titulo": "Test on the roof",
+        "local": "Air-termination ring",
+        "alt": "Electrical continuity test being performed on a metal roof",
+        "pergunta": "What does this photo prove, and what still needs to be recorded?",
+        "diagnostico": "The image documents a continuity test being carried out on the roof; on its own, it does not show that the result was compliant.",
+        "risco": "Without identifying the points, method, instrument and readings, a photo alone does not support the technical assessment.",
+        "acao": "Record in the report the tested points, preparation, instrument, test current, readings, applicable criterion and conclusion.",
+        "referencia": "ABNT NBR 5419-3:2026 — continuity verification and inspection records."
+      }
+    }
+  },
+  "laudo": {
+    "rotulo": "Inspection report",
+    "titulo": "LPS continuity",
+    "aprovados": "Sections passed",
+    "pior": "Worst reading",
+    "naoConformidades": "Nonconformities",
+    "naoMedido": "not measured",
+    "conforme": "LPS compliant for continuity",
+    "naoConforme": "LPS non-compliant",
+    "ncAcoes": "Nonconformities and actions",
+    "causa": "Probable cause:",
+    "acao": "Action:",
+    "metodo": "Method: ABNT NBR 5419-3 — LPS inspection and maintenance",
+    "criterio": "Continuity criterion: ≤ {{c}} Ω",
+    "novaInspecao": "↺ New inspection"
+  },
+  "parecer": {
+    "conforme": "All {{n}} tested sections showed electrical continuity within the criterion (R ≤ {{c}} Ω). The LPS MEETS the continuity requirement of ABNT NBR 5419-3 on the inspection date.",
+    "incompleto": "INCOMPLETE inspection: {{lidos}} of {{n}} sections measured. Measure all planned sections before issuing the report.",
+    "nao-conforme": "{{nc}} continuity nonconformity(ies) found. The LPS DOES NOT MEET the ABNT NBR 5419-3 requirement until the indicated sections are repaired and re-measured."
+  },
+  "nc": {
+    "aberto": {
+      "causa": "Broken down conductor or fully open connection.",
+      "acao": "Locate the interrupted section, remake the conductor/connection and re-measure."
+    },
+    "corrosao": {
+      "causa": "Corroded connection or deteriorated splice along the path.",
+      "acao": "Clean/remake the connection (compression connector or exothermic weld) and re-measure."
+    },
+    "aperto": {
+      "causa": "Under-torqued connection or surface oxidation.",
+      "acao": "Retighten to the specified torque, treat the surface and re-measure."
+    }
+  }
+}

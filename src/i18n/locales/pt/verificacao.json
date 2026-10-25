@@ -1,0 +1,159 @@
+{
+  "quadro": "Quadro",
+  "vistaQuadro": "Vista do quadro elétrico",
+  "intro": {
+    "selo": "NBR 5410 · Seção 7 — Verificação",
+    "titulo": "Ensaios de verificação da instalação",
+    "texto": "Vamos executar os <b>ensaios da Seção 7</b> com o <b>Fluke 1662</b> — uma etapa <b>essencial para a segurança</b> da instalação: garante a continuidade do aterramento, o isolamento, a polaridade e o seccionamento automático (DR) antes da entrega.",
+    "dica": "Começamos pelas <b>tomadas</b> (ponto a ponto). Depois que organizarmos essa etapa, seguimos para os ensaios no <b>quadro elétrico</b>.",
+    "comecar": "Começar pelos ensaios nas tomadas →"
+  },
+  "ensaioN": "ENSAIO {{n}}/{{total}}",
+  "parametro": "Parâmetro:",
+  "criterio": "Critério:",
+  "pontoEnsaio": "Ponto de ensaio",
+  "tomada": "Tomada {{n}}",
+  "medindo": "Medindo…",
+  "medirNovo": "↻ Medir de novo",
+  "medir": "▶ Medir",
+  "concluir": "📋 Concluir verificação",
+  "lcd": {
+    "medindo": "medindo…",
+    "auto": "AUTO",
+    "pronto": "pronto"
+  },
+  "conforme": "Conforme",
+  "naoConforme": "Não conforme",
+  "aplicando": "Aplicando ensaio e lendo…",
+  "conecte": "Conecte e toque em “Medir”.",
+  "condicao": {
+    "titulo": "Condição da instalação (instrutor)",
+    "ok": "Conforme",
+    "falha": "Com defeito"
+  },
+  "captura": {
+    "titulo": "Capturar cena (pose da câmera)",
+    "botao": "🎥 Capturar posição da câmera",
+    "ajuda": "Enquadre a cena na câmera e capture — a pose (posição + alvo) é copiada; me envie que eu gravo como vista inicial."
+  },
+  "identificar": {
+    "titulo": "Identificar ponto",
+    "ligado": "Clicando (ligado)",
+    "ativar": "Ativar identificação",
+    "copiar": "📋 Copiar tudo",
+    "limpar": "🗑 Limpar"
+  },
+  "alvo": {
+    "quadro": "Quadro de distribuição",
+    "instalacao": "Instalação",
+    "condutorProtecao": "Condutor de proteção (PE)",
+    "tomada": "Tomada {{n}}"
+  },
+  "laudo": {
+    "titulo": "LAUDO DE VERIFICAÇÃO FINAL",
+    "norma": "NBR 5410 — Seção 7",
+    "subtitulo": "Verificação de instalação · Ambiente hospitalar",
+    "fechar": "Fechar laudo",
+    "instrumento": "Instrumento:",
+    "metodo": "Método:",
+    "metodoValor": "Ensaios §7.3 (verificação final)",
+    "data": "Data:",
+    "aprovado": "INSTALAÇÃO APROVADA",
+    "aprovadoSub": "Todos os ensaios atenderam aos critérios da NBR 5410 — Seção 7.",
+    "reprovado": "NÃO CONFORME",
+    "reprovadoSub": "Há ensaios fora do critério — corrigir e reensaiar antes da energização.",
+    "andamento": "VERIFICAÇÃO EM ANDAMENTO",
+    "andamentoSub": "{{feitos}} de {{total}} ensaios concluídos. Conclua os demais para o parecer final.",
+    "conforme": "CONFORME",
+    "naoConforme": "NÃO CONFORME",
+    "naoEnsaiado": "Não ensaiado.",
+    "criterio": "Critério:",
+    "rodape": "Documento de treinamento — SimuPower · não substitui laudo de profissional habilitado.",
+    "nova": "↺ Nova verificação"
+  },
+  "veredito": {
+    "continuidade-aberto": "Circuito aberto — condutor de proteção interrompido.",
+    "continuidade-ok": "Contínuo (R baixa). Condutor PE íntegro.",
+    "isolamento-ok": "R_iso ≥ 1,0 MΩ — conforme (Tabela 61).",
+    "isolamento-baixo": "R_iso < 1,0 MΩ — isolamento comprometido.",
+    "polaridade-invertida": "Fase e neutro invertidos na tomada.",
+    "polaridade-ok": "Polaridade correta; PE presente.",
+    "zs-ok": "Zs baixa — seccionamento garantido no tempo (≤0,4 s).",
+    "zs-alta": "Zs alta — pode não seccionar no tempo exigido.",
+    "dr-nao-disparou": "DR não disparou no tempo — substituir.",
+    "dr-tempo-ok": "t ≤ 300 ms — DR conforme.",
+    "dr-rampa-ok": "Disparo entre 50–100% de IΔn — conforme.",
+    "dr-rampa-fora": "Disparo fora de 15–30 mA — DR não conforme.",
+    "re-ok": "RE compatível com o aterramento/DR.",
+    "re-alta": "RE alta — rever malha de aterramento."
+  },
+  "extra": {
+    "ensaio-500v": "Ensaio 500 V CC",
+    "fn-invertidos": "F/N invertidos",
+    "fnpe-corretos": "F-N-PE corretos",
+    "pefc": "PEFC {{ipf}} A",
+    "x1-idn": "×1 IΔn",
+    "x1-idn-30": "×1 IΔn (30 mA)",
+    "idn-30": "IΔn 30 mA",
+    "metodo-loop": "Método de loop"
+  },
+  "funcoes": {
+    "tensao": "Tensão / Polaridade",
+    "isolamento": "Resistência de isolamento",
+    "continuidade": "Continuidade (RLO)",
+    "loop": "Impedância de loop (Zs)",
+    "rcd-tempo": "Tempo de disparo do DR",
+    "rcd-rampa": "Corrente de disparo do DR"
+  },
+  "ensaios": {
+    "continuidade": {
+      "nome": "Continuidade dos condutores de proteção",
+      "norma": "NBR 5410 — 7.3.2 (continuidade)",
+      "descricao": "Verificar a continuidade do condutor de proteção (PE) e das ligações de equipotencialização entre o quadro e cada tomada.",
+      "parametro": "Ensaio 200 mA, pontas zeradas",
+      "criterio": "Baixa resistência, condutor contínuo (tipicamente < 1–2 Ω conforme comprimento/seção)."
+    },
+    "isolamento": {
+      "nome": "Resistência de isolamento",
+      "norma": "NBR 5410 — 7.3.2 (isolamento) · Tabela 61",
+      "descricao": "Medir a resistência de isolamento entre condutores vivos e entre vivos e a terra, com a instalação desenergizada.",
+      "parametro": "Tensão de ensaio 500 V CC (circuitos até 500 V)",
+      "criterio": "R_iso ≥ 1,0 MΩ (até 500 V). SELV/PELV: 250 V, ≥ 0,5 MΩ. Acima de 500 V: 1000 V, ≥ 1,0 MΩ."
+    },
+    "polaridade": {
+      "nome": "Ensaio de polaridade",
+      "norma": "NBR 5410 — 7.3.2 (polaridade)",
+      "descricao": "Confirmar fase, neutro e terra nos terminais corretos da tomada (fase não invertida, PE presente).",
+      "parametro": "Verificação de tensão/polaridade",
+      "criterio": "Fase e neutro nos terminais corretos; PE presente; tensão dentro da faixa nominal."
+    },
+    "loop-zs": {
+      "nome": "Impedância de loop (seccionamento automático)",
+      "norma": "NBR 5410 — 7.3.2 (seccionamento automático) · 5.1.2.2.4",
+      "descricao": "Medir a impedância do percurso de falta fase-terra (Zs) na tomada e calcular a corrente de falta prevista, para confirmar o seccionamento no tempo exigido.",
+      "parametro": "Modo sem disparo (não dispara o DR)",
+      "criterio": "Zs × Ia ≤ U0: a corrente de falta deve atuar a proteção no tempo da Tabela 24/25 (TN ≤ 0,4 s em circuitos terminais)."
+    },
+    "rcd-tempo": {
+      "nome": "Tempo de disparo do DR",
+      "norma": "NBR 5410 — 7.3.2 (ensaio funcional do DR) · 6.3.4.2",
+      "descricao": "Aplicar a corrente diferencial nominal (IΔn) e múltiplos (×½, ×1, ×5) para medir o tempo de atuação do DR que protege a tomada.",
+      "parametro": "IΔn 30 mA, tipo A/AC, ×½ / ×1 / ×5, 0°/180°",
+      "criterio": "×½: não dispara. ×1: ≤ 300 ms (DR geral). ×5: ≤ 40 ms."
+    },
+    "rcd-rampa": {
+      "nome": "Corrente de disparo do DR",
+      "norma": "NBR 5410 — 7.3.2 (ensaio funcional do DR)",
+      "descricao": "Elevar a corrente diferencial em rampa até o DR atuar, medindo a corrente real de disparo.",
+      "parametro": "Rampa até IΔn (30 mA)",
+      "criterio": "Disparo entre 50% e 100% de IΔn (15–30 mA para DR de 30 mA)."
+    },
+    "aterramento": {
+      "nome": "Resistência de aterramento",
+      "norma": "NBR 5410 — 7.3.2 (resistência de aterramento)",
+      "descricao": "Medir a resistência do eletrodo de aterramento pelo método de loop (sem estacas), a partir de uma tomada.",
+      "parametro": "Método de loop (RE)",
+      "criterio": "Compatível com o esquema de aterramento e o DR (ex.: TT: RA × IΔn ≤ 50 V)."
+    }
+  }
+}

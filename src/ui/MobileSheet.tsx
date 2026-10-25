@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useSim } from '../sim/store'
 import { color } from '../design/tokens'
 
@@ -27,6 +28,7 @@ export function MobileSheet({
   const [minimizado, setMinimizado] = useState(false)
   const [opcoes, setOpcoes] = useState(false)
   const [confirmar, setConfirmar] = useState<null | 'sair' | 'reiniciar'>(null)
+  const { t } = useTranslation()
   const setView = useSim((s) => s.setView)
 
   const fecharOpcoes = () => {
@@ -46,9 +48,7 @@ export function MobileSheet({
             {confirmar ? (
               <div className="flex items-center gap-2">
                 <span className="text-[12px] leading-snug flex-1" style={{ color: color.text }}>
-                  {confirmar === 'sair'
-                    ? 'Sair da simulação? O progresso atual será perdido.'
-                    : 'Reiniciar do começo? O progresso atual será perdido.'}
+                  {confirmar === 'sair' ? t('mobile.confirmarSair') : t('mobile.confirmarReiniciar')}
                 </span>
                 <button
                   onClick={() => {
@@ -59,14 +59,14 @@ export function MobileSheet({
                   className="px-3 py-1.5 rounded-[8px] text-[12px] font-display font-semibold shrink-0"
                   style={{ background: confirmar === 'sair' ? color.status.fail : color.accent, color: '#0B0F14' }}
                 >
-                  Confirmar
+                  {t('mobile.confirmar')}
                 </button>
                 <button
                   onClick={() => setConfirmar(null)}
                   className="px-3 py-1.5 rounded-[8px] text-[12px] shrink-0"
                   style={{ background: '#0c1117', color: color.textMuted, border: `1px solid ${color.hairline}` }}
                 >
-                  Não
+                  {t('mobile.nao')}
                 </button>
               </div>
             ) : (
@@ -77,7 +77,7 @@ export function MobileSheet({
                     className="flex-1 py-2 rounded-[8px] text-[12px] font-medium"
                     style={{ background: '#0c1117', color: color.accentCool, border: `1px solid ${color.hairline}` }}
                   >
-                    ↺ Reiniciar
+                    {t('mobile.reiniciar')}
                   </button>
                 )}
                 <button
@@ -85,7 +85,7 @@ export function MobileSheet({
                   className="flex-1 py-2 rounded-[8px] text-[12px] font-medium"
                   style={{ background: '#0c1117', color: color.status.fail, border: `1px solid ${color.hairline}` }}
                 >
-                  ✕ Sair da simulação
+                  {t('mobile.sair')}
                 </button>
               </div>
             )}
@@ -103,7 +103,7 @@ export function MobileSheet({
             <span aria-hidden style={{ color: color.accent }}>
               ▴
             </span>
-            Mostrar painel
+            {t('mobile.mostrarPainel')}
           </button>
         </div>
       ) : (
@@ -116,7 +116,7 @@ export function MobileSheet({
                 setOpcoes((v) => !v)
                 setConfirmar(null)
               }}
-              aria-label="Opções da simulação"
+              aria-label={t('mobile.opcoes')}
               className="hud-glass rounded-[10px] px-2.5 py-2 text-[13px] leading-none shrink-0"
               style={{ color: opcoes ? color.accent : color.textMuted }}
             >
@@ -127,7 +127,7 @@ export function MobileSheet({
                 setMinimizado(true)
                 fecharOpcoes()
               }}
-              aria-label="Minimizar painel"
+              aria-label={t('mobile.minimizarPainel')}
               className="hud-glass rounded-[10px] px-2.5 py-2 text-[13px] leading-none shrink-0"
               style={{ color: color.textMuted }}
             >

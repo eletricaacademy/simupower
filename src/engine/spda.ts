@@ -57,8 +57,15 @@ export const LIMITE_ATENCAO = 1.0
 
 export type CorVeredito = 'pass' | 'marginal' | 'fail'
 
+/**
+ * Código do veredito — a UI traduz por ele (a engine não conhece idioma).
+ * `veredito` continua em PT para os testes e para quem lê o dado cru.
+ */
+export type CodigoVeredito = 'aberto' | 'conforme' | 'atencao' | 'nao-conforme'
+
 export interface VereditoContinuidade {
   veredito: string
+  codigo: CodigoVeredito
   cor: CorVeredito
   aprovado: boolean
 }
@@ -76,16 +83,22 @@ export function resistenciaTeorica(
 /** Veredito da leitura de continuidade pelos limites acima. */
 export function avaliarContinuidade(r: number): VereditoContinuidade {
   if (!Number.isFinite(r))
-    return { veredito: 'Descontinuidade — circuito aberto', cor: 'fail', aprovado: false }
+    return { veredito: 'Descontinuidade — circuito aberto', codigo: 'aberto', cor: 'fail', aprovado: false }
   if (r <= LIMITE_CONFORME)
-    return { veredito: 'Contínuo — conforme', cor: 'pass', aprovado: true }
+    return { veredito: 'Contínuo — conforme', codigo: 'conforme', cor: 'pass', aprovado: true }
   if (r <= LIMITE_ATENCAO)
     return {
       veredito: 'Atenção — conexão com resistência elevada',
+      codigo: 'atencao',
       cor: 'marginal',
       aprovado: false,
     }
-  return { veredito: 'Não conforme — continuidade comprometida', cor: 'fail', aprovado: false }
+  return {
+    veredito: 'Não conforme — continuidade comprometida',
+    codigo: 'nao-conforme',
+    cor: 'fail',
+    aprovado: false,
+  }
 }
 
 /** Dispersão determinística por ponto — a leitura não sai idêntica em todos. */
@@ -115,6 +128,7 @@ export interface LeituraContinuidade {
   /** As pontas estavam compensadas no momento da medição? */
   pontasZeradas: boolean
   veredito: string
+  codigo: CodigoVeredito
   cor: CorVeredito
   aprovado: boolean
 }
@@ -161,18 +175,26 @@ export function medirContinuidade(
     rTeorica,
     pontasZeradas,
     veredito: v.veredito,
+    codigo: v.codigo,
     cor: v.cor,
     aprovado: v.aprovado,
   }
 }
 
+/** Código da causa provável/ação — a UI traduz por ele. */
+export type CodigoDiagnostico = 'aberto' | 'corrosao' | 'aperto'
+
 export interface NaoConformidade {
   pontoId: string
   nome: string
   leitura: string
+  codigo: CodigoDiagnostico
   causaProvavel: string
   acao: string
 }
+
+/** Situação do laudo — a UI monta o parecer no idioma ativo a partir dela. */
+export type SituacaoLaudo = 'conforme' | 'incompleto' | 'nao-conforme'
 
 export interface LaudoSPDA {
   total: number
@@ -182,22 +204,26 @@ export interface LaudoSPDA {
   naoConformidades: NaoConformidade[]
   /** Pior leitura encontrada (Ω); Infinity se houve circuito aberto. */
   piorLeitura: number
+  situacao: SituacaoLaudo
   parecer: string
 }
 
 /** Causa provável e ação corretiva a partir da leitura. */
-function diagnostico(l: LeituraContinuidade): { causaProvavel: string; acao: string } {
+function diagnostico(l: LeituraContinuidade): { codigo: CodigoDiagnostico; causaProvavel: string; acao: string } {
   if (!Number.isFinite(l.r))
     return {
+      codigo: 'aberto',
       causaProvavel: 'Condutor de descida rompido ou conexão totalmente aberta.',
       acao: 'Localizar o trecho interrompido, refazer o condutor/conexão e remedir.',
     }
   if (l.r > LIMITE_ATENCAO)
     return {
+      codigo: 'corrosao',
       causaProvavel: 'Conexão corroída ou emenda deteriorada no percurso.',
       acao: 'Limpar/refazer a conexão (conector de pressão ou solda exotérmica) e remedir.',
     }
   return {
+    codigo: 'aperto',
     causaProvavel: 'Conexão com aperto insuficiente ou oxidação superficial.',
     acao: 'Reapertar com torque, tratar a superfície e remedir.',
   }
@@ -245,6 +271,7 @@ export function emitirLaudo(
     conforme,
     naoConformidades,
     piorLeitura,
+    situacao: conforme ? 'conforme' : !completo ? 'incompleto' : 'nao-conforme',
     parecer,
   }
 }

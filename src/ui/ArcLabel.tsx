@@ -1,10 +1,16 @@
 import type { ArcResult } from '../engine/arcflash'
+import { useTranslation } from 'react-i18next'
+import { fmtData, fmtNum } from '../i18n/numero'
 
 /**
  * ArcLabel — etiqueta de Arc Flash (NBR 17227 / NFPA 70E) preenchida com o
  * resultado do estudo. Tema escolhido pela categoria: PERIGO (vermelho) para
  * Cat 3+/>40, ATENÇÃO (laranja) para Cat 1–2, AVISO (verde) para risco mínimo.
  * Reproduz o layout das placas de referência.
+ *
+ * Também é desenhada dentro do 3D (`scene/ArcPlate.tsx`): as props ficam as
+ * mesmas e o texto vem do namespace `arco` (o i18next global atende o Html do
+ * drei, que roda fora da árvore React principal).
  */
 export function ArcLabel({
   resultado,
@@ -17,17 +23,23 @@ export function ArcLabel({
   distancia: number
   nomeEquip: string
 }) {
+  const { t } = useTranslation('arco')
   const nivel = resultado.categoria.nivel
   const tema = nivel >= 3 ? 'perigo' : nivel === 0 ? 'aviso' : 'atencao'
   const cor = tema === 'perigo' ? '#dc2626' : tema === 'atencao' ? '#f5a623' : '#34d399'
-  const palavra = tema === 'perigo' ? 'PERIGO' : tema === 'atencao' ? 'ATENÇÃO' : 'AVISO'
+  const palavra = t(`etiqueta.${tema}`)
 
-  const faixa = FAIXA[nivel]
-  const riscoLabel = nivel === 5 ? 'PERIGO' : nivel === 0 ? 'Risco mínimo' : `Categoria ${nivel}`
+  const faixa = faixaRisco(nivel)
+  const riscoLabel =
+    nivel === 5
+      ? t('etiqueta.riscoPerigo')
+      : nivel === 0
+        ? t('etiqueta.riscoMinimo')
+        : t('etiqueta.riscoCategoria', { n: nivel })
   const choque = aproximacao(voc)
   const tensaoV = Math.round(voc * 1000)
-  const epi = EPI[nivel]
-  const data = dataHoje()
+  const epi = t(`etiqueta.epi.n${nivel}`, { returnObjects: true }) as unknown as string[]
+  const data = fmtData(new Date())
 
   const C = '#000'
   const linha = (val: string, txt: string) => (
@@ -72,9 +84,9 @@ export function ArcLabel({
 
       <div style={{ borderTop: '3px solid #000', padding: '10px 16px', textAlign: 'center' }}>
         <div style={{ fontSize: 23, fontWeight: 800, lineHeight: 1.15 }}>
-          Risco de Choque e Arc Flash
+          {t('etiqueta.titulo1')}
           <br />
-          Necessário EPI Adequado
+          {t('etiqueta.titulo2')}
         </div>
       </div>
 
@@ -91,22 +103,22 @@ export function ArcLabel({
               fontSize: 15,
             }}
           >
-            Risco&nbsp;&nbsp;&nbsp;{riscoLabel}
+            {t('etiqueta.risco')}&nbsp;&nbsp;&nbsp;{riscoLabel}
           </div>
           <div style={{ padding: '0 12px' }}>
-            <div style={{ fontSize: 15, fontWeight: 800, margin: '6px 0 4px' }}>Proteção contra Arc Flash</div>
-            {linha(`${Math.round(resultado.afb)} mm`, 'Região de Risco de Arco (AFB)')}
-            {linha(`${resultado.energia.toFixed(1).replace('.', ',')} cal/cm²`, `Energia incidente em ${Math.round(distancia)} mm`)}
-            {linha(faixa, 'Faixa de risco de arco')}
-            <div style={{ fontSize: 15, fontWeight: 800, margin: '11px 0 4px' }}>Proteção contra Choque</div>
-            {linha(`${tensaoV} V`, 'Risco de Choque')}
-            {linha(`${choque.limitada} mm`, 'Região de Aproximação Limitada')}
-            {linha(`${choque.restrita} mm`, 'Região de Aproximação Restrita')}
+            <div style={{ fontSize: 15, fontWeight: 800, margin: '6px 0 4px' }}>{t('etiqueta.protArco')}</div>
+            {linha(`${Math.round(resultado.afb)} mm`, t('etiqueta.afb'))}
+            {linha(`${fmtNum(resultado.energia, 1)} cal/cm²`, t('etiqueta.energiaEm', { d: Math.round(distancia) }))}
+            {linha(faixa, t('etiqueta.faixa'))}
+            <div style={{ fontSize: 15, fontWeight: 800, margin: '11px 0 4px' }}>{t('etiqueta.protChoque')}</div>
+            {linha(`${tensaoV} V`, t('etiqueta.riscoChoque'))}
+            {linha(`${choque.limitada} mm`, t('etiqueta.limitada'))}
+            {linha(`${choque.restrita} mm`, t('etiqueta.restrita'))}
           </div>
         </div>
         {/* coluna direita — EPI */}
         <div style={{ flex: 1, padding: '8px 14px' }}>
-          <div style={{ textAlign: 'center', fontSize: 17, fontWeight: 800, marginBottom: 8 }}>EPI Necessário</div>
+          <div style={{ textAlign: 'center', fontSize: 17, fontWeight: 800, marginBottom: 8 }}>{t('etiqueta.epiNecessario')}</div>
           <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12.5, lineHeight: 1.4 }}>
             {epi.map((e, i) => (
               <li key={i} style={{ marginBottom: 5 }}>
@@ -128,48 +140,39 @@ export function ArcLabel({
           fontWeight: 700,
         }}
       >
-        <span>Equipamento:&nbsp;&nbsp;{nomeEquip}</span>
-        <span>Data:&nbsp;&nbsp;{data}</span>
+        <span>{t('etiqueta.equipamento')}&nbsp;&nbsp;{nomeEquip}</span>
+        <span>{t('etiqueta.data')}&nbsp;&nbsp;{data}</span>
       </div>
       <div style={{ background: cor, borderTop: '1px solid #000', padding: '3px 16px', fontSize: 10, textAlign: 'center' }}>
-        Atenção: mudanças no equipamento ou na configuração do sistema invalidam os cálculos e os EPIs necessários · IEEE 1584 / NBR 17227
+        {t('etiqueta.rodape')}
       </div>
     </div>
   )
 }
 
-const FAIXA = [
-  '< 1,2 cal/cm²',
-  '1,2 – 4,0 cal/cm²',
-  '4,0 – 8,0 cal/cm²',
-  '8,0 – 25 cal/cm²',
-  '25 – 40 cal/cm²',
-  '> 40 cal/cm²',
+/**
+ * Faixa de energia de cada nível (cal/cm²) e casas decimais do original. O
+ * texto sai no separador do idioma; a lista de EPI por nível fica em
+ * `arco:etiqueta.epi.n<nivel>` (mesma ordem e mesmos itens nos três idiomas).
+ */
+const FAIXA: ([number, number] | [number, number, number, number])[] = [
+  [1.2, 1],
+  [1.2, 1, 4, 1],
+  [4, 1, 8, 1],
+  [8, 1, 25, 0],
+  [25, 0, 40, 0],
+  [40, 0],
 ]
 
-const EPI: string[][] = [
-  // 0 — risco mínimo
-  ['Vestimenta de algodão não inflamável (mangas longas)', 'Óculos de segurança', 'Calçado de segurança'],
-  // 1 — Cat 1 (4 cal)
-  ['Vestimenta FR ≥ 4 cal/cm² (camisa + calça ou macacão)', 'Óculos de segurança', 'Protetor facial FR ou balaclava', 'Capacete classe E', 'Luvas de couro', 'Calçado de segurança'],
-  // 2 — Cat 2 (8 cal)
-  ['Vestimenta FR ≥ 8 cal/cm² (camisa + calça ou macacão)', 'Balaclava FR', 'Protetor facial com viseira classe E', 'Capacete classe II', 'Luvas isolantes c/ cobertura', 'Calçado dielétrico', 'Protetores auriculares'],
-  // 3 — Cat 3 (25 cal)
-  ['Conjunto FR ≥ 25 cal/cm² + capuz de arco', 'Capacete + protetor facial/capuz', 'Luvas isolantes c/ cobertura', 'Calçado dielétrico', 'Protetores auriculares'],
-  // 4 — Cat 4 (40 cal)
-  ['Conjunto FR ≥ 40 cal/cm² + capuz de arco', 'Capacete + capuz de arco completo', 'Luvas isolantes c/ cobertura', 'Calçado dielétrico', 'Protetores auriculares'],
-  // 5 — perigo extremo
-  ['NÃO TRABALHAR ENERGIZADO', 'Redesenhar proteção para reduzir IE < 40 cal/cm²', 'Aplicar técnicas de mitigação (relé de arco, ZSI)', 'Considerar manobra remota / desenergização'],
-]
+function faixaRisco(nivel: number): string {
+  const f = FAIXA[nivel]
+  if (f.length === 2) return `${nivel === 0 ? '<' : '>'} ${fmtNum(f[0], f[1])} cal/cm²`
+  return `${fmtNum(f[0], f[1])} – ${fmtNum(f[2], f[3])} cal/cm²`
+}
 
 /** Distâncias de aproximação (mm) aproximadas por faixa de tensão. */
 function aproximacao(voc: number): { limitada: number; restrita: number } {
   if (voc < 1) return { limitada: 700, restrita: 200 }
   if (voc < 15) return { limitada: 1500, restrita: 700 }
   return { limitada: 2500, restrita: 1300 }
-}
-
-function dataHoje(): string {
-  const d = new Date()
-  return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`
 }

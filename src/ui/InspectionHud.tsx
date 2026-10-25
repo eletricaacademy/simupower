@@ -14,6 +14,7 @@ import { SoundControl } from './SoundControl'
 import { BemVindo } from './BemVindo'
 import { Detalhes } from './Detalhes'
 import { color } from '../design/tokens'
+import { useTranslation } from 'react-i18next'
 
 const COR: Record<'pass' | 'marginal' | 'fail', string> = {
   pass: color.status.pass,
@@ -35,6 +36,7 @@ export function InspectionHud() {
   const ensaio = useSim((s) => s.ensaio)
   const resetInsp = useInsp((s) => s.reset)
   const cfgDrag = useDraggable()
+  const { t } = useTranslation(['inspecao', 'common'])
 
   useEffect(() => resetInsp(), [resetInsp])
 
@@ -81,7 +83,7 @@ export function InspectionHud() {
               style={{ color: color.text, ...cfgDrag.handleStyle }}
               {...cfgDrag.handlers}
             >
-              ⠿ Configurações
+              ⠿ {t('common:hud.configuracoes')}
             </div>
             <QualityPicker />
             <div className="my-3 h-px" style={{ background: color.hairline }} />
@@ -91,17 +93,17 @@ export function InspectionHud() {
       )}
 
       {/* DESKTOP */}
-      <PainelRecolhivel titulo="procedimento" className="hidden md:flex absolute left-4 bottom-4 flex-col gap-3 pointer-events-auto">
+      <PainelRecolhivel titulo={t('common:hud.procedimentoMin')} className="hidden md:flex absolute left-4 bottom-4 flex-col gap-3 pointer-events-auto">
         {tourAtivo ? <InspGuidedPanel /> : <IntroCard />}
         <div className="hud-glass rounded-[14px] p-3 w-[360px]">
           <div className="text-[10px] uppercase tracking-wider mb-2" style={{ color: color.textFaint }}>
-            Roteiro de inspeção
+            {t('roteiro')}
           </div>
           <Checklist />
         </div>
       </PainelRecolhivel>
 
-      <PainelRecolhivel titulo="painel de ensaio" className="hidden md:block absolute right-4 bottom-4 pointer-events-auto">
+      <PainelRecolhivel titulo={t('common:hud.painelEnsaio')} className="hidden md:block absolute right-4 bottom-4 pointer-events-auto">
         <InspResult />
       </PainelRecolhivel>
 
@@ -114,10 +116,10 @@ export function InspectionHud() {
         tabs={
           <>
             <Tab ativo={aba === 'procedimento'} onClick={() => setAba('procedimento')}>
-              Roteiro
+              {t('abaRoteiro')}
             </Tab>
             <Tab ativo={aba === 'resultado'} onClick={() => setAba('resultado')}>
-              Conformidade
+              {t('conformidade')}
             </Tab>
           </>
         }
@@ -160,6 +162,7 @@ function IntroCard() {
   const setTour = useSim((s) => s.setTour)
   const irParaPasso = useSim((s) => s.irParaPasso)
   const equipamento = useSim((s) => s.equipamento)
+  const { t } = useTranslation('inspecao')
 
   function iniciar() {
     irParaPasso(0)
@@ -172,21 +175,20 @@ function IntroCard() {
         className="font-mono text-[11px] px-2 py-0.5 rounded-full inline-block mb-2"
         style={{ background: '#0c1117', color: color.accentCool, border: `1px solid ${color.hairline}` }}
       >
-        VISITA GUIADA
+        {t('intro.selo')}
       </span>
       <h2 className="font-display font-semibold text-[18px] mb-1" style={{ color: color.text }}>
         {equipamento.nome}
       </h2>
       <p className="text-[13px] leading-snug mb-4" style={{ color: color.textMuted }}>
-        Explore a subestação livremente (arraste, gire e use as vistas). Quando estiver pronto, inicie
-        a visita guiada — cada etapa leva você a um ponto de inspeção para avaliar.
+        {t('intro.texto')}
       </p>
       <button
         onClick={iniciar}
         className="w-full py-2.5 rounded-[10px] font-display font-semibold text-[14px]"
         style={{ background: color.accent, color: '#0B0F14', boxShadow: `0 0 20px ${color.accent}44` }}
       >
-        ▶ Iniciar visita guiada
+        {t('intro.iniciar')}
       </button>
     </div>
   )
@@ -211,6 +213,8 @@ function InspGuidedPanel() {
     return p ? s.status[p.id] : undefined
   })
 
+  const { t } = useTranslation(['inspecao', 'common'])
+
   const passo = ensaio.steps[passoIndex]
   if (!passo) return null
   const isCheck = passo.control === 'insp-check'
@@ -228,14 +232,14 @@ function InspGuidedPanel() {
           className="font-mono text-[11px] px-2 py-0.5 rounded-full"
           style={{ background: '#0c1117', color: color.accent, border: `1px solid ${color.hairline}` }}
         >
-          ITEM {passoIndex + 1}/{ensaio.steps.length}
+          {t('item', { n: passoIndex + 1, total: ensaio.steps.length })}
         </span>
         <button
           onClick={() => setTour(false)}
           className="text-[10px]"
           style={{ color: color.textFaint }}
         >
-          ↺ explorar livre
+          {t('explorarLivre')}
         </button>
       </div>
 
@@ -256,7 +260,7 @@ function InspGuidedPanel() {
             disabled={!habilitado}
             onClick={() => marcar('conforme')}
           >
-            ✓ Conforme
+            {t('conforme')}
           </BotaoStatus>
           <BotaoStatus
             ativo={statusAtual === 'nao-conforme'}
@@ -264,7 +268,7 @@ function InspGuidedPanel() {
             disabled={!habilitado}
             onClick={() => marcar('nao-conforme')}
           >
-            ✗ Não conforme
+            {t('naoConforme')}
           </BotaoStatus>
         </div>
       ) : (
@@ -279,7 +283,7 @@ function InspGuidedPanel() {
             cursor: !habilitado || jaCumprido ? 'default' : 'pointer',
           }}
         >
-          {jaCumprido ? '✓ Concluído' : passo.acao}
+          {jaCumprido ? t('common:hud.concluido') : passo.acao}
         </button>
       )}
     </div>
@@ -319,11 +323,12 @@ function BotaoStatus({
 function InspResult() {
   const r = useResultado()
   const cor = COR[r.cor]
+  const { t } = useTranslation('inspecao')
   return (
     <div className="instrument-panel rounded-[14px] p-4 w-[360px] max-w-[88vw]">
       <div className="flex items-baseline justify-between mb-2">
         <span className="text-[11px] uppercase tracking-[0.18em]" style={{ color: color.textFaint }}>
-          Conformidade
+          {t('conformidade')}
         </span>
         <span className="font-mono text-[11px]" style={{ color: color.textFaint }}>
           NR-10
@@ -347,17 +352,17 @@ function InspResult() {
         style={{ background: cor + '1a', border: `1px solid ${cor}66` }}
       >
         <span className="text-[11px] uppercase tracking-[0.16em]" style={{ color: color.textMuted }}>
-          Veredito
+          {t('resultado.veredito')}
         </span>
         <span className="font-display font-semibold text-[15px]" style={{ color: cor }}>
-          {r.veredito}
+          {t(`veredito.${r.codigo}`)}
         </span>
       </div>
 
       <div className="grid grid-cols-3 gap-2">
-        <Metric rotulo="Conformes" valor={`${r.conformes}`} cor={color.status.pass} />
-        <Metric rotulo="Não conf." valor={`${r.naoConformes}`} cor={color.status.fail} />
-        <Metric rotulo="Pendentes" valor={`${r.pendentes}`} cor={color.textMuted} />
+        <Metric rotulo={t('resultado.conformes')} valor={`${r.conformes}`} cor={color.status.pass} />
+        <Metric rotulo={t('resultado.naoConformes')} valor={`${r.naoConformes}`} cor={color.status.fail} />
+        <Metric rotulo={t('resultado.pendentes')} valor={`${r.pendentes}`} cor={color.textMuted} />
       </div>
     </div>
   )
@@ -381,10 +386,11 @@ function IdentificarPeca() {
   const pickMode = useSim((s) => s.pickMode)
   const setPickMode = useSim((s) => s.setPickMode)
   const peca = useSim((s) => s.peca)
+  const { t } = useTranslation('inspecao')
   return (
     <div>
       <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ color: color.textFaint }}>
-        Identificar peça
+        {t('identificar.titulo')}
       </div>
       <button
         onClick={() => setPickMode(!pickMode)}
@@ -396,7 +402,7 @@ function IdentificarPeca() {
           fontWeight: pickMode ? 700 : 400,
         }}
       >
-        🔍 {pickMode ? 'Clicando (ligado)' : 'Ativar identificação'}
+        🔍 {pickMode ? t('identificar.clicando') : t('identificar.ativar')}
       </button>
       {peca && (
         <div
@@ -407,8 +413,7 @@ function IdentificarPeca() {
         </div>
       )}
       <p className="text-[10px] leading-snug mt-1" style={{ color: color.textFaint }}>
-        Ligue e clique na peça que quer remover; a coordenada é copiada — me envie que eu apago a peça
-        certa.
+        {t('identificar.ajuda')}
       </p>
     </div>
   )
@@ -420,20 +425,22 @@ function ToggleBar() {
   const setGrade = useInsp((s) => s.setMostrarGrade)
   const paredes = useInsp((s) => s.mostrarParedes)
   const setParedes = useInsp((s) => s.setMostrarParedes)
+  const { t } = useTranslation('inspecao')
   return (
     <div className="hud-glass rounded-[12px] px-1.5 py-1 flex items-center gap-1.5">
-      <Toggle ativo={grade} onClick={() => setGrade(!grade)} label="Grade" />
-      <Toggle ativo={paredes} onClick={() => setParedes(!paredes)} label="Paredes" />
+      <Toggle ativo={grade} onClick={() => setGrade(!grade)} label={t('toggle.grade')} />
+      <Toggle ativo={paredes} onClick={() => setParedes(!paredes)} label={t('toggle.paredes')} />
     </div>
   )
 }
 
 function Toggle({ ativo, onClick, label }: { ativo: boolean; onClick: () => void; label: string }) {
+  const { t } = useTranslation('inspecao')
   return (
     <button
       onClick={onClick}
       aria-pressed={ativo}
-      title={`${ativo ? 'Ocultar' : 'Mostrar'} ${label.toLowerCase()}`}
+      title={t(ativo ? 'toggle.ocultar' : 'toggle.mostrar', { x: label.toLowerCase() })}
       className="flex items-center gap-1.5 px-2.5 py-1 rounded-[8px] text-[12px] transition-colors"
       style={{
         background: ativo ? color.accent + '22' : 'transparent',

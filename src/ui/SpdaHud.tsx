@@ -3,16 +3,18 @@ import { ConexoesInbrat } from './ConexoesInbrat'
 import { executarEtapaEmLote } from '../sim/testesEmLote'
 import { PainelRecolhivel } from './PainelRecolhivel'
 import { useEffect, useState } from 'react'
+import { Trans, useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
+import { fmtNum } from '../i18n/numero'
 import { useSim, passoHabilitado } from '../sim/store'
 import { useSpda, todosMedidos } from '../sim/spdaStore'
 import {
   LIMITE_CONFORME,
   LIMITE_ATENCAO,
   R_PONTAS,
-  formatarLeitura,
   type CenarioSPDA,
 } from '../engine/spda'
-import { SPDA_PONTOS, ROTULO_SUBSISTEMA, getPontoSPDA } from '../catalog/spdaPontos'
+import { SPDA_PONTOS, getPontoSPDA, type PontoSPDA } from '../catalog/spdaPontos'
 import { SPDA_DIAGNOSTICOS } from '../catalog/spdaDiagnostico'
 import { ambiente } from './sons'
 import { QualityPicker } from './QualityPicker'
@@ -33,11 +35,42 @@ const CORV: Record<'pass' | 'marginal' | 'fail', string> = {
   fail: color.status.fail,
 }
 
+/** Leitura como o visor mostra (mesma regra de `formatarLeitura`), no separador do idioma. */
+function fmtLeitura(r: number): string {
+  if (!Number.isFinite(r)) return 'OL'
+  return fmtNum(r, r < 1 ? 3 : 2)
+}
+
+/** Número com as casas que ele já tem (9.5 → "9,5"; 12 → "12"), no separador do idioma. */
+function fmtLivre(v: number): string {
+  return fmtNum(v, (String(v).split('.')[1] ?? '').length)
+}
+
+/**
+ * Textos do trecho montados por id/par/nível: o catálogo guarda o nome em PT
+ * (`spdaPontos.ts` não é editado para traduzir), a UI recompõe no idioma ativo.
+ */
+function nomePonto(p: PontoSPDA, t: TFunction): string {
+  if (p.nivel === 'bep') return t('spda:ponto.bepNome')
+  if (p.nivel && p.par) return t('spda:ponto.nome', { par: p.par, nivel: t(`spda:nivel.${p.nivel}`) })
+  return p.nome
+}
+function extremosPonto(p: PontoSPDA, t: TFunction): { de: string; ate: string } {
+  if (p.nivel === 'bep') return { de: t('spda:ponto.bepDe'), ate: t('spda:ponto.bepAte') }
+  if (p.nivel && p.par) {
+    const [a, b] = p.par.split('–')
+    const nivel = t(`spda:nivelMin.${p.nivel}`)
+    return { de: t('spda:ponto.terminal', { d: a, nivel }), ate: t('spda:ponto.terminal', { d: b, nivel }) }
+  }
+  return { de: p.de, ate: p.ate }
+}
+
 /**
  * SpdaHud — ensaio de CONTINUIDADE DO SPDA (NBR 5419-3).
  * Passos guiados à esquerda; miliohmímetro com a lista de trechos à direita.
  */
 export function SpdaHud() {
+  const { t } = useTranslation(['spda', 'common'])
   const [configAberto, setConfigAberto] = useState(false)
   const [aba, setAba] = useState<'procedimento' | 'medicao'>('procedimento')
   const [laudoFechado, setLaudoFechado] = useState(false)
@@ -103,7 +136,7 @@ export function SpdaHud() {
 
       {!diagnosticoAberto && (
         <button
-          aria-label="Iniciar inspeção por fotos"
+          aria-label={t('fotos.iniciar')}
           onClick={() => {
             setConfigAberto(false)
             setDiagnosticoAberto(true)
@@ -116,8 +149,8 @@ export function SpdaHud() {
             <circle cx="12" cy="13" r="4" />
           </svg>
           <span className="flex-1">
-            <span className="block font-display font-bold text-[16px] md:text-[17px] leading-tight">Iniciar inspeção por fotos</span>
-            <span className="block text-[11px] mt-1 leading-snug">4 situações reais · veja, avalie e confira o diagnóstico</span>
+            <span className="block font-display font-bold text-[16px] md:text-[17px] leading-tight">{t('fotos.iniciar')}</span>
+            <span className="block text-[11px] mt-1 leading-snug">{t('fotos.sub')}</span>
           </span>
           <span aria-hidden="true" className="text-[25px] leading-none">›</span>
         </button>
@@ -131,15 +164,15 @@ export function SpdaHud() {
               style={{ color: color.text, ...cfgDrag.handleStyle }}
               {...cfgDrag.handlers}
             >
-              ⠿ Configurações
+              ⠿ {t('common:hud.configuracoes')}
             </div>
-            <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ color: color.textFaint }}>Simulação</div>
+            <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ color: color.textFaint }}>{t('common:hud.simulacao')}</div>
             <div className="flex gap-1.5">
               <button onClick={reiniciar} className="flex-1 text-[12px] py-1.5 rounded-[8px]" style={{ background: '#0c1117', color: color.accentCool, border: `1px solid ${color.hairline}` }}>
-                ↺ Novo ensaio
+                {t('common:hud.novoEnsaio')}
               </button>
               <button onClick={() => setView('menu')} className="flex-1 text-[12px] py-1.5 rounded-[8px]" style={{ background: '#0c1117', color: color.status.fail, border: `1px solid ${color.hairline}` }}>
-                ✕ Encerrar
+                {t('common:hud.encerrar')}
               </button>
             </div>
             <div className="my-3 h-px" style={{ background: color.hairline }} />
@@ -152,12 +185,12 @@ export function SpdaHud() {
       )}
 
       {/* DESKTOP */}
-      <PainelRecolhivel titulo="procedimento" className={`${diagnosticoAberto ? 'hidden' : 'hidden md:block'} absolute left-4 bottom-4 pointer-events-auto`}>
+      <PainelRecolhivel titulo={t('common:hud.procedimentoMin')} className={`${diagnosticoAberto ? 'hidden' : 'hidden md:block'} absolute left-4 bottom-4 pointer-events-auto`}>
         <GuidedCard />
       </PainelRecolhivel>
 
       {mostrarPainel && !diagnosticoAberto && (
-        <PainelRecolhivel titulo="painel de ensaio" className="hidden md:block absolute right-4 bottom-4 pointer-events-auto">
+        <PainelRecolhivel titulo={t('common:hud.painelEnsaio')} className="hidden md:block absolute right-4 bottom-4 pointer-events-auto">
           <Miliohmimetro />
         </PainelRecolhivel>
       )}
@@ -167,8 +200,8 @@ export function SpdaHud() {
         onReiniciar={reiniciar}
         tabs={
           <>
-            <Tab ativo={aba === 'procedimento'} onClick={() => setAba('procedimento')}>Procedimento</Tab>
-            <Tab ativo={aba === 'medicao'} onClick={() => setAba('medicao')}>Medição</Tab>
+            <Tab ativo={aba === 'procedimento'} onClick={() => setAba('procedimento')}>{t('common:hud.procedimento')}</Tab>
+            <Tab ativo={aba === 'medicao'} onClick={() => setAba('medicao')}>{t('medicao')}</Tab>
           </>
         }
       >
@@ -178,7 +211,7 @@ export function SpdaHud() {
           <Miliohmimetro />
         ) : (
           <div className="hud-glass rounded-[14px] p-4 w-[330px] max-w-[90vw] text-[12px] text-center" style={{ color: color.textFaint }}>
-            O instrumento fica disponível na etapa “Preparar o instrumento”.
+            {t('semPainel')}
           </div>
         )}
       </MobileSheet>}
@@ -206,6 +239,7 @@ function Tab({ ativo, onClick, children }: { ativo: boolean; onClick: () => void
 
 /** Cartão guiado dos passos (com as travas próprias do ensaio de SPDA). */
 function GuidedCard() {
+  const { t } = useTranslation(['spda', 'common'])
   const ensaio = useSim((s) => s.ensaio)
   const passoIndex = useSim((s) => s.passoIndex)
   const marcarPasso = useSim((s) => s.marcarPasso)
@@ -248,7 +282,7 @@ function GuidedCard() {
             <button
               key={s.id}
               onClick={() => irParaPasso(i)}
-              aria-label={`Passo ${i + 1}`}
+              aria-label={t('common:hud.passo', { n: i + 1 })}
               className="rounded-full transition-all"
               style={{ width: cur ? 18 : 8, height: 8, background: done ? color.status.pass : cur ? color.accent : '#2a3340' }}
             />
@@ -264,7 +298,7 @@ function GuidedCard() {
 
       {passo.cuidados && passo.cuidados.length > 0 && (
         <div className="rounded-[10px] px-3 py-2 mb-2.5 text-[12px] leading-snug" style={{ background: color.status.marginal + '12', border: `1px solid ${color.status.marginal}44`, color: color.text }}>
-          <b style={{ color: color.status.marginal }}>Cuidados:</b> {passo.cuidados.join(' ')}
+          <b style={{ color: color.status.marginal }}>{t('cuidados')}</b> {passo.cuidados.join(' ')}
         </div>
       )}
 
@@ -277,12 +311,12 @@ function GuidedCard() {
 
       {faltaMedir && !jaCumprido && (
         <div className="rounded-[10px] px-3 py-2 mb-3 text-[12px] leading-snug" style={{ background: color.accentCool + '14', border: `1px solid ${color.accentCool}55`, color: color.text }}>
-          <b>Como concluir:</b> no instrumento (à direita), selecione cada trecho e clique em <b>“Medir”</b>. É preciso medir <b>todos</b> os trechos do SPDA.{' '}
-          <span className="font-mono" style={{ color: color.accentCool }}>{nMedidos}/{SPDA_PONTOS.length} trechos</span>.
+          <Trans t={t} i18nKey="comoConcluir" components={{ b: <b /> }} />{' '}
+          <span className="font-mono" style={{ color: color.accentCool }}>{t('trechosDe', { n: nMedidos, total: SPDA_PONTOS.length })}</span>.
         </div>
       )}
 
-      {passo.id === 'spda-medir' && <BotaoTestesEmLote habilitado={habilitado} executar={executarEtapaEmLote} detalhe="Mede todos os trechos e mostra a etapa concluída." />}
+      {passo.id === 'spda-medir' && <BotaoTestesEmLote habilitado={habilitado} executar={executarEtapaEmLote} detalhe={t('loteDetalhe')} />}
 
       <button
         onClick={concluir}
@@ -295,15 +329,15 @@ function GuidedCard() {
           cursor: !acaoLiberada || jaCumprido ? 'default' : 'pointer',
         }}
       >
-        {jaCumprido ? '✓ Concluído' : faltaMedir ? `Concluir medições (${nMedidos}/${SPDA_PONTOS.length})` : passo.acao}
+        {jaCumprido ? t('common:hud.concluido') : faltaMedir ? t('concluirMedicoes', { n: nMedidos, total: SPDA_PONTOS.length }) : passo.acao}
       </button>
 
       <div className="flex items-center gap-2 mt-2.5">
         <button onClick={() => irParaPasso(passoIndex - 1)} disabled={passoIndex === 0} className="px-3 py-2 rounded-[10px] text-[13px]" style={{ background: '#0c1117', color: passoIndex === 0 ? color.textFaint : color.textMuted, border: `1px solid ${color.hairline}` }}>
-          ‹ Voltar
+          {t('common:hud.voltar')}
         </button>
         <button onClick={() => irParaPasso(passoIndex + 1)} disabled={!jaCumprido || ultimo} className="flex-1 py-2 rounded-[10px] font-display font-semibold text-[13px]" style={{ background: jaCumprido && !ultimo ? color.accentCool : '#0c1117', color: jaCumprido && !ultimo ? '#0B0F14' : color.textFaint, border: `1px solid ${jaCumprido && !ultimo ? color.accentCool : color.hairline}` }}>
-          {ultimo ? 'Fim' : 'Próximo ›'}
+          {ultimo ? t('common:hud.fim') : t('common:hud.proximo')}
         </button>
       </div>
     </div>
@@ -312,6 +346,7 @@ function GuidedCard() {
 
 /** Instrumento: seleção do trecho, leitura de continuidade e registro. */
 function Miliohmimetro() {
+  const { t } = useTranslation('spda')
   const pontoAtivo = useSpda((s) => s.pontoAtivo)
   const medicoes = useSpda((s) => s.medicoes)
   const pontasZeradas = useSpda((s) => s.pontasZeradas)
@@ -331,44 +366,44 @@ function Miliohmimetro() {
     <div className="instrument-panel rounded-[12px] p-3 w-[330px] max-w-[90vw] max-h-[calc(100dvh-88px)] overflow-y-auto hud-scroll" style={{ borderTop: `4px solid ${color.inbrat.maleta}` }}>
       <div className="flex items-center justify-between mb-2">
         <span className="font-display font-bold text-[16px]" style={{ color: color.text }}>inbrat <span className="font-mono text-[10px] font-normal">INMD1 PRO</span></span>
-        <button className="text-[10px] rounded px-2 py-1" style={{ color: color.text, background: color.inbrat.painel }} onClick={() => useView.getState().pedir('foco')}>Ver equipamento 3D</button>
+        <button className="text-[10px] rounded px-2 py-1" style={{ color: color.text, background: color.inbrat.painel }} onClick={() => useView.getState().pedir('foco')}>{t('instrumento.ver3d')}</button>
       </div>
       <div className="flex items-center justify-between text-[10px] mb-2" style={{ color: color.textMuted }}>
-        <span>Simulação didática · Continuidade</span>
-        <button onClick={() => useView.getState().pedir('quadro')} style={{ color: color.accentCool }}>Ver conexão</button>
+        <span>{t('instrumento.simulacao')}</span>
+        <button onClick={() => useView.getState().pedir('quadro')} style={{ color: color.accentCool }}>{t('instrumento.verConexao')}</button>
       </div>
       <div className="flex flex-wrap gap-2 mb-2 text-[11px]" style={{ color: color.accentCool }}>
-        <button onClick={() => useView.getState().pedir('origem')}>Ver garra P1/C1</button>
-        <button onClick={() => useView.getState().pedir('quadro')}>Ver garra P2/C2</button>
+        <button onClick={() => useView.getState().pedir('origem')}>{t('instrumento.verGarra1')}</button>
+        <button onClick={() => useView.getState().pedir('quadro')}>{t('instrumento.verGarra2')}</button>
         {ponto?.nivel && ponto.nivel !== 'bep' && <button className="w-full rounded px-2 py-2" style={{ background: color.surface, border: `1px solid ${color.hairline}` }}
           onClick={() => { const outro = SPDA_PONTOS.find(p => p.par === ponto.par && p.nivel !== ponto.nivel); if (outro) setPontoAtivo(outro.id) }}>
-          Mover as duas garras para {ponto.nivel === 'superior' ? 'baixo · Inferior' : 'cima · Superior'}
+          {ponto.nivel === 'superior' ? t('instrumento.moverBaixo') : t('instrumento.moverCima')}
         </button>}
-        <button onClick={() => { if (pontoAtivo === 'eq-bep') useView.getState().pedir('quadro'); else setPontoAtivo('eq-bep') }}>Entrar na sala elétrica · BEP</button>
+        <button onClick={() => { if (pontoAtivo === 'eq-bep') useView.getState().pedir('quadro'); else setPontoAtivo('eq-bep') }}>{t('instrumento.entrarBep')}</button>
       </div>
       {stepAtual === 'spda-medir' && leitura && Number.isFinite(leitura.r) && <div className="rounded p-2 mb-2 text-[11px]" style={{ background: color.surface, color: color.textMuted }}>
         <div className="flex flex-wrap gap-3 mb-1" style={{ color: color.accentCool }}>
-          <button onClick={() => setFluxoAtivo(!fluxoAtivo)} aria-pressed={fluxoAtivo}>{fluxoAtivo ? 'Ocultar fluxo' : 'Mostrar fluxo'}</button>
-          <button onClick={() => useView.getState().pedir('fluxo')}>Ver percurso completo</button>
+          <button onClick={() => setFluxoAtivo(!fluxoAtivo)} aria-pressed={fluxoAtivo}>{fluxoAtivo ? t('instrumento.ocultarFluxo') : t('instrumento.mostrarFluxo')}</button>
+          <button onClick={() => useView.getState().pedir('fluxo')}>{t('instrumento.verPercurso')}</button>
         </div>
-        <p><span style={{ color: color.accent }}>C1 → condutores</span> → <span style={{ color: color.accentCool }}>C2 · retorno</span></p>
-        <p>P1/P2: leitura de tensão. Sentido didático C1 → C2; setas não indicam intensidade.</p>
-        <p>{ponto?.nivel === 'inferior' ? 'Anel enterrado esquemático, visível através do solo.' : 'Percurso visível através das superfícies.'}</p>
+        <p><span style={{ color: color.accent }}>{t('instrumento.fluxoC1')}</span> → <span style={{ color: color.accentCool }}>{t('instrumento.fluxoC2')}</span></p>
+        <p>{t('instrumento.fluxoP')}</p>
+        <p>{ponto?.nivel === 'inferior' ? t('instrumento.anelEnterrado') : t('instrumento.percursoVisivel')}</p>
       </div>}
       <ConexoesInbrat />
       <div className="flex items-center justify-between mb-2">
         <span className="text-[10px] uppercase tracking-[0.18em]" style={{ color: color.textFaint }}>
-          Continuidade · RLO
+          {t('instrumento.funcao')}
         </span>
         <span className="font-mono text-[10px]" style={{ color: pontasZeradas ? color.status.pass : color.status.marginal }}>
-          {pontasZeradas ? '✓ pontas zeradas' : `⚠ +${R_PONTAS.toFixed(3)} Ω pontas`}
+          {pontasZeradas ? t('instrumento.pontasZeradas') : t('instrumento.pontasNaoZeradas', { r: fmtNum(R_PONTAS, 3) })}
         </span>
       </div>
 
       {/* visor */}
       <div className="rounded-[10px] px-3 py-2 mb-2 flex items-baseline justify-between" style={{ background: '#0c1117', border: `1px solid ${color.hairline}` }}>
         <span className="font-mono font-bold text-[30px]" style={{ color: leitura ? CORV[leitura.cor] : color.textFaint }}>
-          {leitura ? leitura.display : '- - -'}
+          {leitura ? fmtLeitura(leitura.r) : '- - -'}
         </span>
         <span className="font-mono text-[14px]" style={{ color: color.textMuted }}>Ω</span>
       </div>
@@ -378,14 +413,14 @@ function Miliohmimetro() {
         <div className="rounded-[10px] px-3 py-2 mb-2 text-[11.5px] leading-snug" style={{ background: '#0c1117', border: `1px solid ${color.hairline}`, color: color.textMuted }}>
           <div className="flex items-center gap-1.5 mb-1">
             <span className="font-mono text-[9px] px-1.5 py-0.5 rounded-full" style={{ color: color.accentCool, border: `1px solid ${color.accentCool}55` }}>
-              {ROTULO_SUBSISTEMA[ponto.subsistema]}
+              {t(`subsistema.${ponto.subsistema}`)}
             </span>
-            <span className="font-display font-semibold text-[12px]" style={{ color: color.text }}>{ponto.nome}</span>
+            <span className="font-display font-semibold text-[12px]" style={{ color: color.text }}>{nomePonto(ponto, t)}</span>
           </div>
-          <div>{ponto.de} → {ponto.ate}</div>
+          <div>{extremosPonto(ponto, t).de} → {extremosPonto(ponto, t).ate}</div>
           <div className="font-mono text-[10px] mt-1" style={{ color: color.textFaint }}>
-            {ponto.ramos ? `Série ${ponto.comprimentoM.toFixed(2)} m + anel em paralelo` : `${ponto.comprimentoM} m`} · {ponto.material} {ponto.secaoMm2} mm²
-            {leitura && ` · R teórica ${formatarLeitura(leitura.rTeorica)} Ω`}
+            {ponto.ramos ? t('instrumento.serie', { l: fmtNum(ponto.comprimentoM, 2) }) : t('instrumento.comprimento', { l: fmtLivre(ponto.comprimentoM) })} · {t(`material.${ponto.material}`)} {ponto.secaoMm2} mm²
+            {leitura && t('instrumento.rTeorica', { r: fmtLeitura(leitura.rTeorica) })}
           </div>
         </div>
       )}
@@ -407,10 +442,10 @@ function Miliohmimetro() {
             >
               <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: l ? CORV[l.cor] : '#2a3340' }} />
               <span className="flex-1 text-[11.5px] truncate" style={{ color: ativo ? color.text : color.textMuted }}>
-                {p.grupo === 'Cruzadas' ? 'Cruzada · ' : ''}{p.nome}
+                {p.grupo === 'Cruzadas' ? t('instrumento.cruzada') : ''}{nomePonto(p, t)}
               </span>
               <span className="font-mono text-[11px]" style={{ color: l ? CORV[l.cor] : color.textFaint }}>
-                {l ? l.display : '—'}
+                {l ? fmtLeitura(l.r) : '—'}
               </span>
             </button>
           )
@@ -429,31 +464,31 @@ function Miliohmimetro() {
             cursor: podeMedir ? 'pointer' : 'default',
           }}
         >
-          {leitura ? '↻ Remedir' : '▶ Medir'}
+          {leitura ? t('instrumento.remedir') : t('instrumento.medir')}
         </button>
         {leitura && (
           <button onClick={() => limparMedicao(pontoAtivo)} className="px-3 py-2 rounded-[9px] text-[12px]" style={{ background: '#0c1117', color: color.textMuted, border: `1px solid ${color.hairline}` }}>
-            Descartar
+            {t('instrumento.descartar')}
           </button>
         )}
       </div>
 
       {!pontasZeradas && (
         <div className="text-[10.5px] mt-1.5 text-center leading-snug" style={{ color: color.status.marginal }}>
-          Compense as pontas de prova na etapa “Preparar o instrumento” — sem isso os cabos entram na leitura.
+          {t('instrumento.compense')}
         </div>
       )}
       {pontasZeradas && stepAtual !== 'spda-medir' && (
         <div className="text-[10.5px] mt-1.5 text-center" style={{ color: color.textFaint }}>
-          Avance até a etapa “Medir a continuidade trecho a trecho”.
+          {t('instrumento.avance')}
         </div>
       )}
 
       {leitura && (
         <div className="mt-2 rounded-[10px] px-3 py-2" style={{ background: CORV[leitura.cor] + '14', border: `1px solid ${CORV[leitura.cor]}66` }}>
-          <div className="font-display font-semibold text-[13px]" style={{ color: CORV[leitura.cor] }}>{leitura.veredito}</div>
+          <div className="font-display font-semibold text-[13px]" style={{ color: CORV[leitura.cor] }}>{t(`veredito.${leitura.codigo}`)}</div>
           <div className="text-[10.5px] mt-0.5" style={{ color: color.textFaint }}>
-            Critério: ≤ {LIMITE_CONFORME.toFixed(1)} Ω conforme · ≤ {LIMITE_ATENCAO.toFixed(1)} Ω atenção · {nMedidos}/{SPDA_PONTOS.length} medidos
+            {t('instrumento.criterio', { c: fmtNum(LIMITE_CONFORME, 1), a: fmtNum(LIMITE_ATENCAO, 1), n: nMedidos, total: SPDA_PONTOS.length })}
           </div>
         </div>
       )}
@@ -463,10 +498,13 @@ function Miliohmimetro() {
 
 /** Tour complementar com evidências fotográficas posicionadas no prédio. */
 function DiagnosticoFotografico({ onClose }: { onClose: () => void }) {
+  const { t } = useTranslation('spda')
   const [indice, setIndice] = useState(0)
   const [revelado, setRevelado] = useState(false)
   const item = SPDA_DIAGNOSTICOS[indice]
   const cor = item.tipo === 'verificacao' ? color.accentCool : color.status.marginal
+  // textos da parada traduzidos por id (o catálogo `spdaDiagnostico.ts` fica em PT)
+  const tx = (campo: string) => t(`diagnostico.paradas.${item.id}.${campo}`)
 
   useEffect(() => {
     useSpdaDiagnostico.getState().setAtivo(item.id)
@@ -494,47 +532,47 @@ function DiagnosticoFotografico({ onClose }: { onClose: () => void }) {
         <div className="flex items-start gap-3 mb-3">
           <div className="min-w-0 flex-1">
             <div className="font-mono text-[10px] uppercase tracking-[0.16em]" style={{ color: cor }}>
-              Tour de diagnóstico — {indice + 1}/{SPDA_DIAGNOSTICOS.length}
+              {t('diagnostico.tour', { i: indice + 1, n: SPDA_DIAGNOSTICOS.length })}
             </div>
-            <h2 className="font-display font-bold text-[19px] leading-tight mt-1" style={{ color: color.text }}>{item.titulo}</h2>
-            <div className="text-[11px] mt-1" style={{ color: color.textMuted }}>{item.local}</div>
+            <h2 className="font-display font-bold text-[19px] leading-tight mt-1" style={{ color: color.text }}>{tx('titulo')}</h2>
+            <div className="text-[11px] mt-1" style={{ color: color.textMuted }}>{tx('local')}</div>
           </div>
-          <button onClick={fechar} aria-label="Fechar diagnóstico" className="w-8 h-8 rounded-full shrink-0 text-[18px]" style={{ background: color.surface, color: color.text, border: `1px solid ${color.hairline}` }}>×</button>
+          <button onClick={fechar} aria-label={t('diagnostico.fechar')} className="w-8 h-8 rounded-full shrink-0 text-[18px]" style={{ background: color.surface, color: color.text, border: `1px solid ${color.hairline}` }}>×</button>
         </div>
 
         <div className="rounded-[12px] overflow-hidden grid place-items-center" style={{ background: color.viewport, border: `1px solid ${color.hairline}` }}>
-          <img src={item.imagem} alt={item.alt} className="block w-full max-h-[36dvh] md:max-h-[38vh] object-contain" />
+          <img src={item.imagem} alt={tx('alt')} className="block w-full max-h-[36dvh] md:max-h-[38vh] object-contain" />
         </div>
 
         <div className="flex items-center justify-between gap-2 mt-2">
           <span className="font-mono text-[9px] uppercase tracking-wider rounded-full px-2 py-1" style={{ color: cor, border: `1px solid ${cor}66`, background: color.surface }}>
-            {item.tipo === 'verificacao' ? 'Verificação em campo' : 'Não conformidade'}
+            {item.tipo === 'verificacao' ? t('diagnostico.verificacao') : t('diagnostico.naoConformidade')}
           </span>
-          <button onClick={() => useView.getState().pedirPose(item.vista)} className="text-[11px]" style={{ color: color.accentCool }}>Reenquadrar ponto 3D</button>
+          <button onClick={() => useView.getState().pedirPose(item.vista)} className="text-[11px]" style={{ color: color.accentCool }}>{t('diagnostico.reenquadrar')}</button>
         </div>
 
         <div className="rounded-[11px] p-3 mt-3" style={{ background: color.surface, border: `1px solid ${color.hairline}` }}>
-          <div className="text-[10px] uppercase tracking-wider mb-1" style={{ color: color.textFaint }}>Observe e responda</div>
-          <p className="text-[13px] leading-snug" style={{ color: color.text }}>{item.pergunta}</p>
+          <div className="text-[10px] uppercase tracking-wider mb-1" style={{ color: color.textFaint }}>{t('diagnostico.observe')}</div>
+          <p className="text-[13px] leading-snug" style={{ color: color.text }}>{tx('pergunta')}</p>
         </div>
 
         {!revelado ? (
           <button onClick={() => setRevelado(true)} className="w-full rounded-[10px] py-2.5 mt-3 font-display font-semibold text-[13px]" style={{ background: cor, color: color.viewport }}>
-            Revelar {item.tipo === 'verificacao' ? 'explicação' : 'diagnóstico'}
+            {item.tipo === 'verificacao' ? t('diagnostico.revelarExplicacao') : t('diagnostico.revelarDiagnostico')}
           </button>
         ) : (
           <div className="mt-3 space-y-2">
-            <BlocoDiagnostico rotulo="Diagnóstico" texto={item.diagnostico} cor={cor} />
-            <BlocoDiagnostico rotulo="Risco" texto={item.risco} cor={color.status.fail} />
-            <BlocoDiagnostico rotulo="Ação recomendada" texto={item.acao} cor={color.status.pass} />
-            <div className="text-[10.5px] leading-snug px-1" style={{ color: color.textFaint }}>{item.referencia}</div>
+            <BlocoDiagnostico rotulo={t('diagnostico.rotuloDiagnostico')} texto={tx('diagnostico')} cor={cor} />
+            <BlocoDiagnostico rotulo={t('diagnostico.rotuloRisco')} texto={tx('risco')} cor={color.status.fail} />
+            <BlocoDiagnostico rotulo={t('diagnostico.rotuloAcao')} texto={tx('acao')} cor={color.status.pass} />
+            <div className="text-[10.5px] leading-snug px-1" style={{ color: color.textFaint }}>{tx('referencia')}</div>
           </div>
         )}
 
         <div className="flex gap-2 mt-4">
-          <button onClick={() => ir(indice - 1)} disabled={indice === 0} className="px-4 py-2 rounded-[10px] text-[12px]" style={{ background: color.surface, color: indice === 0 ? color.textFaint : color.textMuted, border: `1px solid ${color.hairline}` }}>‹ Anterior</button>
+          <button onClick={() => ir(indice - 1)} disabled={indice === 0} className="px-4 py-2 rounded-[10px] text-[12px]" style={{ background: color.surface, color: indice === 0 ? color.textFaint : color.textMuted, border: `1px solid ${color.hairline}` }}>{t('diagnostico.anterior')}</button>
           <button onClick={() => indice === SPDA_DIAGNOSTICOS.length - 1 ? fechar() : ir(indice + 1)} className="flex-1 py-2 rounded-[10px] font-display font-semibold text-[13px]" style={{ background: color.accent, color: color.viewport }}>
-            {indice === SPDA_DIAGNOSTICOS.length - 1 ? 'Concluir tour' : 'Próxima parada ›'}
+            {indice === SPDA_DIAGNOSTICOS.length - 1 ? t('diagnostico.concluir') : t('diagnostico.proxima')}
           </button>
         </div>
       </div>
@@ -551,10 +589,18 @@ function BlocoDiagnostico({ rotulo, texto, cor }: { rotulo: string; texto: strin
 
 /** Laudo final de continuidade do SPDA. */
 function ResumoLaudo({ onClose, onMenu, onNova }: { onClose: () => void; onMenu: () => void; onNova: () => void }) {
+  const { t } = useTranslation(['spda', 'common'])
   const laudo = useSpda((s) => s.laudo)
   const medicoes = useSpda((s) => s.medicoes)
   if (!laudo) return null
   const cor = laudo.conforme ? color.status.pass : color.status.fail
+  // parecer montado no idioma ativo a partir da situação (a engine devolve o texto em PT)
+  const parecer = t(`parecer.${laudo.situacao}`, {
+    n: laudo.total,
+    lidos: laudo.medidos,
+    nc: laudo.naoConformidades.length,
+    c: fmtNum(LIMITE_CONFORME, 1),
+  })
 
   const Item = ({ rotulo, valor, cor: c }: { rotulo: string; valor: string; cor?: string }) => (
     <div className="rounded-[10px] px-3 py-2" style={{ background: '#0c1117', border: `1px solid ${color.hairline}` }}>
@@ -568,16 +614,16 @@ function ResumoLaudo({ onClose, onMenu, onNova }: { onClose: () => void; onMenu:
       <div className="hud-glass rounded-[16px] p-6 w-[580px] max-w-[94vw] max-h-[92vh] overflow-y-auto hud-scroll">
         <div className="flex items-start justify-between mb-1">
           <div>
-            <div className="font-mono text-[11px] tracking-[0.2em] uppercase" style={{ color: color.accent }}>Laudo de inspeção</div>
-            <h2 className="font-display font-bold text-[20px]" style={{ color: color.text }}>Continuidade do SPDA</h2>
+            <div className="font-mono text-[11px] tracking-[0.2em] uppercase" style={{ color: color.accent }}>{t('laudo.rotulo')}</div>
+            <h2 className="font-display font-bold text-[20px]" style={{ color: color.text }}>{t('laudo.titulo')}</h2>
           </div>
-          <button onClick={onClose} aria-label="Fechar" className="text-[18px] leading-none" style={{ color: color.textMuted }}>×</button>
+          <button onClick={onClose} aria-label={t('common:hud.fechar')} className="text-[18px] leading-none" style={{ color: color.textMuted }}>×</button>
         </div>
 
         <div className="grid grid-cols-3 gap-2 my-3">
-          <Item rotulo="Trechos aprovados" valor={`${laudo.aprovados}/${laudo.total}`} cor={cor} />
-          <Item rotulo="Pior leitura" valor={`${formatarLeitura(laudo.piorLeitura)} Ω`} />
-          <Item rotulo="Não conformidades" valor={`${laudo.naoConformidades.length}`} cor={laudo.naoConformidades.length ? color.status.fail : color.status.pass} />
+          <Item rotulo={t('laudo.aprovados')} valor={`${laudo.aprovados}/${laudo.total}`} cor={cor} />
+          <Item rotulo={t('laudo.pior')} valor={`${fmtLeitura(laudo.piorLeitura)} Ω`} />
+          <Item rotulo={t('laudo.naoConformidades')} valor={`${laudo.naoConformidades.length}`} cor={laudo.naoConformidades.length ? color.status.fail : color.status.pass} />
         </div>
 
         {/* tabela de leituras */}
@@ -587,8 +633,8 @@ function ResumoLaudo({ onClose, onMenu, onNova }: { onClose: () => void; onMenu:
             return (
               <div key={p.id} className="flex items-center gap-2 px-3 py-1.5 text-[12px]" style={{ background: i % 2 ? '#0c1117' : 'transparent' }}>
                 <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: l ? CORV[l.cor] : '#2a3340' }} />
-                <span className="flex-1 truncate" style={{ color: color.textMuted }}>{p.nome}</span>
-                <span className="font-mono" style={{ color: l ? CORV[l.cor] : color.textFaint }}>{l ? `${l.display} Ω` : 'não medido'}</span>
+                <span className="flex-1 truncate" style={{ color: color.textMuted }}>{nomePonto(p, t)}</span>
+                <span className="font-mono" style={{ color: l ? CORV[l.cor] : color.textFaint }}>{l ? `${fmtLeitura(l.r)} Ω` : t('laudo.naoMedido')}</span>
               </div>
             )
           })}
@@ -596,41 +642,45 @@ function ResumoLaudo({ onClose, onMenu, onNova }: { onClose: () => void; onMenu:
 
         <div className="mt-3 rounded-[10px] px-3 py-2.5" style={{ background: cor + '14', border: `1px solid ${cor}66` }}>
           <div className="font-display font-semibold text-[15px]" style={{ color: cor }}>
-            {laudo.conforme ? 'SPDA conforme quanto à continuidade' : 'SPDA não conforme'}
+            {laudo.conforme ? t('laudo.conforme') : t('laudo.naoConforme')}
           </div>
-          <p className="text-[12.5px] mt-1 leading-relaxed" style={{ color: color.textMuted }}>{laudo.parecer}</p>
+          <p className="text-[12.5px] mt-1 leading-relaxed" style={{ color: color.textMuted }}>{parecer}</p>
         </div>
 
         {laudo.naoConformidades.length > 0 && (
           <div className="mt-3">
-            <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ color: color.textFaint }}>Não conformidades e ações</div>
-            {laudo.naoConformidades.map((nc) => (
+            <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ color: color.textFaint }}>{t('laudo.ncAcoes')}</div>
+            {laudo.naoConformidades.map((nc) => {
+              const p = getPontoSPDA(nc.pontoId)
+              const l = medicoes[nc.pontoId]
+              return (
               <div key={nc.pontoId} className="rounded-[10px] px-3 py-2 mb-2" style={{ background: '#0c1117', border: `1px solid ${color.status.fail}44` }}>
                 <div className="flex items-baseline justify-between">
-                  <span className="font-display font-semibold text-[13px]" style={{ color: color.text }}>{nc.nome}</span>
-                  <span className="font-mono text-[13px]" style={{ color: color.status.fail }}>{nc.leitura}</span>
+                  <span className="font-display font-semibold text-[13px]" style={{ color: color.text }}>{p ? nomePonto(p, t) : nc.nome}</span>
+                  <span className="font-mono text-[13px]" style={{ color: color.status.fail }}>{l ? `${fmtLeitura(l.r)} Ω` : nc.leitura}</span>
                 </div>
-                <div className="text-[12px] mt-1" style={{ color: color.textMuted }}><b>Causa provável:</b> {nc.causaProvavel}</div>
-                <div className="text-[12px]" style={{ color: color.textMuted }}><b>Ação:</b> {nc.acao}</div>
+                <div className="text-[12px] mt-1" style={{ color: color.textMuted }}><b>{t('laudo.causa')}</b> {t(`nc.${nc.codigo}.causa`)}</div>
+                <div className="text-[12px]" style={{ color: color.textMuted }}><b>{t('laudo.acao')}</b> {t(`nc.${nc.codigo}.acao`)}</div>
               </div>
-            ))}
+              )
+            })}
           </div>
         )}
 
         <div className="mt-3 text-[10px] flex flex-wrap gap-x-4 gap-y-1" style={{ color: color.textFaint }}>
-          <span>Método: ABNT NBR 5419-3 — inspeção e manutenção do SPDA</span>
-          <span>Critério de continuidade: ≤ {LIMITE_CONFORME.toFixed(1)} Ω</span>
+          <span>{t('laudo.metodo')}</span>
+          <span>{t('laudo.criterio', { c: fmtNum(LIMITE_CONFORME, 1) })}</span>
         </div>
 
         <div className="flex gap-2 mt-5">
           <button onClick={onClose} className="px-4 py-2 rounded-[10px] text-[13px]" style={{ background: '#0c1117', color: color.textMuted, border: `1px solid ${color.hairline}` }}>
-            Fechar
+            {t('common:hud.fechar')}
           </button>
           <button onClick={onNova} className="flex-1 py-2 rounded-[10px] font-display font-semibold text-[13px]" style={{ background: '#0c1117', color: color.accentCool, border: `1px solid ${color.accentCool}` }}>
-            ↺ Nova inspeção
+            {t('laudo.novaInspecao')}
           </button>
           <button onClick={onMenu} className="flex-1 py-2 rounded-[10px] font-display font-semibold text-[14px]" style={{ background: color.accent, color: '#0B0F14' }}>
-            Voltar ao menu
+            {t('common:hud.voltarMenu')}
           </button>
         </div>
       </div>
@@ -640,15 +690,16 @@ function ResumoLaudo({ onClose, onMenu, onNova }: { onClose: () => void; onMenu:
 
 /** Seletor do cenário didático (modo instrutor). */
 function CenarioPicker() {
+  const { t } = useTranslation('spda')
   const cenario = useSpda((s) => s.cenario)
   const setCenario = useSpda((s) => s.setCenario)
   const opts: { id: CenarioSPDA; label: string }[] = [
-    { id: 'conforme', label: 'Íntegro' },
-    { id: 'com-defeitos', label: 'Com defeitos' },
+    { id: 'conforme', label: t('cenario.conforme') },
+    { id: 'com-defeitos', label: t('cenario.comDefeitos') },
   ]
   return (
     <div>
-      <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ color: color.textFaint }}>Condição do SPDA</div>
+      <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ color: color.textFaint }}>{t('cenario.titulo')}</div>
       <div className="flex gap-1.5">
         {opts.map((o) => {
           const ativo = cenario === o.id
@@ -670,7 +721,7 @@ function CenarioPicker() {
         })}
       </div>
       <div className="text-[10px] mt-1.5 leading-snug" style={{ color: color.textFaint }}>
-        Trocar o cenário apaga as medições já registradas.
+        {t('cenario.aviso')}
       </div>
     </div>
   )

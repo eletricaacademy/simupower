@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react'
 import { useSim } from '../sim/store'
 import { useView } from '../sim/viewStore'
 import { useVerif } from '../sim/verifStore'
-import { ENSAIOS_VERIFICACAO, FLUKE_FUNCOES } from '../catalog/verificacaoTestes'
-import { medirEnsaio } from '../engine/verificacao'
+import { ENSAIOS_VERIFICACAO, FLUKE_FUNCOES, type EnsaioVerificacao, type FlukeFuncaoInfo } from '../catalog/verificacaoTestes'
+import { medirEnsaio, type LeituraEnsaio } from '../engine/verificacao'
 import { TOMADAS_BR } from '../scene/TomadaBR'
 import { QualityPicker } from './QualityPicker'
 import { HudTopBar } from './HudTopBar'
@@ -13,6 +13,41 @@ import { Creditos } from './Creditos'
 import { useDraggable } from './useDraggable'
 import { SoundControl } from './SoundControl'
 import { color } from '../design/tokens'
+import { Trans, useTranslation } from 'react-i18next'
+import { fmtData, fmtNum } from '../i18n/numero'
+
+type CampoEnsaio = 'nome' | 'descricao' | 'parametro' | 'criterio' | 'norma'
+
+/**
+ * Textos do módulo no idioma ativo. Os dados (`verificacaoTestes.ts`) e a engine
+ * continuam em PT: aqui se traduz por id do ensaio / código do veredito, caindo
+ * no texto original se faltar chave.
+ */
+function useTextosVerif() {
+  const { t } = useTranslation(['verificacao', 'common'])
+  return {
+    t,
+    ensaio: (e: EnsaioVerificacao, campo: CampoEnsaio) => t(`ensaios.${e.id}.${campo}`, { defaultValue: e[campo] }),
+    funcao: (f?: FlukeFuncaoInfo) => (f ? t(`funcoes.${f.id}`, { defaultValue: f.nome }) : ''),
+    veredito: (r: LeituraEnsaio) => (r.veredito ? t(`veredito.${r.codigo}`, { defaultValue: r.veredito }) : ''),
+    extra: (r: LeituraEnsaio) =>
+      r.extra !== undefined && r.extraCodigo ? t(`extra.${r.extraCodigo}`, { ...r.dados, defaultValue: r.extra }) : r.extra,
+    /** Nome amigável do alvo do ensaio. */
+    alvo: (a: string) => {
+      if (a === 'quadro') return t('alvo.quadro')
+      if (a === 'instalacao') return t('alvo.instalacao')
+      if (a === 'condutor-protecao') return t('alvo.condutorProtecao')
+      const m = a.match(/tomada-br-(\d)/)
+      return m ? t('alvo.tomada', { n: m[1] }) : a
+    },
+  }
+}
+
+/** Leitura no laudo com o separador do idioma ("52.4" → "52,4"); "OL", ">300"… ficam. */
+function valorLaudo(display: string): string {
+  const m = display.match(/^-?\d+(?:\.(\d+))?$/)
+  return m ? fmtNum(parseFloat(display), m[1]?.length ?? 0) : display
+}
 
 /**
  * VerificacaoHud — HUD do módulo de Verificação de Instalações (NBR 5410 §7).
@@ -24,6 +59,7 @@ export function VerificacaoHud() {
   const [pronto, setPronto] = useState(false)
   const cfgDrag = useDraggable()
   const pedirVista = useView((s) => s.pedir)
+  const { t } = useTranslation(['verificacao', 'common'])
 
   const ensaioIndex = useVerif((s) => s.ensaioIndex)
   const fase = useVerif((s) => s.fase)
@@ -40,8 +76,8 @@ export function VerificacaoHud() {
     const start = performance.now()
     const DUR = 1500
     let raf = 0
-    const tick = (t: number) => {
-      const k = Math.min(1, (t - start) / DUR)
+    const tick = (agora: number) => {
+      const k = Math.min(1, (agora - start) / DUR)
       if (k < 1) {
         if (!isFinite(r.valor)) setDisplay(k < 0.7 ? '----' : 'OL')
         else {
@@ -68,11 +104,11 @@ export function VerificacaoHud() {
           <>
             <button
               onClick={() => pedirVista('quadro')}
-              title="Vista do quadro elétrico"
+              title={t('vistaQuadro')}
               className="hud-glass rounded-[10px] px-3 py-2 text-[12.5px] flex items-center gap-1.5"
               style={{ color: color.text }}
             >
-              <span aria-hidden style={{ color: color.accent }}>▦</span> Quadro
+              <span aria-hidden style={{ color: color.accent }}>▦</span> {t('quadro')}
             </button>
             <SoundControl />
           </>
@@ -90,7 +126,7 @@ export function VerificacaoHud() {
               style={{ color: color.text, ...cfgDrag.handleStyle }}
               {...cfgDrag.handlers}
             >
-              ⠿ Configurações
+              ⠿ {t('common:hud.configuracoes')}
             </div>
             <QualityPicker />
             <div className="my-3 h-px" style={{ background: color.hairline }} />
@@ -104,7 +140,7 @@ export function VerificacaoHud() {
       )}
 
       {/* painel guiado dos ensaios — DESKTOP (esquerda) */}
-      <PainelRecolhivel titulo="procedimento" className="hidden md:block absolute left-4 bottom-4 pointer-events-auto" style={{ maxWidth: 'min(92vw, 380px)' }}>
+      <PainelRecolhivel titulo={t('common:hud.procedimentoMin')} className="hidden md:block absolute left-4 bottom-4 pointer-events-auto" style={{ maxWidth: 'min(92vw, 380px)' }}>
         <EnsaioPanel />
       </PainelRecolhivel>
       {/* MOBILE: dock inferior com minimizar + opções */}
@@ -113,7 +149,7 @@ export function VerificacaoHud() {
       </MobileSheet>
 
       {/* visor do Fluke 1662 (direita) */}
-      <PainelRecolhivel titulo="painel de ensaio" className="hidden md:block absolute right-4 bottom-4 pointer-events-auto">
+      <PainelRecolhivel titulo={t('common:hud.painelEnsaio')} className="hidden md:block absolute right-4 bottom-4 pointer-events-auto">
         <FlukeDisplay />
       </PainelRecolhivel>
 
@@ -129,25 +165,23 @@ export function VerificacaoHud() {
 
 /** Modal de boas-vindas dos ensaios da §7. */
 function IntroVerif({ onClose }: { onClose: () => void }) {
+  const { t } = useTranslation(['verificacao', 'common'])
   return (
     <div className="absolute inset-0 z-[60] grid place-items-center p-4 pointer-events-auto" style={{ background: 'rgba(7,10,14,0.82)', backdropFilter: 'blur(4px)' }}>
       <div className="hud-glass rounded-[18px] p-6 w-[520px] max-w-[92vw]">
         <div className="font-mono text-[11px] tracking-[0.2em] uppercase mb-2" style={{ color: color.accent }}>
-          NBR 5410 · Seção 7 — Verificação
+          {t('intro.selo')}
         </div>
         <h2 className="font-display font-bold text-[22px] leading-tight mb-3" style={{ color: color.text }}>
-          Ensaios de verificação da instalação
+          {t('intro.titulo')}
         </h2>
         <p className="text-[13.5px] leading-relaxed mb-3" style={{ color: color.textMuted }}>
-          Vamos executar os <b>ensaios da Seção 7</b> com o <b>Fluke 1662</b> — uma etapa
-          <b> essencial para a segurança</b> da instalação: garante a continuidade do aterramento, o
-          isolamento, a polaridade e o seccionamento automático (DR) antes da entrega.
+          <Trans t={t} i18nKey="intro.texto" components={{ b: <b /> }} />
         </p>
         <div className="rounded-[12px] px-4 py-3 mb-4 flex items-start gap-3" style={{ background: color.accent + '14', border: `1px solid ${color.accent}44` }}>
           <span aria-hidden className="text-[18px]">🔌</span>
           <span className="text-[13px] leading-snug" style={{ color: color.textMuted }}>
-            Começamos pelas <b>tomadas</b> (ponto a ponto). Depois que organizarmos essa etapa,
-            seguimos para os ensaios no <b>quadro elétrico</b>.
+            <Trans t={t} i18nKey="intro.dica" components={{ b: <b /> }} />
           </span>
         </div>
         <button
@@ -155,7 +189,7 @@ function IntroVerif({ onClose }: { onClose: () => void }) {
           className="w-full py-3 rounded-[12px] font-display font-semibold text-[15px]"
           style={{ background: color.accent, color: '#0B0F14', boxShadow: `0 0 22px ${color.accent}55` }}
         >
-          Começar pelos ensaios nas tomadas →
+          {t('intro.comecar')}
         </button>
       </div>
     </div>
@@ -174,6 +208,8 @@ function EnsaioPanel() {
   const abrirRelatorio = useVerif((s) => s.abrirRelatorio)
   const registros = useVerif((s) => s.registros)
   const pedirVista = useView((s) => s.pedir)
+  const tx = useTextosVerif()
+  const { t } = tx
   const ensaio = ENSAIOS_VERIFICACAO[ensaioIndex]
   const total = ENSAIOS_VERIFICACAO.length
   const feitos = ENSAIOS_VERIFICACAO.filter((e) => Object.keys(registros).some((k) => k.startsWith(e.id + '@'))).length
@@ -193,7 +229,7 @@ function EnsaioPanel() {
         {ENSAIOS_VERIFICACAO.map((e, i) => (
           <span
             key={e.id}
-            title={e.nome}
+            title={tx.ensaio(e, 'nome')}
             className="h-1.5 rounded-full flex-1 transition-colors"
             style={{ background: i === ensaioIndex ? color.accent : i < ensaioIndex ? color.accentCool : color.hairline }}
           />
@@ -202,7 +238,7 @@ function EnsaioPanel() {
 
       <div className="flex items-center justify-between mb-1">
         <span className="font-mono text-[11px] px-2 py-0.5 rounded-full" style={{ background: '#0c1117', color: color.accent, border: `1px solid ${color.hairline}` }}>
-          ENSAIO {ensaioIndex + 1}/{total}
+          {t('ensaioN', { n: ensaioIndex + 1, total })}
         </span>
         <span className="font-mono text-[10px]" style={{ color: color.textFaint }}>
           Fluke 1662 · {func?.simbolo}
@@ -210,39 +246,39 @@ function EnsaioPanel() {
       </div>
 
       <h2 className="font-display font-semibold text-[17px] leading-tight mb-1" style={{ color: color.text }}>
-        {ensaio.nome}
+        {tx.ensaio(ensaio, 'nome')}
       </h2>
       <p className="text-[12px] leading-snug mb-2" style={{ color: color.textMuted }}>
-        {ensaio.descricao}
+        {tx.ensaio(ensaio, 'descricao')}
       </p>
       <div className="text-[11px] mb-3 space-y-0.5">
         <div style={{ color: color.textFaint }}>
-          <b style={{ color: color.textMuted }}>Parâmetro:</b> {ensaio.parametro}
+          <b style={{ color: color.textMuted }}>{t('parametro')}</b> {tx.ensaio(ensaio, 'parametro')}
         </div>
         <div style={{ color: color.textFaint }}>
-          <b style={{ color: color.textMuted }}>Critério:</b> {ensaio.criterio}
+          <b style={{ color: color.textMuted }}>{t('criterio')}</b> {tx.ensaio(ensaio, 'criterio')}
         </div>
-        <div className="font-mono" style={{ color: color.textFaint }}>{ensaio.norma}</div>
+        <div className="font-mono" style={{ color: color.textFaint }}>{tx.ensaio(ensaio, 'norma')}</div>
       </div>
 
       {/* seletor de ponto de ensaio: tomadas + quadro (move o Fluke p/ o alvo) */}
       <div className="mb-3">
         <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ color: color.textFaint }}>
-          Ponto de ensaio
+          {t('pontoEnsaio')}
         </div>
         <div className="flex gap-1.5 flex-wrap">
-          {TOMADAS_BR.map((t, i) => (
+          {TOMADAS_BR.map((tm, i) => (
             <button
-              key={t.id}
-              onClick={() => setAlvo(t.id)}
+              key={tm.id}
+              onClick={() => setAlvo(tm.id)}
               className="text-[11px] px-2.5 py-1 rounded-[8px] transition-colors"
               style={{
-                background: alvo === t.id ? color.accent + '22' : '#0c1117',
-                color: alvo === t.id ? color.accent : color.textMuted,
-                border: `1px solid ${alvo === t.id ? color.accent + '66' : color.hairline}`,
+                background: alvo === tm.id ? color.accent + '22' : '#0c1117',
+                color: alvo === tm.id ? color.accent : color.textMuted,
+                border: `1px solid ${alvo === tm.id ? color.accent + '66' : color.hairline}`,
               }}
             >
-              Tomada {i + 1}
+              {t('tomada', { n: i + 1 })}
             </button>
           ))}
           <button
@@ -254,7 +290,7 @@ function EnsaioPanel() {
               border: `1px solid ${alvo === 'quadro' ? color.accent + '66' : color.hairline}`,
             }}
           >
-            ▦ Quadro
+            ▦ {t('quadro')}
           </button>
         </div>
       </div>
@@ -270,7 +306,7 @@ function EnsaioPanel() {
           className="flex-1 py-2.5 rounded-[10px] font-display font-semibold text-[14px]"
           style={{ background: color.accent, color: '#0B0F14', boxShadow: `0 0 20px ${color.accent}44`, opacity: fase === 'medindo' ? 0.6 : 1 }}
         >
-          {fase === 'medindo' ? 'Medindo…' : fase === 'concluido' ? '↻ Medir de novo' : '▶ Medir'}
+          {fase === 'medindo' ? t('medindo') : fase === 'concluido' ? t('medirNovo') : t('medir')}
         </button>
         <button onClick={proximo} disabled={ensaioIndex === total - 1} className="px-2.5 py-2 rounded-[10px] text-[13px]" style={{ background: '#0c1117', color: ensaioIndex === total - 1 ? color.textFaint : color.textMuted, border: `1px solid ${color.hairline}` }}>
           ›
@@ -287,7 +323,7 @@ function EnsaioPanel() {
           border: `1px solid ${completo ? color.status.pass + '66' : color.hairline}`,
         }}
       >
-        📋 Concluir verificação <span className="font-mono text-[11px] opacity-80">{feitos}/{total}</span>
+        {t('concluir')} <span className="font-mono text-[11px] opacity-80">{feitos}/{total}</span>
       </button>
     </div>
   )
@@ -299,6 +335,8 @@ function FlukeDisplay() {
   const fase = useVerif((s) => s.fase)
   const display = useVerif((s) => s.display)
   const resultado = useVerif((s) => s.resultado)
+  const tx = useTextosVerif()
+  const { t } = tx
   const ensaio = ENSAIOS_VERIFICACAO[ensaioIndex]
   const func = FLUKE_FUNCOES.find((f) => f.id === ensaio.funcao)
   const cor = resultado ? (resultado.aprovado ? color.status.pass : color.status.fail) : color.accentCool
@@ -307,7 +345,7 @@ function FlukeDisplay() {
     <div className="rounded-[16px] p-3 w-[320px]" style={{ background: '#1a1c10', border: '3px solid #f2c200', boxShadow: '0 10px 40px -16px #000' }}>
       <div className="flex items-center justify-between mb-2 px-1">
         <span className="font-display font-extrabold text-[13px]" style={{ color: '#f2c200' }}>FLUKE</span>
-        <span className="font-mono text-[10px]" style={{ color: '#9aa07a' }}>1662 · {func?.nome}</span>
+        <span className="font-mono text-[10px]" style={{ color: '#9aa07a' }}>1662 · {tx.funcao(func)}</span>
       </div>
 
       {/* "LCD" */}
@@ -315,7 +353,7 @@ function FlukeDisplay() {
         <div className="flex items-baseline justify-between">
           <span className="font-mono text-[11px] font-bold" style={{ color: '#3a4220' }}>{func?.simbolo}</span>
           <span className="font-mono text-[10px]" style={{ color: '#5a6038' }}>
-            {fase === 'medindo' ? 'medindo…' : fase === 'concluido' ? 'AUTO' : 'pronto'}
+            {fase === 'medindo' ? t('lcd.medindo') : fase === 'concluido' ? t('lcd.auto') : t('lcd.pronto')}
           </span>
         </div>
         <div className="flex items-end justify-center gap-1 py-1">
@@ -325,7 +363,7 @@ function FlukeDisplay() {
           <span className="font-mono font-bold mb-2" style={{ fontSize: 18, color: '#3a4220' }}>{ensaio.unidade}</span>
         </div>
         <div className="text-center font-mono text-[11px] h-[14px]" style={{ color: '#3a4220' }}>
-          {resultado?.extra ?? ' '}
+          {(resultado && tx.extra(resultado)) ?? ' '}
         </div>
       </div>
 
@@ -335,12 +373,12 @@ function FlukeDisplay() {
           <>
             <span aria-hidden style={{ color: cor, fontSize: 18 }}>{resultado.aprovado ? '✓' : '✗'}</span>
             <span className="text-[12px] leading-snug" style={{ color: color.text }}>
-              <b style={{ color: cor }}>{resultado.aprovado ? 'Conforme' : 'Não conforme'}</b> — {resultado.veredito}
+              <b style={{ color: cor }}>{resultado.aprovado ? t('conforme') : t('naoConforme')}</b> — {tx.veredito(resultado)}
             </span>
           </>
         ) : (
           <span className="text-[12px]" style={{ color: color.textFaint }}>
-            {fase === 'medindo' ? 'Aplicando ensaio e lendo…' : 'Conecte e toque em “Medir”.'}
+            {fase === 'medindo' ? t('aplicando') : t('conecte')}
           </span>
         )}
       </div>
@@ -352,10 +390,11 @@ function FlukeDisplay() {
 function CondicaoToggle() {
   const condicao = useVerif((s) => s.condicao)
   const setCondicao = useVerif((s) => s.setCondicao)
+  const { t } = useTranslation('verificacao')
   return (
     <div>
       <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ color: color.textFaint }}>
-        Condição da instalação (instrutor)
+        {t('condicao.titulo')}
       </div>
       <div className="flex gap-1.5">
         {(['ok', 'falha'] as const).map((c) => (
@@ -369,7 +408,7 @@ function CondicaoToggle() {
               border: `1px solid ${condicao === c ? (c === 'ok' ? color.status.pass : color.status.fail) + '66' : color.hairline}`,
             }}
           >
-            {c === 'ok' ? 'Conforme' : 'Com defeito'}
+            {c === 'ok' ? t('condicao.ok') : t('condicao.falha')}
           </button>
         ))}
       </div>
@@ -381,17 +420,18 @@ function CondicaoToggle() {
 function CapturarCena() {
   const pedirCaptura = useSim((s) => s.pedirCaptura)
   const cenaPose = useSim((s) => s.cenaPose)
+  const { t } = useTranslation('verificacao')
   return (
     <div>
       <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ color: color.textFaint }}>
-        Capturar cena (pose da câmera)
+        {t('captura.titulo')}
       </div>
       <button
         onClick={pedirCaptura}
         className="w-full text-[12px] py-1.5 rounded-[8px]"
         style={{ background: '#0c1117', color: color.text, border: `1px solid ${color.hairline}` }}
       >
-        🎥 Capturar posição da câmera
+        {t('captura.botao')}
       </button>
       {cenaPose && (
         <div
@@ -402,8 +442,7 @@ function CapturarCena() {
         </div>
       )}
       <p className="text-[10px] leading-snug mt-1.5" style={{ color: color.textFaint }}>
-        Enquadre a cena na câmera e capture — a pose (posição + alvo) é copiada; me
-        envie que eu gravo como vista inicial.
+        {t('captura.ajuda')}
       </p>
     </div>
   )
@@ -415,10 +454,11 @@ function IdentificarPeca() {
   const setPickMode = useSim((s) => s.setPickMode)
   const pickLog = useSim((s) => s.pickLog)
   const clearPickLog = useSim((s) => s.clearPickLog)
+  const { t } = useTranslation('verificacao')
   return (
     <div>
       <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ color: color.textFaint }}>
-        Identificar ponto
+        {t('identificar.titulo')}
       </div>
       <button
         onClick={() => setPickMode(!pickMode)}
@@ -430,7 +470,7 @@ function IdentificarPeca() {
           fontWeight: pickMode ? 700 : 400,
         }}
       >
-        🔍 {pickMode ? 'Clicando (ligado)' : 'Ativar identificação'}
+        🔍 {pickMode ? t('identificar.ligado') : t('identificar.ativar')}
       </button>
       {pickLog.length > 0 && (
         <>
@@ -443,25 +483,16 @@ function IdentificarPeca() {
           </div>
           <div className="flex gap-1.5">
             <button onClick={() => navigator.clipboard?.writeText(pickLog.map((p, i) => `${i + 1}. ${p}`).join('\n'))} className="flex-1 text-[11px] py-1 rounded-[7px]" style={{ background: '#0c1117', color: color.text, border: `1px solid ${color.hairline}` }}>
-              📋 Copiar tudo
+              {t('identificar.copiar')}
             </button>
             <button onClick={clearPickLog} className="text-[11px] py-1 px-2 rounded-[7px]" style={{ background: '#0c1117', color: color.textMuted, border: `1px solid ${color.hairline}` }}>
-              🗑 Limpar
+              {t('identificar.limpar')}
             </button>
           </div>
         </>
       )}
     </div>
   )
-}
-
-/** Nome amigável do alvo do ensaio. */
-function nomeAlvo(a: string): string {
-  if (a === 'quadro') return 'Quadro de distribuição'
-  if (a === 'instalacao') return 'Instalação'
-  if (a === 'condutor-protecao') return 'Condutor de proteção (PE)'
-  const m = a.match(/tomada-br-(\d)/)
-  return m ? `Tomada ${m[1]}` : a
 }
 
 /**
@@ -474,6 +505,8 @@ function RelatorioVerif() {
   const fechar = useVerif((s) => s.fecharRelatorio)
   const registros = useVerif((s) => s.registros)
   const reset = useVerif((s) => s.reset)
+  const tx = useTextosVerif()
+  const { t } = tx
   if (!aberto) return null
 
   const linhas = ENSAIOS_VERIFICACAO.map((ensaio) => ({
@@ -489,12 +522,12 @@ function RelatorioVerif() {
 
   const parecer =
     status === 'aprovado'
-      ? { txt: 'INSTALAÇÃO APROVADA', sub: 'Todos os ensaios atenderam aos critérios da NBR 5410 — Seção 7.', bg: '#e7f6ec', fg: '#1e7e44', bar: '#27ae60', ico: '✓' }
+      ? { txt: t('laudo.aprovado'), sub: t('laudo.aprovadoSub'), bg: '#e7f6ec', fg: '#1e7e44', bar: '#27ae60', ico: '✓' }
       : status === 'reprovado'
-        ? { txt: 'NÃO CONFORME', sub: 'Há ensaios fora do critério — corrigir e reensaiar antes da energização.', bg: '#fdeceb', fg: '#b3271e', bar: '#e74c3c', ico: '✕' }
-        : { txt: 'VERIFICAÇÃO EM ANDAMENTO', sub: `${feitos} de ${total} ensaios concluídos. Conclua os demais para o parecer final.`, bg: '#fef6e6', fg: '#8a6100', bar: '#f0a500', ico: '◔' }
+        ? { txt: t('laudo.reprovado'), sub: t('laudo.reprovadoSub'), bg: '#fdeceb', fg: '#b3271e', bar: '#e74c3c', ico: '✕' }
+        : { txt: t('laudo.andamento'), sub: t('laudo.andamentoSub', { feitos, total }), bg: '#fef6e6', fg: '#8a6100', bar: '#f0a500', ico: '◔' }
 
-  const data = new Date().toLocaleDateString('pt-BR')
+  const data = fmtData(new Date())
 
   return (
     <div
@@ -510,18 +543,18 @@ function RelatorioVerif() {
         {/* cabeçalho */}
         <div style={{ background: '#13243b', color: '#fff', padding: '18px 24px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
           <div>
-            <div style={{ fontSize: 11, letterSpacing: 2, color: '#7fb0ff', fontWeight: 700 }}>LAUDO DE VERIFICAÇÃO FINAL</div>
-            <div style={{ fontSize: 20, fontWeight: 800, marginTop: 2 }}>NBR 5410 — Seção 7</div>
-            <div style={{ fontSize: 13, color: '#aebfd4' }}>Verificação de instalação · Ambiente hospitalar</div>
+            <div style={{ fontSize: 11, letterSpacing: 2, color: '#7fb0ff', fontWeight: 700 }}>{t('laudo.titulo')}</div>
+            <div style={{ fontSize: 20, fontWeight: 800, marginTop: 2 }}>{t('laudo.norma')}</div>
+            <div style={{ fontSize: 13, color: '#aebfd4' }}>{t('laudo.subtitulo')}</div>
           </div>
-          <button onClick={fechar} aria-label="Fechar laudo" style={{ color: '#aebfd4', fontSize: 22, lineHeight: 1 }}>×</button>
+          <button onClick={fechar} aria-label={t('laudo.fechar')} style={{ color: '#aebfd4', fontSize: 22, lineHeight: 1 }}>×</button>
         </div>
 
         {/* metadados */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 24px', padding: '10px 24px', fontSize: 12, color: '#5b6b7c', background: '#eef2f6', borderBottom: '1px solid #dde4ec' }}>
-          <span><b style={{ color: '#1d2733' }}>Instrumento:</b> Fluke 1662</span>
-          <span><b style={{ color: '#1d2733' }}>Método:</b> Ensaios §7.3 (verificação final)</span>
-          <span><b style={{ color: '#1d2733' }}>Data:</b> {data}</span>
+          <span><b style={{ color: '#1d2733' }}>{t('laudo.instrumento')}</b> Fluke 1662</span>
+          <span><b style={{ color: '#1d2733' }}>{t('laudo.metodo')}</b> {t('laudo.metodoValor')}</span>
+          <span><b style={{ color: '#1d2733' }}>{t('laudo.data')}</b> {data}</span>
         </div>
 
         {/* parecer */}
@@ -544,22 +577,22 @@ function RelatorioVerif() {
                 <span style={{ color: cor, fontWeight: 800, fontSize: 16, width: 16, textAlign: 'center' }}>{pend ? '○' : ruim ? '✕' : '✓'}</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'baseline' }}>
-                    <span style={{ fontWeight: 700, fontSize: 14, color: '#1d2733' }}>{ensaio.nome}</span>
-                    {!pend && <span style={{ fontWeight: 800, fontSize: 11, color: cor, letterSpacing: 0.5, whiteSpace: 'nowrap' }}>{ruim ? 'NÃO CONFORME' : 'CONFORME'}</span>}
+                    <span style={{ fontWeight: 700, fontSize: 14, color: '#1d2733' }}>{tx.ensaio(ensaio, 'nome')}</span>
+                    {!pend && <span style={{ fontWeight: 800, fontSize: 11, color: cor, letterSpacing: 0.5, whiteSpace: 'nowrap' }}>{ruim ? t('laudo.naoConforme') : t('laudo.conforme')}</span>}
                   </div>
-                  <div style={{ fontSize: 11.5, color: '#6b7785', marginTop: 1 }}>{ensaio.norma}</div>
+                  <div style={{ fontSize: 11.5, color: '#6b7785', marginTop: 1 }}>{tx.ensaio(ensaio, 'norma')}</div>
                   {pend ? (
-                    <div style={{ fontSize: 12, color: '#9aa3ad', marginTop: 3, fontStyle: 'italic' }}>Não ensaiado.</div>
+                    <div style={{ fontSize: 12, color: '#9aa3ad', marginTop: 3, fontStyle: 'italic' }}>{t('laudo.naoEnsaiado')}</div>
                   ) : (
                     pontos.map((p, i) => (
                       <div key={i} style={{ fontSize: 12, color: '#41505f', marginTop: 3, display: 'flex', gap: 6 }}>
-                        <span style={{ color: '#1d2733', fontWeight: 700, whiteSpace: 'nowrap' }}>{p.r.display} {p.r.unidade}</span>
+                        <span style={{ color: '#1d2733', fontWeight: 700, whiteSpace: 'nowrap' }}>{valorLaudo(p.r.display)} {p.r.unidade}</span>
                         <span style={{ color: '#8a96a3' }}>·</span>
-                        <span><b style={{ color: '#41505f' }}>{nomeAlvo(p.alvo)}</b> — {p.r.veredito}</span>
+                        <span><b style={{ color: '#41505f' }}>{tx.alvo(p.alvo)}</b> — {tx.veredito(p.r)}</span>
                       </div>
                     ))
                   )}
-                  <div style={{ fontSize: 11, color: '#8a96a3', marginTop: 3 }}>Critério: {ensaio.criterio}</div>
+                  <div style={{ fontSize: 11, color: '#8a96a3', marginTop: 3 }}>{t('laudo.criterio')} {tx.ensaio(ensaio, 'criterio')}</div>
                 </div>
               </div>
             )
@@ -568,7 +601,7 @@ function RelatorioVerif() {
 
         {/* rodapé */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '12px 24px', borderTop: '1px solid #dde4ec', background: '#eef2f6' }}>
-          <span style={{ fontSize: 11, color: '#8a96a3' }}>Documento de treinamento — SimuPower · não substitui laudo de profissional habilitado.</span>
+          <span style={{ fontSize: 11, color: '#8a96a3' }}>{t('laudo.rodape')}</span>
           <div style={{ display: 'flex', gap: 8 }}>
             <button
               onClick={() => {
@@ -577,13 +610,13 @@ function RelatorioVerif() {
               }}
               style={{ fontSize: 12.5, padding: '8px 14px', borderRadius: 9, background: '#fff', color: '#41505f', border: '1px solid #cdd6df', fontWeight: 600 }}
             >
-              ↺ Nova verificação
+              {t('laudo.nova')}
             </button>
             <button
               onClick={fechar}
               style={{ fontSize: 12.5, padding: '8px 18px', borderRadius: 9, background: '#13243b', color: '#fff', fontWeight: 700 }}
             >
-              Fechar
+              {t('common:hud.fechar')}
             </button>
           </div>
         </div>

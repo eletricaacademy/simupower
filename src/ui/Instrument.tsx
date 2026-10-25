@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useSim } from '../sim/store'
 import { color } from '../design/tokens'
 import { formatarLeitura, formatarRazao, formatarTempo } from './format'
+import { useTranslation } from 'react-i18next'
 
 /**
  * Instrument — elemento-assinatura: readout grande em mono + curva R×tempo
@@ -16,6 +17,7 @@ export function Instrument() {
   const tensao = useSim((s) => s.tensao)
   const duracao = useSim((s) => s.ensaio.duracaoS)
   const resultado = useSim((s) => s.resultado)
+  const { t } = useTranslation('isolamento')
 
   const W = 320
   const H = 120
@@ -50,7 +52,7 @@ export function Instrument() {
           className="text-[11px] uppercase tracking-[0.18em]"
           style={{ color: color.textFaint }}
         >
-          Instrumento · Megômetro
+          {t('instrumento.titulo')}
         </span>
         <span className="font-mono text-[11px]" style={{ color: color.textFaint }}>
           {tensao}V · {formatarTempo(tempo)}/{formatarTempo(duracao)}
@@ -81,7 +83,7 @@ export function Instrument() {
         className="rounded-[10px] overflow-hidden"
         style={{ background: '#070a0e', border: `1px solid ${color.hairline}` }}
       >
-        <svg width="100%" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Curva resistência por tempo">
+        <svg width="100%" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={t('instrumento.curva')}>
           {/* grade */}
           {[0.25, 0.5, 0.75].map((f) => (
             <line
@@ -154,22 +156,22 @@ export function Instrument() {
       {resultado && fase === 'concluido' && (
         <div className="mt-3">
           <div className="grid grid-cols-3 gap-2 mb-3">
-            <Metric rotulo="DAR" valor={formatarRazao(resultado.dar)} />
-            <Metric rotulo="PI" valor={formatarRazao(resultado.pi)} />
-            <Metric rotulo="R@40°C" valor={formatarLeitura(resultado.r40) + ' MΩ'} />
+            <Metric rotulo={t('instrumento.dar')} valor={formatarRazao(resultado.dar)} />
+            <Metric rotulo={t('instrumento.pi')} valor={formatarRazao(resultado.pi)} />
+            <Metric rotulo={t('instrumento.r40')} valor={formatarLeitura(resultado.r40) + ' MΩ'} />
           </div>
           <div
             className="rounded-[10px] px-3 py-2 flex items-center justify-between"
             style={{ background: corVer + '1a', border: `1px solid ${corVer}66` }}
           >
             <span className="text-[11px] uppercase tracking-[0.16em]" style={{ color: color.textMuted }}>
-              Veredito
+              {t('instrumento.veredito')}
             </span>
             <span
               className="font-display font-semibold text-[15px]"
               style={{ color: corVer }}
             >
-              {resultado.veredito}
+              {t(`veredito.${resultado.codigo}`)}
             </span>
           </div>
         </div>

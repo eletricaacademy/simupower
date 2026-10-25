@@ -1,0 +1,98 @@
+{
+  "idioma": {
+    "selecionar": "Idioma",
+    "rotulo": "Idioma de la interfaz",
+    "parcial": "Traducción en curso: algunos textos todavía aparecen en portugués."
+  },
+  "topo": {
+    "menu": "Menú",
+    "voltarMenu": "Volver al menú principal",
+    "configuracoes": "Configuración"
+  },
+  "vistas": {
+    "reset": "Centrar",
+    "frontal": "Frontal",
+    "lateral": "Lateral",
+    "topo": "Superior"
+  },
+  "som": {
+    "volume": "Volumen",
+    "somEVolume": "Sonido y volumen",
+    "ativar": "Activar sonido",
+    "silenciar": "Silenciar"
+  },
+  "qualidade": {
+    "titulo": "Calidad gráfica",
+    "auto": "Auto",
+    "alto": "Alta",
+    "medio": "Media",
+    "baixo": "Baja",
+    "integrada": "(integrada)"
+  },
+  "splash": "iniciando escenario 3D…",
+  "avisoMobile": {
+    "titulo": "Mejor en la computadora",
+    "texto": "Esta simulación 3D fue pensada para <b>escritorio</b>: hay más espacio para el equipo y los instrumentos, y el rendimiento es mejor. Aun así, puede continuar en el celular.",
+    "continuar": "Continuar en el celular",
+    "voltar": "Volver al menú"
+  },
+  "bemVindo": {
+    "titulo": "Bienvenido a la simulación",
+    "texto": "El sonido ambiente que escucha es el <b>ruido real de una subestación</b> en operación. A lo largo del procedimiento ocurrirán algunos <b>efectos sonoros</b> y un <b>instructor</b> lo guiará en cada etapa, de la forma más didáctica posible.",
+    "dica": "Suba el volumen para una mejor experiencia.",
+    "comecar": "Comenzar"
+  },
+  "creditos": "Desarrollado por <m>Elétrica Tools</m> · Ing. Pablo Guimarães",
+  "painel": {
+    "mostrar": "Mostrar {{titulo}}",
+    "minimizar": "Minimizar",
+    "minimizarRotulo": "Minimizar {{titulo}}"
+  },
+  "lote": {
+    "executar": "Ejecutar todas las pruebas de la etapa",
+    "opcional": "Opcional para clase."
+  },
+  "detalhes": {
+    "ver": "Ver detalles"
+  },
+  "apresentador": {
+    "instrutor": "Instructor",
+    "narrando": "narrando…",
+    "locucao": "narración",
+    "repetir": "Repetir narración"
+  },
+  "hud": {
+    "configuracoes": "Configuración",
+    "simulacao": "Simulación",
+    "novoEnsaio": "↺ Nuevo ensayo",
+    "encerrar": "✕ Terminar",
+    "fechar": "Cerrar",
+    "voltar": "‹ Atrás",
+    "proximo": "Siguiente ›",
+    "fim": "Fin",
+    "concluido": "✓ Concluido",
+    "voltarMenu": "Volver al menú",
+    "passo": "Paso {{n}}",
+    "procedimento": "Procedimiento",
+    "painelEnsaio": "panel de ensayo",
+    "procedimentoMin": "procedimiento",
+    "parecer": "Dictamen"
+  },
+  "mobile": {
+    "confirmarSair": "¿Salir de la simulación? Se perderá el progreso actual.",
+    "confirmarReiniciar": "¿Reiniciar desde el principio? Se perderá el progreso actual.",
+    "confirmar": "Confirmar",
+    "nao": "No",
+    "reiniciar": "↺ Reiniciar",
+    "sair": "✕ Salir de la simulación",
+    "mostrarPainel": "Mostrar panel",
+    "opcoes": "Opciones de la simulación",
+    "minimizarPainel": "Minimizar panel"
+  },
+  "inbrat": {
+    "titulo": "Conexiones Kelvin y sentido de la corriente",
+    "vias": "C1 y C2: vías rojas de corriente. P1 y P2: vías negras que miden la tensión.",
+    "garras": "Cada pinza recibe dos vías: P1/C1 o P2/C2. El color del mango de la pinza identifica el cable en la escena; no indica su polaridad.",
+    "sentido": "En las animaciones adoptamos C1 → instalación → C2. El manual no identifica expresamente el polo positivo; este sentido es una convención didáctica."
+  }
+}

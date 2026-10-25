@@ -1,0 +1,145 @@
+{
+  "gate": {
+    "acessoRestrito": "Acceso restringido",
+    "titulo": "Ingrese la contraseña para habilitar las herramientas",
+    "senha": "Contraseña de acceso",
+    "senhaIncorreta": "Contraseña incorrecta. Inténtelo de nuevo.",
+    "promoExpirou": "El acceso promocional de 48 h expiró.",
+    "liberar": "Habilitar acceso",
+    "ouConta": "o ingrese con su cuenta PowerDim",
+    "ouContaGp": "o ingrese con su cuenta PowerDim o GroundPRO",
+    "email": "Correo electrónico de su cuenta",
+    "senhaConta": "Contraseña de su cuenta",
+    "whatsapp": "Hablar por WhatsApp",
+    "verificando": "Verificando…",
+    "entrar": "Ingresar con mi cuenta"
+  },
+  "erroPowerDim": {
+    "sem-conta": "No se encontró la cuenta en PowerDim. Revise el correo electrónico.",
+    "sem-simupower": "Su cuenta de PowerDim no incluye SimuPower. Contacte a soporte para habilitarlo.",
+    "encerrado": "Su acceso a PowerDim terminó. Renuévelo para continuar.",
+    "sem-sessao": "Correo electrónico o contraseña incorrectos.",
+    "outro": "No fue posible verificar su cuenta ahora. Inténtelo de nuevo."
+  },
+  "erroGroundPro": {
+    "sem-conta": "No se encontró la cuenta en GroundPRO. Revise el correo electrónico o cree su cuenta con el enlace del curso.",
+    "encerrado": "Su acceso a GroundPRO terminó. Adquiera el acceso completo para continuar.",
+    "desativado": "El ingreso con la cuenta GroundPRO no está disponible en esta versión.",
+    "sem-sessao": "Correo electrónico o contraseña incorrectos.",
+    "outro": "No fue posible verificar su cuenta ahora. Inténtelo de nuevo."
+  },
+  "dicaSom": "Para aprovechar mejor la experiencia, <b>suba el volumen</b> de su dispositivo.",
+  "fecharAviso": "Cerrar aviso",
+  "promo": "Simulador habilitado por <b>48 h</b> — expira en",
+  "conta": {
+    "conta": "Cuenta {{origem}}",
+    "trialAte": "prueba hasta",
+    "sair": "Salir"
+  },
+  "subAter": {
+    "titulo": "Elija el método de medición",
+    "texto": "Medición por caída de potencial con telurómetro de estacas.",
+    "opcao": "Telurómetro de estacas",
+    "opcaoTexto": "Método de caída de potencial (62 %) — estacas C y P hincadas en el suelo.",
+    "voltar": "‹ Volver"
+  },
+  "marca": "Módulo NR-10",
+  "hero": {
+    "eyebrow": "Entorno de entrenamiento inmersivo",
+    "titulo": "Realice ensayos de campo en equipos eléctricos <a>renderizados en 3D</a>.",
+    "texto": "Tome el instrumento, conecte las puntas de prueba y siga el procedimiento guiado paso a paso, con lecturas en vivo en instrumentos calibrados y veredicto según la norma."
+  },
+  "ensaios": "Ensayos",
+  "contagem": "{{disp}} disponibles · {{total}} en el catálogo",
+  "categorias": {
+    "rotulo": "Categorías de ensayos",
+    "todos": "Todos los ensayos",
+    "aterramento": "Puesta a tierra y planta FV",
+    "spda": "SPCR"
+  },
+  "card": {
+    "disponivel": "Disponible",
+    "emBreve": "Próximamente",
+    "equipamento": "Equipo",
+    "instrumento": "Instrumento",
+    "norma": "Norma",
+    "iniciar": "Iniciar ensayo",
+    "emDesenvolvimento": "en desarrollo"
+  },
+  "rodape": {
+    "autor": "Desarrollado por Elétrica Tools · Ing. Pablo Guimarães",
+    "engine": "Motor de cálculo puro y probado · catálogo orientado a datos"
+  },
+  "modulos": {
+    "spda-estrutural": {
+      "titulo": "SPCR natural / estructural",
+      "equipamento": "Nave industrial",
+      "instrumento": "Inbrat · conexiones en las armaduras y Aterrinsert",
+      "norma": "ABNT NBR 5419-3:2026",
+      "descricao": "Ensaye las armaduras de la nave a través de los Aterrinsert: primera verificación cruzada y comprobatoria entre captación y BEP, con la corriente visible."
+    },
+    "aterramento-usina-fv": {
+      "titulo": "Puesta a tierra en planta fotovoltaica",
+      "equipamento": "Planta FV en suelo · 300 kW (skid, transformador y SE)",
+      "instrumento": "Inbrat INMD1 PRO · telurómetro · contacto y paso",
+      "norma": "NBR 16690 · NBR 16274 · NBR 15749 · NBR 15751",
+      "descricao": "Equipotencialización de las mesas, resistencia de la malla por caída de potencial y tensiones de contacto y de paso en una planta en suelo, con mapa de potenciales, relieve 3D e informe consolidado."
+    },
+    "iso-motor": {
+      "titulo": "Prueba de aislamiento en motor",
+      "equipamento": "Motor de inducción trifásico",
+      "instrumento": "Megóhmetro 5 kV · Minipa MI-2705",
+      "norma": "IEEE 43 · NBR/IEC 60034-27",
+      "descricao": "Resistencia de aislamiento en el tiempo, DAR, IP y corrección a 40 °C, con lectura en vivo y veredicto según la norma."
+    },
+    "arco-eletrico": {
+      "titulo": "Análisis de arco eléctrico",
+      "equipamento": "Tablero de media tensión",
+      "instrumento": "Estudio IEEE 1584",
+      "norma": "IEEE 1584 · NFPA 70E · NR-10",
+      "descricao": "Cálculo de la energía incidente, la frontera de arco y la categoría de EPP en un tablero de MT, dentro de una subestación."
+    },
+    "inspecao-subestacao": {
+      "titulo": "Inspección de subestación",
+      "equipamento": "Subestación interior (recorrible)",
+      "instrumento": "Lista de verificación NR-10",
+      "norma": "NR-10 · NBR 14039",
+      "descricao": "Entre en la subestación y realice la inspección guiada (transformador, celdas, puesta a tierra, cables) con veredicto de conformidad."
+    },
+    "desenergizacao": {
+      "titulo": "Procedimiento de desenergización",
+      "equipamento": "Subestación interior (recorrible)",
+      "instrumento": "Secuencia LOTO (bloqueo y etiquetado)",
+      "norma": "NR-10 · 10.5 / 10.6",
+      "descricao": "Ejecute la secuencia segura de desenergización (seccionar, bloquear, verificar ausencia de tensión, poner a tierra, proteger, señalizar) y la reenergización."
+    },
+    "aterramento": {
+      "titulo": "Resistencia de puesta a tierra",
+      "equipamento": "Malla / electrodo",
+      "instrumento": "Telurómetro",
+      "norma": "NBR 15749 · IEEE 81",
+      "descricao": "Medición de la resistencia de puesta a tierra por caída de potencial (método del 62 %)."
+    },
+    "continuidade-spda": {
+      "titulo": "Continuidad del SPCR",
+      "equipamento": "Edificio con pararrayos",
+      "instrumento": "Miliohmímetro (continuidad)",
+      "norma": "NBR 5419-3",
+      "descricao": "Inspección del SPCR: mide la continuidad de la captación, de las bajantes y de la equipotencialización, con informe de conformidad."
+    },
+    "verificacao-5410": {
+      "titulo": "Verificación de instalaciones (NBR 5410)",
+      "equipamento": "Instalación hospitalaria (recorrible)",
+      "instrumento": "Inspección visual + ensayos — Sección 7",
+      "norma": "NBR 5410 · Sección 7",
+      "descricao": "Verificación final de una instalación eléctrica de baja tensión en ambiente hospitalario: inspección visual y ensayos de la Sección 7."
+    },
+    "disjuntor": {
+      "titulo": "Ensayos en interruptor",
+      "equipamento": "Interruptor de potencia",
+      "instrumento": "Analizador de interruptores",
+      "norma": "IEC 62271",
+      "descricao": "Tiempos de operación y resistencia de contactos."
+    }
+  }
+}

@@ -11,6 +11,7 @@ import { Creditos } from './Creditos'
 import { ambiente, som, somArquivo } from './sons'
 import { useSim } from '../sim/store'
 import { color } from '../design/tokens'
+import { useTranslation } from 'react-i18next'
 
 /**
  * Hud — overlay de vidro fosco sobre o palco 3D.
@@ -26,6 +27,7 @@ export function Hud() {
   const ensaio = useSim((s) => s.ensaio)
   const prevCump = useRef<Record<string, boolean>>({})
   const prevFase = useRef(fase)
+  const { t } = useTranslation(['isolamento', 'common'])
 
   // som de oficina ao fundo (só preenche o ambiente), ~10%
   useEffect(() => {
@@ -64,17 +66,17 @@ export function Hud() {
       )}
 
       {/* ---------- DESKTOP ---------- */}
-      <PainelRecolhivel titulo="procedimento" className="hidden md:flex absolute left-4 bottom-4 flex-col gap-3 pointer-events-auto">
+      <PainelRecolhivel titulo={t('common:hud.procedimentoMin')} className="hidden md:flex absolute left-4 bottom-4 flex-col gap-3 pointer-events-auto">
         <GuidedPanel />
         <div className="checklist-box hud-glass rounded-[14px] p-3 w-[352px]">
           <div className="text-[10px] uppercase tracking-wider mb-2" style={{ color: color.textFaint }}>
-            Procedimento
+            {t('common:hud.procedimento')}
           </div>
           <Checklist />
         </div>
       </PainelRecolhivel>
 
-      <PainelRecolhivel titulo="painel de ensaio" className="hidden md:block absolute right-4 bottom-4 pointer-events-auto">
+      <PainelRecolhivel titulo={t('common:hud.painelEnsaio')} className="hidden md:block absolute right-4 bottom-4 pointer-events-auto">
         <Instrument />
       </PainelRecolhivel>
 
@@ -84,10 +86,10 @@ export function Hud() {
         tabs={
           <>
             <Tab ativo={aba === 'procedimento'} onClick={() => setAba('procedimento')}>
-              Procedimento
+              {t('common:hud.procedimento')}
             </Tab>
             <Tab ativo={aba === 'instrumento'} onClick={() => setAba('instrumento')}>
-              Instrumento
+              {t('abaInstrumento')}
             </Tab>
           </>
         }
@@ -106,6 +108,7 @@ export function Hud() {
 
 /** Pop-up educativo exibido ao iniciar o ensaio de isolamento. */
 function EnsaioInfo({ onClose }: { onClose: () => void }) {
+  const { t } = useTranslation(['isolamento', 'common'])
   const Sec = ({ titulo, cor, itens }: { titulo: string; cor: string; itens: string[] }) => (
     <div className="mb-3">
       <div className="text-[11px] uppercase tracking-wider mb-1" style={{ color: cor }}>
@@ -135,45 +138,33 @@ function EnsaioInfo({ onClose }: { onClose: () => void }) {
       >
         <div className="flex items-start justify-between mb-3">
           <h2 className="font-display font-semibold text-[18px]" style={{ color: color.text }}>
-            Entenda o ensaio de isolamento
+            {t('info.titulo')}
           </h2>
-          <button onClick={onClose} aria-label="Fechar" className="text-[18px] leading-none" style={{ color: color.textMuted }}>
+          <button onClick={onClose} aria-label={t('common:hud.fechar')} className="text-[18px] leading-none" style={{ color: color.textMuted }}>
             ×
           </button>
         </div>
         <Sec
-          titulo="Por que fazer"
+          titulo={t('info.porque')}
           cor={color.accentCool}
-          itens={[
-            'Verifica a integridade do isolamento entre o enrolamento e a carcaça.',
-            'Detecta umidade, contaminação e envelhecimento antes que virem falha.',
-          ]}
+          itens={[t('info.porque1'), t('info.porque2')]}
         />
         <Sec
-          titulo="Resultados comuns (motor BT)"
+          titulo={t('info.resultados')}
           cor={color.status.pass}
-          itens={[
-            'IEEE 43: mínimo ≈ (kV + 1) MΩ corrigido a 40 °C.',
-            'Motores em bom estado: centenas de MΩ a GΩ.',
-            'PI (R10min/R1min) > 2 bom · 1–2 questionável · < 1 ruim.',
-            'DAR (R60s/R30s) > 1,4 bom (≥ 1,25 aceitável).',
-          ]}
+          itens={[t('info.resultados1'), t('info.resultados2'), t('info.resultados3'), t('info.resultados4')]}
         />
         <Sec
-          titulo="O que observar"
+          titulo={t('info.observar')}
           cor={color.status.marginal}
-          itens={[
-            'Curva subindo = absorção dielétrica → isolamento seco/bom.',
-            'Curva plana ou valor baixo = umidade ou contaminação.',
-            'Temperatura altera muito a leitura — sempre corrija para 40 °C.',
-          ]}
+          itens={[t('info.observar1'), t('info.observar2'), t('info.observar3')]}
         />
         <button
           onClick={onClose}
           className="w-full mt-1 py-2.5 rounded-[10px] font-display font-semibold text-[14px]"
           style={{ background: color.accent, color: '#0B0F14' }}
         >
-          Entendi
+          {t('info.entendi')}
         </button>
       </div>
     </div>

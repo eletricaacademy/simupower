@@ -1,0 +1,67 @@
+{
+  "abaInstrumento": "Instrumento",
+  "passo": "PASSO {{n}}/{{total}}",
+  "tensaoEnsaio": "Tensão de ensaio",
+  "energizado": "Energizado",
+  "emEnsaio": "Em ensaio…",
+  "cumpraAnteriores": "Cumpra os passos anteriores para liberar.",
+  "info": {
+    "titulo": "Entenda o ensaio de isolamento",
+    "porque": "Por que fazer",
+    "porque1": "Verifica a integridade do isolamento entre o enrolamento e a carcaça.",
+    "porque2": "Detecta umidade, contaminação e envelhecimento antes que virem falha.",
+    "resultados": "Resultados comuns (motor BT)",
+    "resultados1": "IEEE 43: mínimo ≈ (kV + 1) MΩ corrigido a 40 °C.",
+    "resultados2": "Motores em bom estado: centenas de MΩ a GΩ.",
+    "resultados3": "PI (R10min/R1min) > 2 bom · 1–2 questionável · < 1 ruim.",
+    "resultados4": "DAR (R60s/R30s) > 1,4 bom (≥ 1,25 aceitável).",
+    "observar": "O que observar",
+    "observar1": "Curva subindo = absorção dielétrica → isolamento seco/bom.",
+    "observar2": "Curva plana ou valor baixo = umidade ou contaminação.",
+    "observar3": "Temperatura altera muito a leitura — sempre corrija para 40 °C.",
+    "entendi": "Entendi"
+  },
+  "instrutor": {
+    "titulo": "⠿ Modo instrutor",
+    "fechar": "Fechar modo instrutor",
+    "condicao": "Condição do isolamento",
+    "perfil": {
+      "bom": "Bom",
+      "atencao": "Atenção",
+      "ruim": "Ruim / úmido"
+    },
+    "temperatura": "Temperatura",
+    "temperaturaRotulo": "Temperatura do enrolamento",
+    "velocidade": "Velocidade do ensaio",
+    "notaQualidade": "Níveis baixos desligam brilho/sombras e renderizam sob demanda — ideal p/ celular e PCs leves.",
+    "calibrar": "Calibrar conexão (garras)",
+    "clicando": "Clicando (ligado)",
+    "identificar": "Identificar ponto",
+    "ajudaCalibrar": "Ligue e clique no ponto do motor (caixa de bornes p/ LINE, carcaça p/ EARTH); a coord é copiada — me envie que eu gravo as âncoras.",
+    "reiniciar": "↺ Reiniciar ensaio"
+  },
+  "instrumento": {
+    "titulo": "Instrumento · Megômetro",
+    "curva": "Curva resistência por tempo",
+    "dar": "DAR",
+    "pi": "PI",
+    "r40": "R@40°C",
+    "veredito": "Veredito"
+  },
+  "veredito": {
+    "excelente": "Excelente",
+    "aprovado": "Aprovado",
+    "questionavel": "Questionável",
+    "reprovado": "Reprovado"
+  },
+  "seguranca": {
+    "energizado": "ENERGIZADO",
+    "bloqueado": "BLOQUEADO (LOTO)",
+    "verificar": "VERIFICAR SEGURANÇA",
+    "tensao": "Tensão"
+  },
+  "ancoras": {
+    "carcaca-terra": "Carcaça (aterramento)",
+    "borne-u": "Terminal U (enrolamento)"
+  }
+}

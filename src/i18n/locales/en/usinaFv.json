@@ -1,0 +1,269 @@
+{
+  "medicao": "Measurement",
+  "guia": {
+    "cuidados": "Precautions:",
+    "comoConcluir": "How to complete:",
+    "pendCont": "measure the <b>{{n}} points</b> with the milliohmmeter (on the right).",
+    "pendMalha": "drive the stakes, record P at <b>52%, 62% and 72%</b> and click <b>Calculate</b>.",
+    "pendTP": "measure the <b>{{n}} touch and step points</b>.",
+    "curva": "curve",
+    "loteDetalhe": "Nulls the leads or places the stakes automatically; keeps the soil, faults and C distance."
+  },
+  "planta": {
+    "titulo": "Ground-mounted PV plant",
+    "subtitulo": "{{kw}} kW AC",
+    "arranjo": "Array",
+    "mesas": "Fixed-tilt tables",
+    "mesasValor": "{{n}} × 2P{{m}} · {{g}}° north",
+    "skid": "Skid",
+    "skidValor": "{{n}} inverters × {{kw}} kW + main LV switchboard",
+    "trafo": "Transformer",
+    "subestacao": "Substation",
+    "subestacaoValor": "Metering and protection cubicle",
+    "malha": "Grid",
+    "malhaValor": "{{a}} m² · {{l}} m buried",
+    "rg": "Calculated Rg",
+    "solo": "Soil (instructor)",
+    "abrirLaudo": "Open report",
+    "vista": {
+      "geral": "Overview",
+      "planta": "Top view",
+      "skid": "skid",
+      "trafo": "transformer",
+      "estacas": "stakes"
+    }
+  },
+  "toggle": {
+    "nomes": "Show names and values in the scene",
+    "malha": "Show buried grid (ring, cross conductors and ground rods)"
+  },
+  "cont": {
+    "titulo": "Inbrat INMD1 PRO · continuity",
+    "medidos": "{{n}}/{{total}} measured",
+    "verInbrat": "View Inbrat",
+    "garraFixa": "Fixed clamp on the <b>skid main bonding bar</b>",
+    "pontasZeradas": "✓ leads zeroed",
+    "pontasNao": "⚠ +{{r}} Ω leads",
+    "zerar": "Null leads (short the clamps + REL)",
+    "percurso": "Skid main bonding bar → {{ate}}",
+    "conexoes": "{{n}} connections",
+    "rTeorica": "theoretical R {{r}} Ω",
+    "remedir": "↻ Measure again",
+    "medir": "▶ Measure",
+    "descartar": "Discard",
+    "compense": "Zero the leads before measuring — otherwise the cables are included in the reading.",
+    "criterio": "Adopted criterion: ≤ {{a}} Ω pass · ≤ {{b}} Ω caution",
+    "veredito": {
+      "aberto": "Discontinuity — open circuit",
+      "pass": "Continuous — pass",
+      "marginal": "Caution — high-resistance connection",
+      "fail": "Fail — bonding compromised"
+    }
+  },
+  "grupo": {
+    "Mesas": "Tables",
+    "Equipamentos": "Equipment",
+    "Cerca": "Fence"
+  },
+  "terr": {
+    "titulo": "Ground tester · fall of potential",
+    "distanciaC": "C stake distance",
+    "multiplo": "≈ {{k}}× the grid diagonal ({{d}} m). Changing the distance re-drives the stakes and clears the curve.",
+    "zona": "Grid zone of influence along the road: ~{{z}} m from E (potential above 10% of GPR, amber band in 3D).",
+    "zonaFora": " P at 52% is already outside it.",
+    "zonaDentro": " P at 52% still falls inside it — the curve will not flatten.",
+    "cravar": "Drive C and P stakes · connect E",
+    "estacaP": "P stake",
+    "posP": "{{p}}% · {{m}} m from E",
+    "pA": "P at {{p}}%",
+    "registrar": "+ Record ({{n}})",
+    "calcular": "Calculate",
+    "apagarCurva": "Clear curve",
+    "patamarRegistrado": "Plateau recorded — calculate, or record more points to see the whole curve.",
+    "registreMin": "Record at least P at 52%, 62% and 72% to check the plateau.",
+    "leitura62": "Reading at 62%",
+    "variacao": "Variation 52–72%",
+    "variacaoValor": "{{v}}% (≤ {{l}}%)",
+    "patamarOk": "Stable plateau: the reading represents the grid. Adopted criterion ≤ {{l}} Ω.",
+    "semPatamar": "No plateau: the C stake is inside the grid zone of influence. Move it farther away and repeat.",
+    "graficoVazio": "move the P stake and record the points",
+    "veredito": {
+      "inconclusivo": "Inconclusive — no plateau",
+      "pass": "Adequate",
+      "marginal": "Caution — above the recommended value",
+      "fail": "Inadequate"
+    }
+  },
+  "tp": {
+    "titulo": "Touch and step · current injection",
+    "intro": "Injection of <b>{{it}} A</b> into the grid; reading extrapolated to <b>{{im}} A</b> of fault current (t = {{t}} s). Soil {{rho}} Ω·m · crushed rock {{rb}} Ω·m, {{h}} cm.",
+    "tipo": {
+      "toque": "touch",
+      "passo": "step"
+    },
+    "superficie": {
+      "brita": "crushed rock",
+      "grama": "grass"
+    },
+    "lido": "Read at {{i}} A",
+    "extrapolado": "Extrapolated ({{i}} A)",
+    "limite": "Tolerable limit",
+    "aviso": "Limits from the NBR 15751 / IEEE 80 equations (50 kg body). Fault values belong to the teaching scenario.",
+    "veredito": {
+      "toque": {
+        "fail": "Touch voltage above the tolerable limit",
+        "pass": "Touch voltage within the limit"
+      },
+      "passo": {
+        "fail": "Step voltage above the tolerable limit",
+        "pass": "Step voltage within the limit"
+      },
+      "marginal": "Within the limit, with little margin"
+    }
+  },
+  "mapa": {
+    "titulo": "Ground map during the fault",
+    "potencial": "Potential",
+    "relevo": "3D relief",
+    "seguranca": "Safe areas",
+    "desligado": "Hide",
+    "gpr": "GPR {{v}} V",
+    "textoRelevo": "The relief height is the soil potential: the “plateau” is the grid at GPR; the slope outside the fence is where step and touch grow.",
+    "textoPotencial": "Surface potential during the fault. Touch = GPR − potential under the feet: where the soil is “cold” (blue) near a grounded metal part, touch voltage is high.",
+    "segOk": "■ touch and step within the limit",
+    "segToque": "■ touch above the limit (if a metal part is within reach)",
+    "segPasso": "■ step above the limit",
+    "segNota": "Limits with crushed rock at the skid/transformer and grass elsewhere."
+  },
+  "laudo": {
+    "titulo": "Test report",
+    "subtitulo": "PV plant grounding · {{kw}} kW",
+    "continuidade": "Continuity",
+    "malha62": "Grid (62%)",
+    "toquePasso": "Touch and step",
+    "resumoMalha": "C stake at {{d}} m · plateau variation {{v}}% ({{estado}}).",
+    "estavel": "stable",
+    "semPatamar": "no plateau",
+    "rgRef": "Calculated grid Rg (method of moments, {{rho}} Ω·m soil): {{rg}} Ω.",
+    "conforme": "Grounding meets the adopted criteria",
+    "naoConforme": "Grounding does not meet the criteria",
+    "incompleto": "Incomplete report",
+    "parecerIncompleto": "INCOMPLETE inspection: complete the three tests (continuity, grid resistance and touch/step) before issuing the report.",
+    "parecerConforme": "The plant grounding system MEETS the adopted criteria: continuous bonding at all {{n}} points, grid at {{r}} Ω with a stable plateau, and touch and step voltages below the tolerable limits.",
+    "parecerNaoConforme": "{{n}} finding(s) were identified. The grounding system DOES NOT MEET the adopted criteria until the items listed are corrected and the tests are repeated.",
+    "achados": "Findings and actions",
+    "acao": "Action:",
+    "rodape": {
+      "continuidade": "Continuity: NBR 16274 · NBR 16690",
+      "malha": "Grid: NBR 15749 (fall of potential)",
+      "toquePasso": "Touch/step: NBR 15749 · NBR 15751",
+      "didatico": "Teaching simulation result — not a report on a real installation"
+    }
+  },
+  "achado": {
+    "ensaio": {
+      "cont": "Continuity",
+      "malha": "Grid resistance",
+      "tp": "Touch and step"
+    },
+    "itemEstacaC": "C stake at {{d}} m",
+    "itemMalha": "Plant grid",
+    "leituraVariacao": "variation {{v}}%",
+    "acao": {
+      "cont-aberto": "Locate the break (missing or broken braid/bonding lead), repair it and measure again.",
+      "cont-refazer-conexao": "Remake the connection with a serrated washer/clamp that pierces the anodizing and measure again.",
+      "cont-reapertar": "Clean, treat and retighten the connector; measure again.",
+      "malha-sem-patamar": "No plateau: move the current stake farther away (≥ 5× the grid diagonal) and repeat the curve.",
+      "malha-alta": "Extend the grid, add ground rods or treat the soil; re-evaluate touch and step.",
+      "tp-portao": "Rebuild the equipotential bonding ring in front of the gate (1 m from the fence) and re-evaluate; in very high-resistivity soil, add crushed rock outside.",
+      "tp-reforcar": "Reinforce the grid at that location, apply crushed rock (≥ 10 cm) and re-evaluate."
+    }
+  },
+  "instrutor": {
+    "condicao": "Installation condition",
+    "integra": "Intact",
+    "comDefeitos": "With faults",
+    "notaCondicao": "Changing the condition clears all measurements.",
+    "solo": "Soil",
+    "notaSolo": "The soil changes the grid: it clears the curve and touch/step (continuity is kept)."
+  },
+  "solo": {
+    "umido": "Moist clay",
+    "arenoso": "Sandy",
+    "rochoso": "Rocky / dry"
+  },
+  "calibracao": {
+    "titulo": "3D environment calibration",
+    "desligar": "Turn off identification",
+    "identificar": "Identify point",
+    "capturar": "Capture camera position"
+  },
+  "pontos": {
+    "mesa": {
+      "nome": "Table {{m}} — structure",
+      "ate": "Table {{m}} grounding terminal",
+      "dica": "Table bonding lead to the grid, jumpers between profiles and clamps with serrated washers."
+    },
+    "m4": {
+      "dica": "Grounding clamp on an anodized profile: without a serrated washer, the anodizing insulates."
+    },
+    "m6": {
+      "dica": "Bonding lead connector exposed to moisture — look for oxidation and check tightness."
+    },
+    "inversores": {
+      "nome": "Inverter enclosures (skid)",
+      "ate": "Inverter PE terminal",
+      "dica": "PE conductor from each inverter to the skid ground bus."
+    },
+    "trafo": {
+      "nome": "Transformer tank and neutral",
+      "ate": "Transformer tank ground terminal",
+      "dica": "Tank and LV neutral bonded to the grid at separate points; no broken braid."
+    },
+    "se": {
+      "nome": "Substation ground bus",
+      "ate": "Ground bar of the metering and protection cubicle",
+      "dica": "Substation grid bonded to the plant grid — no separate grids on the same site."
+    },
+    "portao": {
+      "nome": "Fence gate",
+      "ate": "Gate leaf (via flexible braid)",
+      "dica": "The moving leaf needs a flexible braid to the grounded post — the hinge does not conduct."
+    },
+    "cerca-no": {
+      "nome": "Fence — northwest corner post",
+      "ate": "Grounded NW corner post",
+      "dica": "Metal fence grounded at intervals and at the corners, bonded to the equipotential bonding ring."
+    },
+    "t-trafo": {
+      "nome": "Touch — transformer tank",
+      "local": "Hand on the tank, feet 1 m away on the crushed rock",
+      "dica": "Critical point: an MV fault at the transformer raises the potential of the whole grid."
+    },
+    "t-skid": {
+      "nome": "Touch — main LV switchboard door on the skid",
+      "local": "Hand on the metal door, feet on the crushed rock",
+      "dica": "Metal doors and panels at the same potential as the grid."
+    },
+    "t-mesa": {
+      "nome": "Touch — table M1 structure",
+      "local": "Hand on the table post, feet on the grass",
+      "dica": "The grid cross conductor under the row reduces the difference between structure and soil."
+    },
+    "t-portao": {
+      "nome": "Touch — gate, outside",
+      "local": "Hand on the gate, feet outside the fence, on the grass",
+      "dica": "Outside the fence there is no crushed rock or grid under the feet: the equipotential bonding ring 1 m out is what holds up the soil potential. With the section in front of the gate interrupted, touch voltage rises."
+    },
+    "p-trafo": {
+      "nome": "Step — next to the transformer base",
+      "local": "Feet 1 m apart, on the crushed rock",
+      "dica": "The crushed rock layer raises the foot contact resistance."
+    },
+    "p-cerca": {
+      "nome": "Step — outer fence perimeter",
+      "local": "Feet 1 m apart, outside the fence, on the grass",
+      "dica": "The potential gradient is highest at the edge of the grid."
+    }
+  }
+}

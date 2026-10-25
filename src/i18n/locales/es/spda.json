@@ -1,0 +1,175 @@
+{
+  "fotos": {
+    "iniciar": "Iniciar inspección por fotos",
+    "sub": "4 situaciones reales · observe, evalúe y verifique el diagnóstico"
+  },
+  "medicao": "Medición",
+  "semPainel": "El instrumento está disponible en la etapa “Preparar el instrumento”.",
+  "cuidados": "Precauciones:",
+  "comoConcluir": "<b>Cómo concluir:</b> en el instrumento (a la derecha), seleccione cada tramo y haga clic en <b>“Medir”</b>. Es necesario medir <b>todos</b> los tramos del SPCR.",
+  "trechosDe": "{{n}}/{{total}} tramos",
+  "loteDetalhe": "Mide todos los tramos y muestra la etapa concluida.",
+  "concluirMedicoes": "Concluir mediciones ({{n}}/{{total}})",
+  "instrumento": {
+    "ver3d": "Ver equipo en 3D",
+    "simulacao": "Simulación didáctica · Continuidad",
+    "verConexao": "Ver conexión",
+    "verGarra1": "Ver pinza P1/C1",
+    "verGarra2": "Ver pinza P2/C2",
+    "moverBaixo": "Mover las dos pinzas hacia abajo · Inferior",
+    "moverCima": "Mover las dos pinzas hacia arriba · Superior",
+    "entrarBep": "Entrar en la sala eléctrica · BEP",
+    "ocultarFluxo": "Ocultar flujo",
+    "mostrarFluxo": "Mostrar flujo",
+    "verPercurso": "Ver recorrido completo",
+    "fluxoC1": "C1 → conductores",
+    "fluxoC2": "C2 · retorno",
+    "fluxoP": "P1/P2: medición de tensión. Sentido didáctico C1 → C2; las flechas no indican intensidad.",
+    "anelEnterrado": "Anillo enterrado esquemático, visible a través del suelo.",
+    "percursoVisivel": "Recorrido visible a través de las superficies.",
+    "funcao": "Continuidad · RLO",
+    "pontasZeradas": "✓ puntas puestas a cero",
+    "pontasNaoZeradas": "⚠ +{{r}} Ω de las puntas",
+    "serie": "Serie {{l}} m + anillo en paralelo",
+    "comprimento": "{{l}} m",
+    "rTeorica": " · R teórica {{r}} Ω",
+    "cruzada": "Cruzada · ",
+    "medir": "▶ Medir",
+    "remedir": "↻ Volver a medir",
+    "descartar": "Descartar",
+    "compense": "Compense las puntas de prueba en la etapa “Preparar el instrumento”; sin esto, los cables entran en la lectura.",
+    "avance": "Avance hasta la etapa “Medir entre bajantes y hasta la BEP”.",
+    "criterio": "Criterio: ≤ {{c}} Ω conforme · ≤ {{a}} Ω atención · {{n}}/{{total}} medidos"
+  },
+  "veredito": {
+    "aberto": "Discontinuidad — circuito abierto",
+    "conforme": "Continuo — conforme",
+    "atencao": "Atención — conexión con resistencia elevada",
+    "nao-conforme": "No conforme — continuidad comprometida"
+  },
+  "material": {
+    "cobre-nu": "cobre desnudo",
+    "aluminio": "aluminio",
+    "aco-galvanizado": "acero galvanizado"
+  },
+  "subsistema": {
+    "captacao": "Captación",
+    "descida": "Bajante",
+    "aterramento": "Continuidad de la puesta a tierra",
+    "equipotencializacao": "Equipotencial"
+  },
+  "nivel": {
+    "superior": "Superior",
+    "inferior": "Inferior"
+  },
+  "nivelMin": {
+    "superior": "superior",
+    "inferior": "inferior"
+  },
+  "ponto": {
+    "nome": "{{par}} · {{nivel}}",
+    "terminal": "{{d}} — terminal {{nivel}}",
+    "bepNome": "D1–BEP · Sala eléctrica",
+    "bepDe": "D1 — terminal inferior",
+    "bepAte": "BEP interna, junto al TGBT"
+  },
+  "cenario": {
+    "titulo": "Condición del SPCR",
+    "conforme": "Íntegro",
+    "comDefeitos": "Con defectos",
+    "aviso": "Cambiar el escenario borra las mediciones ya registradas."
+  },
+  "diagnostico": {
+    "tour": "Recorrido de diagnóstico — {{i}}/{{n}}",
+    "fechar": "Cerrar diagnóstico",
+    "verificacao": "Verificación en campo",
+    "naoConformidade": "No conformidad",
+    "reenquadrar": "Reencuadrar punto 3D",
+    "observe": "Observe y responda",
+    "revelarExplicacao": "Revelar explicación",
+    "revelarDiagnostico": "Revelar diagnóstico",
+    "rotuloDiagnostico": "Diagnóstico",
+    "rotuloRisco": "Riesgo",
+    "rotuloAcao": "Acción recomendada",
+    "anterior": "‹ Anterior",
+    "concluir": "Concluir recorrido",
+    "proxima": "Próxima parada ›",
+    "paradas": {
+      "conexao-bimetalica": {
+        "titulo": "Contacto directo Cu-Al",
+        "local": "Caja de inspección D4",
+        "alt": "Caja de inspección abierta con conductores de cobre y aluminio sin conector bimetálico",
+        "pergunta": "¿Qué está mal en esta conexión entre materiales diferentes?",
+        "diagnostico": "El cobre y el aluminio quedaron en contacto directo, sin un conector bimetálico adecuado.",
+        "risco": "El par galvánico favorece la corrosión, aumenta la resistencia de contacto y puede comprometer la continuidad del SPCR.",
+        "acao": "Rehacer la unión con un componente compatible y protegido contra la corrosión; limpiar, apretar y verificar la continuidad después de la corrección.",
+        "referencia": "ABNT NBR 5419-3:2026 — compatibilidad de materiales y protección contra la corrosión."
+      },
+      "dps-inoperante": {
+        "titulo": "DPS fuera de servicio",
+        "local": "TGBT de la sala eléctrica",
+        "alt": "Tablero eléctrico con dispositivos de protección contra sobretensiones fuera de servicio",
+        "pergunta": "¿Qué condición debe identificarse antes de considerar operativa la protección contra sobretensiones?",
+        "diagnostico": "Los DPS están fuera de servicio y no pueden considerarse protección activa de la instalación.",
+        "risco": "Los equipos internos quedan sin la protección prevista contra sobretensiones conducidas, incluidas las asociadas a descargas atmosféricas.",
+        "acao": "Reemplazar los DPS, verificar la protección de respaldo, las conexiones y la coordinación, y registrar la inspección del conjunto.",
+        "referencia": "ABNT NBR 5419-4:2026 — medidas de protección contra sobretensiones; verificar también la aplicación de la NBR 5410."
+      },
+      "distancia-seguranca": {
+        "titulo": "Distancia insuficiente",
+        "local": "Bajante D2 — fachada norte/este",
+        "alt": "Conductores e infraestructura instalados muy cerca de una bajante del SPCR",
+        "pergunta": "¿Qué debe verificarse cuando otras instalaciones pasan junto a la bajante?",
+        "diagnostico": "Hay conductores e infraestructuras cerca de la bajante, a una distancia inferior a la distancia de seguridad aplicable.",
+        "risco": "La proximidad puede provocar chispas peligrosas y transferir parte de la corriente del rayo a las instalaciones internas.",
+        "acao": "Calcular la distancia de seguridad para el caso, alejar las instalaciones o aplicar la medida de equipotencialización/aislamiento técnicamente prevista.",
+        "referencia": "ABNT NBR 5419-3:2026 — aislamiento eléctrico y distancia de seguridad."
+      },
+      "continuidade-cobertura": {
+        "titulo": "Ensayo en la cubierta",
+        "local": "Anillo de captación",
+        "alt": "Ensayo de continuidad eléctrica realizado sobre una cubierta metálica",
+        "pergunta": "¿Qué comprueba esta foto y qué falta registrar?",
+        "diagnostico": "La imagen documenta la ejecución de un ensayo de continuidad en la cubierta; por sí sola no demuestra que el resultado fue conforme.",
+        "risco": "Sin identificar los puntos, el método, el instrumento y las lecturas, la fotografía aislada no respalda el dictamen técnico.",
+        "acao": "Registrar en el informe los puntos ensayados, la preparación, el instrumento, la corriente de ensayo, las lecturas, el criterio aplicable y la conclusión.",
+        "referencia": "ABNT NBR 5419-3:2026 — verificación de la continuidad y documentación de la inspección."
+      }
+    }
+  },
+  "laudo": {
+    "rotulo": "Informe de inspección",
+    "titulo": "Continuidad del SPCR",
+    "aprovados": "Tramos aprobados",
+    "pior": "Peor lectura",
+    "naoConformidades": "No conformidades",
+    "naoMedido": "no medido",
+    "conforme": "SPCR conforme en cuanto a la continuidad",
+    "naoConforme": "SPCR no conforme",
+    "ncAcoes": "No conformidades y acciones",
+    "causa": "Causa probable:",
+    "acao": "Acción:",
+    "metodo": "Método: ABNT NBR 5419-3 — inspección y mantenimiento del SPCR",
+    "criterio": "Criterio de continuidad: ≤ {{c}} Ω",
+    "novaInspecao": "↺ Nueva inspección"
+  },
+  "parecer": {
+    "conforme": "Los {{n}} tramos ensayados presentaron continuidad eléctrica dentro del criterio (R ≤ {{c}} Ω). El SPCR CUMPLE el requisito de continuidad de la ABNT NBR 5419-3 en la fecha de la inspección.",
+    "incompleto": "Inspección INCOMPLETA: {{lidos}} de {{n}} tramos medidos. Mida todos los tramos previstos antes de emitir el informe.",
+    "nao-conforme": "Se identificaron {{nc}} no conformidad(es) de continuidad. El SPCR NO CUMPLE el requisito de la ABNT NBR 5419-3 hasta que los tramos señalados se corrijan y se vuelvan a medir."
+  },
+  "nc": {
+    "aberto": {
+      "causa": "Conductor de bajante cortado o conexión totalmente abierta.",
+      "acao": "Localizar el tramo interrumpido, rehacer el conductor/la conexión y volver a medir."
+    },
+    "corrosao": {
+      "causa": "Conexión corroída o empalme deteriorado en el recorrido.",
+      "acao": "Limpiar/rehacer la conexión (conector a presión o soldadura exotérmica) y volver a medir."
+    },
+    "aperto": {
+      "causa": "Conexión con apriete insuficiente u oxidación superficial.",
+      "acao": "Reapretar con el torque adecuado, tratar la superficie y volver a medir."
+    }
+  }
+}

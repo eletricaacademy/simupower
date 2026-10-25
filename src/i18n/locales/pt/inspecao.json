@@ -1,0 +1,38 @@
+{
+  "roteiro": "Roteiro de inspeção",
+  "abaRoteiro": "Roteiro",
+  "conformidade": "Conformidade",
+  "intro": {
+    "selo": "VISITA GUIADA",
+    "texto": "Explore a subestação livremente (arraste, gire e use as vistas). Quando estiver pronto, inicie a visita guiada — cada etapa leva você a um ponto de inspeção para avaliar.",
+    "iniciar": "▶ Iniciar visita guiada"
+  },
+  "item": "ITEM {{n}}/{{total}}",
+  "explorarLivre": "↺ explorar livre",
+  "conforme": "✓ Conforme",
+  "naoConforme": "✗ Não conforme",
+  "resultado": {
+    "veredito": "Veredito",
+    "conformes": "Conformes",
+    "naoConformes": "Não conf.",
+    "pendentes": "Pendentes"
+  },
+  "veredito": {
+    "andamento": "Em andamento",
+    "aprovado": "Aprovado",
+    "aprovado-pendencias": "Aprovado com pendências",
+    "reprovado": "Reprovado"
+  },
+  "identificar": {
+    "titulo": "Identificar peça",
+    "clicando": "Clicando (ligado)",
+    "ativar": "Ativar identificação",
+    "ajuda": "Ligue e clique na peça que quer remover; a coordenada é copiada — me envie que eu apago a peça certa."
+  },
+  "toggle": {
+    "grade": "Grade",
+    "paredes": "Paredes",
+    "ocultar": "Ocultar {{x}}",
+    "mostrar": "Mostrar {{x}}"
+  }
+}

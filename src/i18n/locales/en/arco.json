@@ -1,0 +1,111 @@
+{
+  "abaResultado": "Result",
+  "passo": "STEP {{n}}/{{total}}",
+  "controle": {
+    "icc": "Ibf (bolted fault current)",
+    "classe": "Equipment class",
+    "distancia": "Working distance",
+    "aterramento": "Grounding",
+    "aterrado": "Grounded",
+    "isolado": "Ungrounded"
+  },
+  "classe": {
+    "painel-bt": "LV switchgear",
+    "mcc-bt": "LV MCC",
+    "painel-mt": "MV switchgear",
+    "aberto": "Open air"
+  },
+  "resultado": {
+    "titulo": "Incident Energy",
+    "epi": "PPE",
+    "fronteira": "Boundary",
+    "iArco": "Arc I",
+    "epiMin": "Min. PPE",
+    "verEtiqueta": "🏷 View arc flash label",
+    "vazio": "Set the parameters and calculate to see the incident energy, the arc flash boundary and the PPE category."
+  },
+  "categoria": {
+    "minimo": "Minimal risk",
+    "nivel": "Category {{n}}",
+    "extremo": "Extreme danger — do not energize"
+  },
+  "intro": {
+    "titulo": "Real-world scenario simulation",
+    "texto": "Let's simulate a real-world situation. Under the <b>new NR-10 (2026)</b>, Brazil's electrical safety standard, a <b>more rigorous analysis</b> of the arc flash hazard is now required.",
+    "pergunta": "Do you want to proceed?",
+    "sim": "Yes, proceed ›",
+    "investigacao": "Accident investigation",
+    "investigar": "Let's investigate to prevent this kind of accident",
+    "continuar": "Continue ›",
+    "vestimentaTitulo": "Selecting the protective clothing",
+    "vestimentaTexto": "The accident shows the danger of working without proper clothing. Now we will <b>correctly select the arc flash protective clothing (PPE)</b> for this scenario by calculating the incident energy and the hazard category.",
+    "comecar": "Start the analysis"
+  },
+  "etiqueta": {
+    "perigo": "DANGER",
+    "atencao": "WARNING",
+    "aviso": "NOTICE",
+    "titulo1": "Shock and Arc Flash Hazard",
+    "titulo2": "Appropriate PPE Required",
+    "risco": "Risk",
+    "riscoMinimo": "Minimal risk",
+    "riscoCategoria": "Category {{n}}",
+    "riscoPerigo": "DANGER",
+    "protArco": "Arc Flash Protection",
+    "afb": "Arc Flash Boundary (AFB)",
+    "energiaEm": "Incident energy at {{d}} mm",
+    "faixa": "Arc flash hazard range",
+    "protChoque": "Shock Protection",
+    "riscoChoque": "Shock hazard",
+    "limitada": "Limited Approach Boundary",
+    "restrita": "Restricted Approach Boundary",
+    "epiNecessario": "Required PPE",
+    "equipamento": "Equipment:",
+    "data": "Date:",
+    "rodape": "Caution: changes to the equipment or the system configuration invalidate the calculations and the required PPE · IEEE 1584 / NBR 17227",
+    "epi": {
+      "n0": [
+        "Non-flammable cotton clothing (long sleeves)",
+        "Safety glasses",
+        "Safety footwear"
+      ],
+      "n1": [
+        "FR clothing ≥ 4 cal/cm² (shirt + pants or coverall)",
+        "Safety glasses",
+        "FR face shield or balaclava",
+        "Class E hard hat",
+        "Leather gloves",
+        "Safety footwear"
+      ],
+      "n2": [
+        "FR clothing ≥ 8 cal/cm² (shirt + pants or coverall)",
+        "FR balaclava",
+        "Face shield with Class E visor",
+        "Class II hard hat",
+        "Rubber insulating gloves with leather protectors",
+        "Dielectric footwear",
+        "Hearing protection"
+      ],
+      "n3": [
+        "FR suit ≥ 25 cal/cm² + arc flash hood",
+        "Hard hat + face shield/hood",
+        "Rubber insulating gloves with leather protectors",
+        "Dielectric footwear",
+        "Hearing protection"
+      ],
+      "n4": [
+        "FR suit ≥ 40 cal/cm² + arc flash hood",
+        "Hard hat + full arc flash hood",
+        "Rubber insulating gloves with leather protectors",
+        "Dielectric footwear",
+        "Hearing protection"
+      ],
+      "n5": [
+        "DO NOT WORK ENERGIZED",
+        "Redesign the protection to reduce IE < 40 cal/cm²",
+        "Apply mitigation techniques (arc flash relay, ZSI)",
+        "Consider remote switching / de-energization"
+      ]
+    }
+  }
+}

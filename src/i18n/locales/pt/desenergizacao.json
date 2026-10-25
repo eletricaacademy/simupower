@@ -1,0 +1,52 @@
+{
+  "detalhesEtapa": "Detalhes da etapa",
+  "sequencia": "Sequência (NR-10)",
+  "abaEstado": "Estado",
+  "comemoracao": {
+    "desTitulo": "Desenergização concluída!",
+    "reenTitulo": "Reenergização concluída!",
+    "desTexto": "Procedimento de desenergização finalizado com sucesso, conforme a NR-10. A instalação está segura para a manutenção.",
+    "reenTexto": "Subestação reenergizada com sucesso e novamente em operação. Procedimento completo.",
+    "prosseguir": "Prosseguir para a reenergização ›"
+  },
+  "dialogo": {
+    "cuidados": "⚠ Cuidados",
+    "erros": "✗ Erros comuns",
+    "entendi": "Entendi"
+  },
+  "banner": {
+    "des": "✅ Desenergização completa — instalação segura. <b>Pode iniciar a manutenção.</b>",
+    "reen": "Subestação reenergizada — em operação."
+  },
+  "passoN": "PASSO {{n}}/{{total}}",
+  "cliqueDestacado": "Clique no ponto destacado na cena — ou no botão abaixo.",
+  "preparado": "<b>⚠ Preparado?</b> Agora é hora de <m>{{manobra}}</m>.",
+  "manobra": {
+    "seccionar": "ABRIR o disjuntor",
+    "religar": "FECHAR o disjuntor",
+    "carregar-mola": "CARREGAR A MOLA do disjuntor",
+    "padrao": "executar a manobra"
+  },
+  "sim": "✓ Sim",
+  "etapaConcluida": "✓ Etapa concluída",
+  "fimProcedimento": "Fim do procedimento",
+  "estado": {
+    "titulo": "Estado de segurança",
+    "seccionado": "Seccionado",
+    "bloqueado": "Bloqueado (LOTO)",
+    "tensaoAusente": "Tensão ausente",
+    "aterrado": "Aterrado",
+    "protegido": "Partes vivas protegidas",
+    "sinalizado": "Sinalizado",
+    "liberado": "Liberado p/ trabalho",
+    "reenergizada": "Reenergizada — em operação"
+  },
+  "grade": "Grade",
+  "paredes": "Paredes",
+  "calibrar": {
+    "titulo": "Calibrar ponto",
+    "ligado": "Clicando (ligado)",
+    "identificar": "Identificar ponto",
+    "ajuda": "Clique no disjuntor, bloqueio, teste, aterramento, proteção e sinalização; me envie as coords que eu gravo."
+  }
+}

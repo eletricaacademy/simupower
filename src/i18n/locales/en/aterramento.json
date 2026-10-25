@@ -1,0 +1,56 @@
+{
+  "semPainel": "The ground tester becomes available at the “Measure by moving stake P” step.",
+  "medicao": "Measurement",
+  "laudo": {
+    "titulo": "Measurement report",
+    "subtitulo": "Ground resistance",
+    "r62": "R at 62%",
+    "variacao": "Plateau variation",
+    "pontos": "Points measured",
+    "naZona": "Reading within the plateau zone.",
+    "foraZona": "Plateau not established.",
+    "metodo": "Method: ABNT NBR 15749 · IEEE 81 (fall of potential)",
+    "novaMedicao": "↺ New measurement"
+  },
+  "parecer": {
+    "medida": "Ground resistance measured at {{r}} Ω at 62% of the E–C distance (fall-of-potential method, ABNT NBR 15749). ",
+    "naZona": "The reading lies within the plateau zone (stable), which makes the measured value reliable. ",
+    "foraZona": "The plateau was not well defined — take more points near 62% and/or increase distance D. ",
+    "ok": "The value MEETS the utility recommendation (≤ 10 Ω).",
+    "falha": "The value is ABOVE the utility recommendation (≤ 10 Ω) — improving the grounding system is recommended."
+  },
+  "recomendacao": "Utility recommendation: ≤ 10 Ω",
+  "veredito": {
+    "pass": "Adequate",
+    "marginal": "Caution",
+    "fail": "Inadequate"
+  },
+  "comoConcluir": "<b>How to finish:</b> on the ground tester panel (right), <b>move stake P</b> and click <b>“+ Record”</b> at least at <b>3 different positions</b> to build the curve.",
+  "pontosDe3": "{{n}}/3 points",
+  "concluirMedicao": "Finish measurement ({{n}}/3)",
+  "terrometro": {
+    "titulo": "Ground tester · fall of potential",
+    "iniciar": "▶ Start measurement",
+    "avance": "Advance to the “Measure by moving stake P” step and start the measurement.",
+    "estacaP": "Stake P",
+    "ir62": "Go to 62%",
+    "registrar": "+ Record ({{n}})",
+    "calcular": "Calculate",
+    "pronto": "Ready to calculate — or record more points.",
+    "escolha": "Choose the position, record and repeat — min. 3 points ({{n}}/3).",
+    "resistencia62": "Resistance (62%)",
+    "naZona": "Within the plateau zone — stable plateau, reliable reading.",
+    "foraZona": "Outside the plateau — take more points in the middle or increase distance D.",
+    "pontosMedidos": "{{n}} points measured"
+  },
+  "curva": {
+    "patamar": "plateau",
+    "vazia": "move stake P and record the points"
+  },
+  "solo": {
+    "titulo": "Soil condition",
+    "bom": "Good",
+    "atencao": "Caution",
+    "ruim": "Poor"
+  }
+}

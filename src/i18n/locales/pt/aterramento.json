@@ -1,0 +1,56 @@
+{
+  "semPainel": "O terrômetro fica disponível na etapa “Medir movendo a estaca P”.",
+  "medicao": "Medição",
+  "laudo": {
+    "titulo": "Laudo de medição",
+    "subtitulo": "Resistência de Aterramento",
+    "r62": "R a 62%",
+    "variacao": "Variação no platô",
+    "pontos": "Pontos medidos",
+    "naZona": "Leitura na zona de patamar.",
+    "foraZona": "Patamar não consolidado.",
+    "metodo": "Método: ABNT NBR 15749 · IEEE 81 (queda de potencial)",
+    "novaMedicao": "↺ Nova medição"
+  },
+  "parecer": {
+    "medida": "Resistência de aterramento medida em {{r}} Ω a 62% da distância E–C (método da queda de potencial, ABNT NBR 15749). ",
+    "naZona": "A leitura situa-se na zona de patamar (platô estável), o que confere confiabilidade ao valor medido. ",
+    "foraZona": "O patamar não ficou bem definido — recomenda-se coletar mais pontos próximos a 62% e/ou aumentar a distância D. ",
+    "ok": "O valor ATENDE à recomendação da concessionária (≤ 10 Ω).",
+    "falha": "O valor está ACIMA do recomendado pela concessionária (≤ 10 Ω) — recomenda-se melhorar o sistema de aterramento."
+  },
+  "recomendacao": "Recomendação da concessionária: ≤ 10 Ω",
+  "veredito": {
+    "pass": "Adequado",
+    "marginal": "Atenção",
+    "fail": "Inadequado"
+  },
+  "comoConcluir": "<b>Como concluir:</b> no painel do terrômetro (à direita), <b>mova a estaca P</b> e clique em <b>“+ Registrar”</b> em pelo menos <b>3 posições</b> diferentes para levantar a curva.",
+  "pontosDe3": "{{n}}/3 pontos",
+  "concluirMedicao": "Concluir medição ({{n}}/3)",
+  "terrometro": {
+    "titulo": "Terrômetro · queda de potencial",
+    "iniciar": "▶ Iniciar medição",
+    "avance": "Avance até a etapa “Medir movendo a estaca P” e inicie a medição.",
+    "estacaP": "Estaca P",
+    "ir62": "Ir a 62%",
+    "registrar": "+ Registrar ({{n}})",
+    "calcular": "Calcular",
+    "pronto": "Pronto para calcular — ou registre mais pontos.",
+    "escolha": "Escolha a posição, registre e repita — mín. 3 pontos ({{n}}/3).",
+    "resistencia62": "Resistência (62%)",
+    "naZona": "Na zona de patamar — platô estável, leitura confiável.",
+    "foraZona": "Fora do patamar — colete mais pontos no meio ou aumente a distância D.",
+    "pontosMedidos": "{{n}} pontos medidos"
+  },
+  "curva": {
+    "patamar": "patamar",
+    "vazia": "mova a estaca P e registre os pontos"
+  },
+  "solo": {
+    "titulo": "Condição do solo",
+    "bom": "Bom",
+    "atencao": "Atenção",
+    "ruim": "Ruim"
+  }
+}

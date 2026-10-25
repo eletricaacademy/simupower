@@ -1,0 +1,175 @@
+{
+  "fotos": {
+    "iniciar": "Iniciar inspeção por fotos",
+    "sub": "4 situações reais · veja, avalie e confira o diagnóstico"
+  },
+  "medicao": "Medição",
+  "semPainel": "O instrumento fica disponível na etapa “Preparar o instrumento”.",
+  "cuidados": "Cuidados:",
+  "comoConcluir": "<b>Como concluir:</b> no instrumento (à direita), selecione cada trecho e clique em <b>“Medir”</b>. É preciso medir <b>todos</b> os trechos do SPDA.",
+  "trechosDe": "{{n}}/{{total}} trechos",
+  "loteDetalhe": "Mede todos os trechos e mostra a etapa concluída.",
+  "concluirMedicoes": "Concluir medições ({{n}}/{{total}})",
+  "instrumento": {
+    "ver3d": "Ver equipamento 3D",
+    "simulacao": "Simulação didática · Continuidade",
+    "verConexao": "Ver conexão",
+    "verGarra1": "Ver garra P1/C1",
+    "verGarra2": "Ver garra P2/C2",
+    "moverBaixo": "Mover as duas garras para baixo · Inferior",
+    "moverCima": "Mover as duas garras para cima · Superior",
+    "entrarBep": "Entrar na sala elétrica · BEP",
+    "ocultarFluxo": "Ocultar fluxo",
+    "mostrarFluxo": "Mostrar fluxo",
+    "verPercurso": "Ver percurso completo",
+    "fluxoC1": "C1 → condutores",
+    "fluxoC2": "C2 · retorno",
+    "fluxoP": "P1/P2: leitura de tensão. Sentido didático C1 → C2; setas não indicam intensidade.",
+    "anelEnterrado": "Anel enterrado esquemático, visível através do solo.",
+    "percursoVisivel": "Percurso visível através das superfícies.",
+    "funcao": "Continuidade · RLO",
+    "pontasZeradas": "✓ pontas zeradas",
+    "pontasNaoZeradas": "⚠ +{{r}} Ω pontas",
+    "serie": "Série {{l}} m + anel em paralelo",
+    "comprimento": "{{l}} m",
+    "rTeorica": " · R teórica {{r}} Ω",
+    "cruzada": "Cruzada · ",
+    "medir": "▶ Medir",
+    "remedir": "↻ Remedir",
+    "descartar": "Descartar",
+    "compense": "Compense as pontas de prova na etapa “Preparar o instrumento” — sem isso os cabos entram na leitura.",
+    "avance": "Avance até a etapa “Medir a continuidade trecho a trecho”.",
+    "criterio": "Critério: ≤ {{c}} Ω conforme · ≤ {{a}} Ω atenção · {{n}}/{{total}} medidos"
+  },
+  "veredito": {
+    "aberto": "Descontinuidade — circuito aberto",
+    "conforme": "Contínuo — conforme",
+    "atencao": "Atenção — conexão com resistência elevada",
+    "nao-conforme": "Não conforme — continuidade comprometida"
+  },
+  "material": {
+    "cobre-nu": "cobre-nu",
+    "aluminio": "aluminio",
+    "aco-galvanizado": "aco-galvanizado"
+  },
+  "subsistema": {
+    "captacao": "Captação",
+    "descida": "Descida",
+    "aterramento": "Continuidade do aterramento",
+    "equipotencializacao": "Equipotencial"
+  },
+  "nivel": {
+    "superior": "Superior",
+    "inferior": "Inferior"
+  },
+  "nivelMin": {
+    "superior": "superior",
+    "inferior": "inferior"
+  },
+  "ponto": {
+    "nome": "{{par}} · {{nivel}}",
+    "terminal": "{{d}} — terminal {{nivel}}",
+    "bepNome": "D1–BEP · Sala elétrica",
+    "bepDe": "D1 — terminal inferior",
+    "bepAte": "BEP interno, ao lado do QGBT"
+  },
+  "cenario": {
+    "titulo": "Condição do SPDA",
+    "conforme": "Íntegro",
+    "comDefeitos": "Com defeitos",
+    "aviso": "Trocar o cenário apaga as medições já registradas."
+  },
+  "diagnostico": {
+    "tour": "Tour de diagnóstico — {{i}}/{{n}}",
+    "fechar": "Fechar diagnóstico",
+    "verificacao": "Verificação em campo",
+    "naoConformidade": "Não conformidade",
+    "reenquadrar": "Reenquadrar ponto 3D",
+    "observe": "Observe e responda",
+    "revelarExplicacao": "Revelar explicação",
+    "revelarDiagnostico": "Revelar diagnóstico",
+    "rotuloDiagnostico": "Diagnóstico",
+    "rotuloRisco": "Risco",
+    "rotuloAcao": "Ação recomendada",
+    "anterior": "‹ Anterior",
+    "concluir": "Concluir tour",
+    "proxima": "Próxima parada ›",
+    "paradas": {
+      "conexao-bimetalica": {
+        "titulo": "Contato direto Cu-Al",
+        "local": "Caixa de inspeção D4",
+        "alt": "Caixa de inspeção aberta com condutores de cobre e alumínio sem conector bimetálico",
+        "pergunta": "O que está errado nesta conexão entre materiais diferentes?",
+        "diagnostico": "Cobre e alumínio foram deixados em contato direto, sem conector bimetálico adequado.",
+        "risco": "O par galvânico favorece corrosão, aumenta a resistência de contato e pode comprometer a continuidade do SPDA.",
+        "acao": "Refazer a união com componente compatível e protegido contra corrosão; limpar, apertar e verificar a continuidade depois da correção.",
+        "referencia": "ABNT NBR 5419-3:2026 — compatibilidade de materiais e proteção contra corrosão."
+      },
+      "dps-inoperante": {
+        "titulo": "DPS sem funcionar",
+        "local": "QGBT da sala elétrica",
+        "alt": "Quadro elétrico com dispositivos de proteção contra surtos sem funcionamento",
+        "pergunta": "Qual condição precisa ser identificada antes de considerar a proteção contra surtos operacional?",
+        "diagnostico": "Os DPS estão sem funcionamento e não podem ser considerados proteção ativa da instalação.",
+        "risco": "Equipamentos internos ficam sem a proteção prevista contra sobretensões conduzidas, inclusive as associadas a descargas atmosféricas.",
+        "acao": "Substituir os DPS, verificar proteção de retaguarda, conexões, coordenação e registrar a inspeção do conjunto.",
+        "referencia": "ABNT NBR 5419-4:2026 — medidas de proteção contra surtos; verificar também a aplicação da NBR 5410."
+      },
+      "distancia-seguranca": {
+        "titulo": "Distância insuficiente",
+        "local": "Descida D2 — fachada norte/leste",
+        "alt": "Condutores e infraestrutura instalados muito próximos de uma descida do SPDA",
+        "pergunta": "O que deve ser verificado quando outras instalações passam junto da descida?",
+        "diagnostico": "Condutores e infraestruturas estão próximos da descida, com distância inferior à distância de segurança aplicável.",
+        "risco": "A proximidade pode permitir centelhamento perigoso e transferir parte da corrente do raio para instalações internas.",
+        "acao": "Calcular a distância de segurança para o caso, afastar as instalações ou aplicar a medida de equipotencialização/isolação tecnicamente prevista.",
+        "referencia": "ABNT NBR 5419-3:2026 — isolamento elétrico e distância de segurança."
+      },
+      "continuidade-cobertura": {
+        "titulo": "Ensaio na cobertura",
+        "local": "Anel de captação",
+        "alt": "Ensaio de continuidade elétrica sendo executado em cobertura metálica",
+        "pergunta": "O que esta foto comprova e o que ainda precisa ser registrado?",
+        "diagnostico": "A imagem documenta a execução de um ensaio de continuidade na cobertura; ela não demonstra, sozinha, que o resultado foi conforme.",
+        "risco": "Sem identificar os pontos, o método, o instrumento e as leituras, a fotografia isolada não sustenta o parecer técnico.",
+        "acao": "Registrar pontos ensaiados, preparação, instrumento, corrente de ensaio, leituras, critério aplicável e conclusão no relatório.",
+        "referencia": "ABNT NBR 5419-3:2026 — verificação da continuidade e documentação da inspeção."
+      }
+    }
+  },
+  "laudo": {
+    "rotulo": "Laudo de inspeção",
+    "titulo": "Continuidade do SPDA",
+    "aprovados": "Trechos aprovados",
+    "pior": "Pior leitura",
+    "naoConformidades": "Não conformidades",
+    "naoMedido": "não medido",
+    "conforme": "SPDA conforme quanto à continuidade",
+    "naoConforme": "SPDA não conforme",
+    "ncAcoes": "Não conformidades e ações",
+    "causa": "Causa provável:",
+    "acao": "Ação:",
+    "metodo": "Método: ABNT NBR 5419-3 — inspeção e manutenção do SPDA",
+    "criterio": "Critério de continuidade: ≤ {{c}} Ω",
+    "novaInspecao": "↺ Nova inspeção"
+  },
+  "parecer": {
+    "conforme": "Todos os {{n}} trechos ensaiados apresentaram continuidade elétrica dentro do critério (R ≤ {{c}} Ω). O SPDA ATENDE ao requisito de continuidade da ABNT NBR 5419-3 na data da inspeção.",
+    "incompleto": "Inspeção INCOMPLETA: {{lidos}} de {{n}} trechos medidos. Meça todos os trechos previstos antes de emitir o laudo.",
+    "nao-conforme": "Foram identificadas {{nc}} não conformidade(s) de continuidade. O SPDA NÃO ATENDE ao requisito da ABNT NBR 5419-3 até que os trechos apontados sejam corrigidos e remedidos."
+  },
+  "nc": {
+    "aberto": {
+      "causa": "Condutor de descida rompido ou conexão totalmente aberta.",
+      "acao": "Localizar o trecho interrompido, refazer o condutor/conexão e remedir."
+    },
+    "corrosao": {
+      "causa": "Conexão corroída ou emenda deteriorada no percurso.",
+      "acao": "Limpar/refazer a conexão (conector de pressão ou solda exotérmica) e remedir."
+    },
+    "aperto": {
+      "causa": "Conexão com aperto insuficiente ou oxidação superficial.",
+      "acao": "Reapertar com torque, tratar a superfície e remedir."
+    }
+  }
+}

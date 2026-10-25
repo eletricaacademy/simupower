@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { somVoz, pararVoz } from './sons'
 import { asset } from '../lib/asset'
 import { color } from '../design/tokens'
+import { Trans, useTranslation } from 'react-i18next'
 
 /**
  * ArcIntro — abertura do estudo de Arco Elétrico em 3 fases:
@@ -11,6 +12,7 @@ import { color } from '../design/tokens'
  */
 export function ArcIntro({ onClose, onCancel }: { onClose: () => void; onCancel: () => void }) {
   const [fase, setFase] = useState<'intro' | 'video' | 'vestimenta'>('intro')
+  const { t } = useTranslation(['arco', 'common'])
 
   // locução por fase (vídeo tem áudio próprio → silencia a voz)
   useEffect(() => {
@@ -31,13 +33,12 @@ export function ArcIntro({ onClose, onCancel }: { onClose: () => void; onCancel:
             ⚠️
           </div>
           <h2 className="font-display font-bold text-[20px] mb-3" style={{ color: color.text }}>
-            Simulação de situação real
+            {t('intro.titulo')}
           </h2>
           <p className="text-[13.5px] leading-relaxed mb-5" style={{ color: color.textMuted }}>
-            Vamos fazer uma simulação de uma situação real. Com a <b>nova NR-10 (2026)</b>, passou a ser
-            necessária uma <b>análise mais criteriosa</b> do risco de arco elétrico.
+            <Trans t={t} i18nKey="intro.texto" components={{ b: <b /> }} />
             <br />
-            Deseja prosseguir?
+            {t('intro.pergunta')}
           </p>
           <div className="flex gap-2">
             <button
@@ -48,14 +49,14 @@ export function ArcIntro({ onClose, onCancel }: { onClose: () => void; onCancel:
               className="px-5 py-2.5 rounded-[10px] text-[14px] font-medium"
               style={{ background: '#0c1117', color: color.textMuted, border: `1px solid ${color.hairline}` }}
             >
-              Não
+              {t('common:mobile.nao')}
             </button>
             <button
               onClick={() => setFase('video')}
               className="flex-1 py-2.5 rounded-[10px] font-display font-semibold text-[15px]"
               style={{ background: color.accent, color: '#0B0F14' }}
             >
-              Sim, prosseguir ›
+              {t('intro.sim')}
             </button>
           </div>
         </div>
@@ -64,10 +65,10 @@ export function ArcIntro({ onClose, onCancel }: { onClose: () => void; onCancel:
       {fase === 'video' && (
         <div className="hud-glass rounded-[16px] p-5 w-[760px] max-w-[94vw]">
           <div className="font-mono text-[11px] tracking-[0.2em] uppercase mb-1" style={{ color: color.accent }}>
-            Investigação de acidente
+            {t('intro.investigacao')}
           </div>
           <h2 className="font-display font-bold text-[20px] mb-3" style={{ color: color.text }}>
-            Vamos investigar para evitar este tipo de acidente
+            {t('intro.investigar')}
           </h2>
           <div className="rounded-[12px] overflow-hidden mb-4" style={{ border: `1px solid ${color.hairline}`, background: '#000' }}>
             <video
@@ -86,7 +87,7 @@ export function ArcIntro({ onClose, onCancel }: { onClose: () => void; onCancel:
               className="px-5 py-2.5 rounded-[10px] font-display font-semibold text-[14px]"
               style={{ background: color.accent, color: '#0B0F14' }}
             >
-              Continuar ›
+              {t('intro.continuar')}
             </button>
           </div>
         </div>
@@ -98,12 +99,10 @@ export function ArcIntro({ onClose, onCancel }: { onClose: () => void; onCancel:
             🧥
           </div>
           <h2 className="font-display font-bold text-[20px] mb-3" style={{ color: color.text }}>
-            Dimensionar a vestimenta de proteção
+            {t('intro.vestimentaTitulo')}
           </h2>
           <p className="text-[13.5px] leading-relaxed mb-5" style={{ color: color.textMuted }}>
-            O acidente mostra o risco de trabalhar sem a vestimenta adequada. Agora vamos{' '}
-            <b>dimensionar corretamente a vestimenta de proteção (EPI) contra arco</b> para este cenário,
-            calculando a energia incidente e a categoria de risco.
+            <Trans t={t} i18nKey="intro.vestimentaTexto" components={{ b: <b /> }} />
           </p>
           <button
             onClick={() => {
@@ -113,7 +112,7 @@ export function ArcIntro({ onClose, onCancel }: { onClose: () => void; onCancel:
             className="w-full py-2.5 rounded-[10px] font-display font-semibold text-[15px]"
             style={{ background: color.accent, color: '#0B0F14' }}
           >
-            Começar a análise
+            {t('intro.comecar')}
           </button>
         </div>
       )}

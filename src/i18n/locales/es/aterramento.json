@@ -1,0 +1,56 @@
+{
+  "semPainel": "El telurómetro está disponible en la etapa “Medir moviendo la estaca P”.",
+  "medicao": "Medición",
+  "laudo": {
+    "titulo": "Informe de medición",
+    "subtitulo": "Resistencia de puesta a tierra",
+    "r62": "R a 62 %",
+    "variacao": "Variación en la meseta",
+    "pontos": "Puntos medidos",
+    "naZona": "Lectura en la zona de meseta.",
+    "foraZona": "Meseta no consolidada.",
+    "metodo": "Método: ABNT NBR 15749 · IEEE 81 (caída de potencial)",
+    "novaMedicao": "↺ Nueva medición"
+  },
+  "parecer": {
+    "medida": "Resistencia de puesta a tierra medida en {{r}} Ω a 62 % de la distancia E–C (método de caída de potencial, ABNT NBR 15749). ",
+    "naZona": "La lectura se sitúa en la zona de meseta (estable), lo que da confiabilidad al valor medido. ",
+    "foraZona": "La meseta no quedó bien definida: se recomienda tomar más puntos cerca del 62 % y/o aumentar la distancia D. ",
+    "ok": "El valor CUMPLE la recomendación de la distribuidora (≤ 10 Ω).",
+    "falha": "El valor está POR ENCIMA de lo recomendado por la distribuidora (≤ 10 Ω): se recomienda mejorar el sistema de puesta a tierra."
+  },
+  "recomendacao": "Recomendación de la distribuidora: ≤ 10 Ω",
+  "veredito": {
+    "pass": "Adecuado",
+    "marginal": "Atención",
+    "fail": "Inadecuado"
+  },
+  "comoConcluir": "<b>Cómo concluir:</b> en el panel del telurómetro (a la derecha), <b>mueva la estaca P</b> y haga clic en <b>“+ Registrar”</b> en al menos <b>3 posiciones</b> distintas para levantar la curva.",
+  "pontosDe3": "{{n}}/3 puntos",
+  "concluirMedicao": "Concluir medición ({{n}}/3)",
+  "terrometro": {
+    "titulo": "Telurómetro · caída de potencial",
+    "iniciar": "▶ Iniciar medición",
+    "avance": "Avance hasta la etapa “Medir moviendo la estaca P” e inicie la medición.",
+    "estacaP": "Estaca P",
+    "ir62": "Ir a 62 %",
+    "registrar": "+ Registrar ({{n}})",
+    "calcular": "Calcular",
+    "pronto": "Listo para calcular, o registre más puntos.",
+    "escolha": "Elija la posición, registre y repita: mín. 3 puntos ({{n}}/3).",
+    "resistencia62": "Resistencia (62 %)",
+    "naZona": "En la zona de meseta: meseta estable, lectura confiable.",
+    "foraZona": "Fuera de la meseta: tome más puntos en el centro o aumente la distancia D.",
+    "pontosMedidos": "{{n}} puntos medidos"
+  },
+  "curva": {
+    "patamar": "meseta",
+    "vazia": "mueva la estaca P y registre los puntos"
+  },
+  "solo": {
+    "titulo": "Condición del suelo",
+    "bom": "Bueno",
+    "atencao": "Atención",
+    "ruim": "Malo"
+  }
+}

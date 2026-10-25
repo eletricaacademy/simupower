@@ -4,18 +4,15 @@ import { color } from '../design/tokens'
 import type { Perfil } from '../engine/insulation'
 import { resolverQualidade, lerRenderer, type QualidadePref } from '../scene/quality'
 import { useDraggable } from './useDraggable'
+import { useTranslation } from 'react-i18next'
 
-const QUALIDADES: { id: QualidadePref; rotulo: string }[] = [
-  { id: 'auto', rotulo: 'Auto' },
-  { id: 'alto', rotulo: 'Alto' },
-  { id: 'medio', rotulo: 'Médio' },
-  { id: 'baixo', rotulo: 'Baixo' },
-]
+// rótulos traduzidos pelo id: common:qualidade.<id> e isolamento:instrutor.perfil.<id>
+const QUALIDADES: QualidadePref[] = ['auto', 'alto', 'medio', 'baixo']
 
-const PERFIS: { id: Perfil; rotulo: string; cor: string }[] = [
-  { id: 'bom', rotulo: 'Bom', cor: color.status.pass },
-  { id: 'atencao', rotulo: 'Atenção', cor: color.status.marginal },
-  { id: 'ruim', rotulo: 'Ruim / úmido', cor: color.status.fail },
+const PERFIS: { id: Perfil; cor: string }[] = [
+  { id: 'bom', cor: color.status.pass },
+  { id: 'atencao', cor: color.status.marginal },
+  { id: 'ruim', cor: color.status.fail },
 ]
 
 const VELOCIDADES = [1, 4, 8]
@@ -38,6 +35,7 @@ export function InstructorPanel({ onClose }: { onClose: () => void }) {
   const setPickMode = useSim((s) => s.setPickMode)
   const peca = useSim((s) => s.peca)
   const reset = useSim((s) => s.reset)
+  const { t } = useTranslation(['isolamento', 'common'])
 
   const tierAtivo = resolverQualidade(qualidadePref).tier
   const gpu = useMemo(() => {
@@ -58,11 +56,11 @@ export function InstructorPanel({ onClose }: { onClose: () => void }) {
     >
       <div className="flex items-center justify-between mb-3 select-none" style={handleStyle} {...handlers}>
         <span className="font-display font-semibold text-[14px]" style={{ color: color.text }}>
-          ⠿ Modo instrutor
+          {t('instrutor.titulo')}
         </span>
         <button
           onClick={onClose}
-          aria-label="Fechar modo instrutor"
+          aria-label={t('instrutor.fechar')}
           className="text-[16px] leading-none"
           style={{ color: color.textMuted }}
         >
@@ -70,7 +68,7 @@ export function InstructorPanel({ onClose }: { onClose: () => void }) {
         </button>
       </div>
 
-      <Label>Condição do isolamento</Label>
+      <Label>{t('instrutor.condicao')}</Label>
       <div className="flex gap-1.5 mb-3">
         {PERFIS.map((p) => {
           const ativo = p.id === perfil
@@ -85,14 +83,14 @@ export function InstructorPanel({ onClose }: { onClose: () => void }) {
                 border: `1px solid ${ativo ? p.cor + '88' : color.hairline}`,
               }}
             >
-              {p.rotulo}
+              {t(`instrutor.perfil.${p.id}`)}
             </button>
           )
         })}
       </div>
 
       <div className="flex items-center justify-between mb-1">
-        <Label>Temperatura</Label>
+        <Label>{t('instrutor.temperatura')}</Label>
         <span className="font-mono text-[12px]" style={{ color: color.accentCool }}>
           {tempC} °C
         </span>
@@ -105,10 +103,10 @@ export function InstructorPanel({ onClose }: { onClose: () => void }) {
         onChange={(e) => setTempC(Number(e.target.value))}
         className="w-full mb-3"
         style={{ accentColor: color.accent }}
-        aria-label="Temperatura do enrolamento"
+        aria-label={t('instrutor.temperaturaRotulo')}
       />
 
-      <Label>Velocidade do ensaio</Label>
+      <Label>{t('instrutor.velocidade')}</Label>
       <div className="flex gap-1.5 mb-3">
         {VELOCIDADES.map((v) => {
           const ativo = v === velocidade
@@ -131,7 +129,7 @@ export function InstructorPanel({ onClose }: { onClose: () => void }) {
       </div>
 
       <div className="flex items-center justify-between mb-1">
-        <Label>Qualidade gráfica</Label>
+        <Label>{t('common:qualidade.titulo')}</Label>
         {qualidadePref === 'auto' && (
           <span className="text-[10px] font-mono" style={{ color: color.accentCool }}>
             auto → {tierAtivo}
@@ -140,11 +138,11 @@ export function InstructorPanel({ onClose }: { onClose: () => void }) {
       </div>
       <div className="grid grid-cols-4 gap-1.5 mb-1">
         {QUALIDADES.map((q) => {
-          const ativo = q.id === qualidadePref
+          const ativo = q === qualidadePref
           return (
             <button
-              key={q.id}
-              onClick={() => setQualidadePref(q.id)}
+              key={q}
+              onClick={() => setQualidadePref(q)}
               className="text-[11px] py-1.5 rounded-[8px] transition-colors"
               style={{
                 background: ativo ? color.accent : '#0c1117',
@@ -153,13 +151,13 @@ export function InstructorPanel({ onClose }: { onClose: () => void }) {
                 fontWeight: ativo ? 700 : 400,
               }}
             >
-              {q.rotulo}
+              {t(`common:qualidade.${q}`)}
             </button>
           )
         })}
       </div>
       <p className="text-[10px] mb-2" style={{ color: color.textFaint }}>
-        Níveis baixos desligam brilho/sombras e renderizam sob demanda — ideal p/ celular e PCs leves.
+        {t('instrutor.notaQualidade')}
       </p>
       <div
         className="rounded-[8px] px-2.5 py-1.5 mb-3 flex items-center gap-1.5"
@@ -175,12 +173,12 @@ export function InstructorPanel({ onClose }: { onClose: () => void }) {
         />
         <span className="text-[10px] truncate" style={{ color: color.textMuted }}>
           GPU: <span className="font-mono">{gpu}</span>
-          {usandoIntegrada && ' (integrada)'}
+          {usandoIntegrada && ` ${t('common:qualidade.integrada')}`}
         </span>
       </div>
 
       {/* Calibrar pontos de conexão (garras) */}
-      <Label>Calibrar conexão (garras)</Label>
+      <Label>{t('instrutor.calibrar')}</Label>
       <button
         onClick={() => setPickMode(!pickMode)}
         className="w-full text-[12px] py-1.5 rounded-[8px] mb-1.5"
@@ -191,7 +189,7 @@ export function InstructorPanel({ onClose }: { onClose: () => void }) {
           fontWeight: pickMode ? 700 : 400,
         }}
       >
-        🔍 {pickMode ? 'Clicando (ligado)' : 'Identificar ponto'}
+        🔍 {pickMode ? t('instrutor.clicando') : t('instrutor.identificar')}
       </button>
       {peca && (
         <div
@@ -202,8 +200,7 @@ export function InstructorPanel({ onClose }: { onClose: () => void }) {
         </div>
       )}
       <p className="text-[10px] leading-snug mb-3" style={{ color: color.textFaint }}>
-        Ligue e clique no ponto do motor (caixa de bornes p/ LINE, carcaça p/ EARTH); a coord é
-        copiada — me envie que eu gravo as âncoras.
+        {t('instrutor.ajudaCalibrar')}
       </p>
 
       <button
@@ -217,7 +214,7 @@ export function InstructorPanel({ onClose }: { onClose: () => void }) {
           cursor: fase === 'rodando' ? 'default' : 'pointer',
         }}
       >
-        ↺ Reiniciar ensaio
+        {t('instrutor.reiniciar')}
       </button>
     </div>
   )

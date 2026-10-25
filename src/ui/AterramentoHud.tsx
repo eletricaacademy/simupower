@@ -13,6 +13,8 @@ import { useDraggable } from './useDraggable'
 import { MobileSheet } from './MobileSheet'
 import { Detalhes } from './Detalhes'
 import { color } from '../design/tokens'
+import { Trans, useTranslation } from 'react-i18next'
+import { fmtNum } from '../i18n/numero'
 
 const CORV: Record<'pass' | 'marginal' | 'fail', string> = {
   pass: color.status.pass,
@@ -39,6 +41,7 @@ export function AterramentoHud() {
   const setMostrarParedes = useInsp((s) => s.setMostrarParedes)
   const resetAter = useAter((s) => s.reset)
   const cfgDrag = useDraggable()
+  const { t } = useTranslation(['aterramento', 'common'])
 
   // reinicia o ensaio do zero (mantém a câmera guiada ligada)
   const reiniciar = () => {
@@ -95,16 +98,16 @@ export function AterramentoHud() {
         <div className="absolute right-3 pointer-events-auto" style={{ top: 72 }}>
           <div className="hud-glass rounded-[14px] p-4 w-[280px] max-h-[80vh] overflow-y-auto hud-scroll" style={cfgDrag.style}>
             <div className="font-display font-semibold text-[14px] mb-3 select-none" style={{ color: color.text, ...cfgDrag.handleStyle }} {...cfgDrag.handlers}>
-              ⠿ Configurações
+              ⠿ {t('common:hud.configuracoes')}
             </div>
             {/* simulação: novo ensaio / encerrar */}
-            <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ color: color.textFaint }}>Simulação</div>
+            <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ color: color.textFaint }}>{t('common:hud.simulacao')}</div>
             <div className="flex gap-1.5">
               <button onClick={reiniciar} className="flex-1 text-[12px] py-1.5 rounded-[8px]" style={{ background: '#0c1117', color: color.accentCool, border: `1px solid ${color.hairline}` }}>
-                ↺ Novo ensaio
+                {t('common:hud.novoEnsaio')}
               </button>
               <button onClick={() => setView('menu')} className="flex-1 text-[12px] py-1.5 rounded-[8px]" style={{ background: '#0c1117', color: color.status.fail, border: `1px solid ${color.hairline}` }}>
-                ✕ Encerrar
+                {t('common:hud.encerrar')}
               </button>
             </div>
             <div className="my-3 h-px" style={{ background: color.hairline }} />
@@ -116,12 +119,12 @@ export function AterramentoHud() {
       )}
 
       {/* DESKTOP — só o cartão guiado (essencial); o progresso vai embutido nele */}
-      <PainelRecolhivel titulo="procedimento" className="hidden md:block absolute left-4 bottom-4 pointer-events-auto">
+      <PainelRecolhivel titulo={t('common:hud.procedimentoMin')} className="hidden md:block absolute left-4 bottom-4 pointer-events-auto">
         <GuidedCard />
       </PainelRecolhivel>
 
       {mostrarPainel && (
-        <PainelRecolhivel titulo="painel de ensaio" className="hidden md:block absolute right-4 bottom-4 pointer-events-auto">
+        <PainelRecolhivel titulo={t('common:hud.painelEnsaio')} className="hidden md:block absolute right-4 bottom-4 pointer-events-auto">
           <Terrometro />
         </PainelRecolhivel>
       )}
@@ -131,8 +134,8 @@ export function AterramentoHud() {
         onReiniciar={reiniciar}
         tabs={
           <>
-            <Tab ativo={aba === 'procedimento'} onClick={() => setAba('procedimento')}>Procedimento</Tab>
-            <Tab ativo={aba === 'medicao'} onClick={() => setAba('medicao')}>Medição</Tab>
+            <Tab ativo={aba === 'procedimento'} onClick={() => setAba('procedimento')}>{t('common:hud.procedimento')}</Tab>
+            <Tab ativo={aba === 'medicao'} onClick={() => setAba('medicao')}>{t('medicao')}</Tab>
           </>
         }
       >
@@ -142,7 +145,7 @@ export function AterramentoHud() {
           <Terrometro />
         ) : (
           <div className="hud-glass rounded-[14px] p-4 w-[330px] max-w-[90vw] text-[12px] text-center" style={{ color: color.textFaint }}>
-            O terrômetro fica disponível na etapa “Medir movendo a estaca P”.
+            {t('semPainel')}
           </div>
         )}
       </MobileSheet>
@@ -165,19 +168,15 @@ function ResumoLaudo({ onClose, onMenu, onNova }: { onClose: () => void; onMenu:
   const posP = useAter((s) => s.posP)
   const medicoes = useAter((s) => s.medicoes)
   const resultado = useAter((s) => s.resultado)
+  const { t } = useTranslation(['aterramento', 'common'])
   if (!resultado) return null
   const patamar = analisarPatamar(medicoes)
   const r = resultado.r62
   const ok = r <= 10
   const parecer =
-    `Resistência de aterramento medida em ${r.toFixed(1)} Ω a 62% da distância E–C ` +
-    `(método da queda de potencial, ABNT NBR 15749). ` +
-    (patamar.naZona
-      ? 'A leitura situa-se na zona de patamar (platô estável), o que confere confiabilidade ao valor medido. '
-      : 'O patamar não ficou bem definido — recomenda-se coletar mais pontos próximos a 62% e/ou aumentar a distância D. ') +
-    (ok
-      ? 'O valor ATENDE à recomendação da concessionária (≤ 10 Ω).'
-      : 'O valor está ACIMA do recomendado pela concessionária (≤ 10 Ω) — recomenda-se melhorar o sistema de aterramento.')
+    t('parecer.medida', { r: fmtNum(r, 1) }) +
+    t(patamar.naZona ? 'parecer.naZona' : 'parecer.foraZona') +
+    t(ok ? 'parecer.ok' : 'parecer.falha')
 
   const Item = ({ rotulo, valor, cor }: { rotulo: string; valor: string; cor?: string }) => (
     <div className="rounded-[10px] px-3 py-2" style={{ background: '#0c1117', border: `1px solid ${color.hairline}` }}>
@@ -191,47 +190,47 @@ function ResumoLaudo({ onClose, onMenu, onNova }: { onClose: () => void; onMenu:
       <div className="hud-glass rounded-[16px] p-6 w-[560px] max-w-[94vw] max-h-[92vh] overflow-y-auto hud-scroll">
         <div className="flex items-start justify-between mb-1">
           <div>
-            <div className="font-mono text-[11px] tracking-[0.2em] uppercase" style={{ color: color.accent }}>Laudo de medição</div>
-            <h2 className="font-display font-bold text-[20px]" style={{ color: color.text }}>Resistência de Aterramento</h2>
+            <div className="font-mono text-[11px] tracking-[0.2em] uppercase" style={{ color: color.accent }}>{t('laudo.titulo')}</div>
+            <h2 className="font-display font-bold text-[20px]" style={{ color: color.text }}>{t('laudo.subtitulo')}</h2>
           </div>
-          <button onClick={onClose} aria-label="Fechar" className="text-[18px] leading-none" style={{ color: color.textMuted }}>×</button>
+          <button onClick={onClose} aria-label={t('common:hud.fechar')} className="text-[18px] leading-none" style={{ color: color.textMuted }}>×</button>
         </div>
 
         <div className="grid grid-cols-3 gap-2 my-3">
-          <Item rotulo="R a 62%" valor={`${r.toFixed(1)} Ω`} cor={CORV[resultado.cor]} />
-          <Item rotulo="Variação no platô" valor={patamar.variacao !== null ? `${patamar.variacao.toFixed(1)}%` : '—'} />
-          <Item rotulo="Pontos medidos" valor={`${medicoes.length}`} />
+          <Item rotulo={t('laudo.r62')} valor={`${fmtNum(r, 1)} Ω`} cor={CORV[resultado.cor]} />
+          <Item rotulo={t('laudo.variacao')} valor={patamar.variacao !== null ? `${fmtNum(patamar.variacao, 1)}%` : '—'} />
+          <Item rotulo={t('laudo.pontos')} valor={`${medicoes.length}`} />
         </div>
 
         <Curva perfil={perfil} posP={posP} medicoes={medicoes} curva={resultado.curva} />
 
         <div className="mt-3 rounded-[10px] px-3 py-2.5" style={{ background: CORV[resultado.cor] + '14', border: `1px solid ${CORV[resultado.cor]}66` }}>
-          <div className="font-display font-semibold text-[15px]" style={{ color: CORV[resultado.cor] }}>{resultado.veredito}</div>
+          <div className="font-display font-semibold text-[15px]" style={{ color: CORV[resultado.cor] }}>{t(`veredito.${resultado.cor}`)}</div>
           <div className="text-[12px] mt-1 flex items-start gap-1" style={{ color: patamar.naZona ? color.status.pass : color.status.marginal }}>
             <span aria-hidden>{patamar.naZona ? '✓' : '⚠'}</span>
-            <span>{patamar.naZona ? 'Leitura na zona de patamar.' : 'Patamar não consolidado.'}</span>
+            <span>{patamar.naZona ? t('laudo.naZona') : t('laudo.foraZona')}</span>
           </div>
         </div>
 
         <div className="mt-3">
-          <div className="text-[10px] uppercase tracking-wider mb-1" style={{ color: color.textFaint }}>Parecer</div>
+          <div className="text-[10px] uppercase tracking-wider mb-1" style={{ color: color.textFaint }}>{t('common:hud.parecer')}</div>
           <p className="text-[13px] leading-relaxed" style={{ color: color.textMuted }}>{parecer}</p>
         </div>
 
         <div className="mt-3 text-[10px] flex flex-wrap gap-x-4 gap-y-1" style={{ color: color.textFaint }}>
-          <span>Método: ABNT NBR 15749 · IEEE 81 (queda de potencial)</span>
-          <span>Recomendação da concessionária: ≤ 10 Ω</span>
+          <span>{t('laudo.metodo')}</span>
+          <span>{t('recomendacao')}</span>
         </div>
 
         <div className="flex gap-2 mt-5">
           <button onClick={onClose} className="px-4 py-2 rounded-[10px] text-[13px]" style={{ background: '#0c1117', color: color.textMuted, border: `1px solid ${color.hairline}` }}>
-            Fechar
+            {t('common:hud.fechar')}
           </button>
           <button onClick={onNova} className="flex-1 py-2 rounded-[10px] font-display font-semibold text-[13px]" style={{ background: '#0c1117', color: color.accentCool, border: `1px solid ${color.accentCool}` }}>
-            ↺ Nova medição
+            {t('laudo.novaMedicao')}
           </button>
           <button onClick={onMenu} className="flex-1 py-2 rounded-[10px] font-display font-semibold text-[14px]" style={{ background: color.accent, color: '#0B0F14' }}>
-            Voltar ao menu
+            {t('common:hud.voltarMenu')}
           </button>
         </div>
       </div>
@@ -254,6 +253,7 @@ function GuidedCard() {
   const irParaPasso = useSim((s) => s.irParaPasso)
   const medicoes = useAter((s) => s.medicoes)
   const cumpridos = useSim((s) => s.cumpridos)
+  const { t } = useTranslation(['aterramento', 'common'])
   const habilitado = useSim((s) => {
     const p = s.ensaio.steps[s.passoIndex]
     return p ? passoHabilitado(s, p.id) : false
@@ -281,7 +281,7 @@ function GuidedCard() {
             <button
               key={s.id}
               onClick={() => irParaPasso(i)}
-              aria-label={`Passo ${i + 1}`}
+              aria-label={t('common:hud.passo', { n: i + 1 })}
               className="rounded-full transition-all"
               style={{ width: cur ? 18 : 8, height: 8, background: done ? color.status.pass : cur ? color.accent : '#2a3340' }}
             />
@@ -302,7 +302,8 @@ function GuidedCard() {
       {/* tutorial: como concluir a medição (mín. 3 pontos) */}
       {faltam3 && !jaCumprido && (
         <div className="rounded-[10px] px-3 py-2 mb-3 text-[12px] leading-snug" style={{ background: color.accentCool + '14', border: `1px solid ${color.accentCool}55`, color: color.text }}>
-          <b>Como concluir:</b> no painel do terrômetro (à direita), <b>mova a estaca P</b> e clique em <b>“+ Registrar”</b> em pelo menos <b>3 posições</b> diferentes para levantar a curva. <span className="font-mono" style={{ color: color.accentCool }}>{medicoes.length}/3 pontos</span>.
+          <Trans t={t} i18nKey="comoConcluir" components={{ b: <b /> }} />{' '}
+          <span className="font-mono" style={{ color: color.accentCool }}>{t('pontosDe3', { n: medicoes.length })}</span>.
         </div>
       )}
       <button
@@ -316,14 +317,14 @@ function GuidedCard() {
           cursor: !acaoLiberada || jaCumprido ? 'default' : 'pointer',
         }}
       >
-        {jaCumprido ? '✓ Concluído' : faltam3 ? `Concluir medição (${medicoes.length}/3)` : passo.acao}
+        {jaCumprido ? t('common:hud.concluido') : faltam3 ? t('concluirMedicao', { n: medicoes.length }) : passo.acao}
       </button>
       <div className="flex items-center gap-2 mt-2.5">
         <button onClick={() => irParaPasso(passoIndex - 1)} disabled={passoIndex === 0} className="px-3 py-2 rounded-[10px] text-[13px]" style={{ background: '#0c1117', color: passoIndex === 0 ? color.textFaint : color.textMuted, border: `1px solid ${color.hairline}` }}>
-          ‹ Voltar
+          {t('common:hud.voltar')}
         </button>
         <button onClick={() => irParaPasso(passoIndex + 1)} disabled={!jaCumprido || ultimo} className="flex-1 py-2 rounded-[10px] font-display font-semibold text-[13px]" style={{ background: jaCumprido && !ultimo ? color.accentCool : '#0c1117', color: jaCumprido && !ultimo ? '#0B0F14' : color.textFaint, border: `1px solid ${jaCumprido && !ultimo ? color.accentCool : color.hairline}` }}>
-          {ultimo ? 'Fim' : 'Próximo ›'}
+          {ultimo ? t('common:hud.fim') : t('common:hud.proximo')}
         </button>
       </div>
     </div>
@@ -343,6 +344,7 @@ function Terrometro() {
   // a seleção da estaca P só aparece na ETAPA 4 (at-medir) e após Iniciar medição
   const stepAtual = useSim((s) => s.ensaio.steps[s.passoIndex]?.id)
   const [medicaoIniciada, setMedicaoIniciada] = useState(false)
+  const { t } = useTranslation('aterramento')
   const emMedicao = stepAtual === 'at-medir'
 
   const rLive = resistenciaAparente(perfil, posP)
@@ -359,12 +361,12 @@ function Terrometro() {
   return (
     <div className="instrument-panel rounded-[12px] p-3 w-[310px] max-w-[90vw]">
       <div className="text-[10px] uppercase tracking-[0.18em] mb-2" style={{ color: color.textFaint }}>
-        Terrômetro · queda de potencial
+        {t('terrometro.titulo')}
       </div>
 
       {/* leitura */}
       <div className="rounded-[10px] px-3 py-2 mb-3 flex items-baseline justify-between" style={{ background: '#0c1117', border: `1px solid ${color.hairline}` }}>
-        <span className="font-mono font-bold text-[30px]" style={{ color: CORV[v.cor] }}>{rLive.toFixed(1)}</span>
+        <span className="font-mono font-bold text-[30px]" style={{ color: CORV[v.cor] }}>{fmtNum(rLive, 1)}</span>
         <span className="font-mono text-[14px]" style={{ color: color.textMuted }}>Ω</span>
       </div>
 
@@ -378,12 +380,12 @@ function Terrometro() {
           className="w-full mt-3 py-2.5 rounded-[10px] font-display font-semibold text-[14px]"
           style={{ background: color.accent, color: '#0B0F14' }}
         >
-          ▶ Iniciar medição
+          {t('terrometro.iniciar')}
         </button>
       )}
       {!emMedicao && !resultado && (
         <div className="text-[11px] mt-3 text-center leading-snug" style={{ color: color.textFaint }}>
-          Avance até a etapa “Medir movendo a estaca P” e inicie a medição.
+          {t('terrometro.avance')}
         </div>
       )}
 
@@ -392,8 +394,8 @@ function Terrometro() {
       {/* posição da estaca P */}
       <div className="mt-3">
         <div className="flex justify-between text-[11px] mb-1" style={{ color: color.textMuted }}>
-          <span>Estaca P</span>
-          <span className="font-mono">{(posP * 100).toFixed(0)}% · {(posP * distanciaM).toFixed(1)} m</span>
+          <span>{t('terrometro.estacaP')}</span>
+          <span className="font-mono">{fmtNum(posP * 100, 0)}% · {fmtNum(posP * distanciaM, 1)} m</span>
         </div>
         <input
           type="range"
@@ -409,10 +411,10 @@ function Terrometro() {
 
       <div className="flex gap-2 mt-3">
         <button onClick={() => setPosP(POS_62)} className="px-3 py-2 rounded-[9px] text-[12px]" style={{ background: '#0c1117', color: color.accentCool, border: `1px solid ${color.hairline}` }}>
-          Ir a 62%
+          {t('terrometro.ir62')}
         </button>
         <button onClick={registrar} className="flex-1 py-2 rounded-[9px] text-[12px] font-medium" style={{ background: '#0c1117', color: color.text, border: `1px solid ${color.hairline}` }}>
-          + Registrar ({nPontos})
+          {t('terrometro.registrar', { n: nPontos })}
         </button>
         <button
           onClick={calcular}
@@ -425,14 +427,14 @@ function Terrometro() {
             cursor: podeCalcular ? 'pointer' : 'default',
           }}
         >
-          Calcular
+          {t('terrometro.calcular')}
         </button>
       </div>
       {!resultado && (
         <div className="text-[10px] mt-1.5 text-center" style={{ color: podeCalcular ? color.accentCool : color.textFaint }}>
           {podeCalcular
-            ? 'Pronto para calcular — ou registre mais pontos.'
-            : `Escolha a posição, registre e repita — mín. 3 pontos (${nPontos}/3).`}
+            ? t('terrometro.pronto')
+            : t('terrometro.escolha', { n: nPontos })}
         </div>
       )}
         </>
@@ -441,25 +443,25 @@ function Terrometro() {
       {resultado && (
         <div className="mt-3 rounded-[10px] px-3 py-2.5" style={{ background: CORV[resultado.cor] + '14', border: `1px solid ${CORV[resultado.cor]}66` }}>
           <div className="flex items-baseline justify-between">
-            <span className="text-[11px] uppercase tracking-wider" style={{ color: color.textFaint }}>Resistência (62%)</span>
-            <span className="font-mono font-bold text-[20px]" style={{ color: CORV[resultado.cor] }}>{resultado.r62.toFixed(1)} Ω</span>
+            <span className="text-[11px] uppercase tracking-wider" style={{ color: color.textFaint }}>{t('terrometro.resistencia62')}</span>
+            <span className="font-mono font-bold text-[20px]" style={{ color: CORV[resultado.cor] }}>{fmtNum(resultado.r62, 1)} Ω</span>
           </div>
-          <div className="font-display font-semibold text-[14px] mt-1" style={{ color: CORV[resultado.cor] }}>{resultado.veredito}</div>
+          <div className="font-display font-semibold text-[14px] mt-1" style={{ color: CORV[resultado.cor] }}>{t(`veredito.${resultado.cor}`)}</div>
           {patamar.variacao !== null && (
             <div className="flex items-center justify-between text-[11px] mt-1.5 pt-1.5" style={{ borderTop: `1px solid ${color.hairline}`, color: color.textMuted }}>
-              <span>Variação no platô</span>
-              <span className="font-mono">{patamar.variacao.toFixed(1)}%</span>
+              <span>{t('laudo.variacao')}</span>
+              <span className="font-mono">{fmtNum(patamar.variacao, 1)}%</span>
             </div>
           )}
           <div className="text-[11px] mt-1 flex items-start gap-1" style={{ color: patamar.naZona ? color.status.pass : color.status.marginal }}>
             <span aria-hidden>{patamar.naZona ? '✓' : '⚠'}</span>
             <span>
               {patamar.naZona
-                ? 'Na zona de patamar — platô estável, leitura confiável.'
-                : 'Fora do patamar — colete mais pontos no meio ou aumente a distância D.'}
+                ? t('terrometro.naZona')
+                : t('terrometro.foraZona')}
             </span>
           </div>
-          <div className="text-[10px] mt-1" style={{ color: color.textFaint }}>Recomendação da concessionária: ≤ 10 Ω · {nPontos} pontos medidos</div>
+          <div className="text-[10px] mt-1" style={{ color: color.textFaint }}>{t('recomendacao')} · {t('terrometro.pontosMedidos', { n: nPontos })}</div>
         </div>
       )}
     </div>
@@ -503,6 +505,7 @@ function Curva({
   // curva traçada (no cálculo): a forma completa com o platô no meio
   const tracada = curva && curva.length > 1 ? curva.map((m) => `${sx(m.x).toFixed(1)},${sy(m.r).toFixed(1)}`).join(' ') : null
   const rLive = resistenciaAparente(perfil, posP)
+  const { t } = useTranslation('aterramento')
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ display: 'block', background: '#0c1117', borderRadius: 8, border: `1px solid ${color.hairline}` }}>
       {/* ZONA DE PATAMAR — faixa da resistência verdadeira (±12%); os pontos
@@ -516,7 +519,7 @@ function Curva({
         opacity={0.13}
       />
       <text x={pad + 3} y={sy(RTERRA[perfil]) - 2} fontSize="7.5" fill={color.status.pass} fontFamily="monospace" opacity={0.85}>
-        patamar
+        {t('curva.patamar')}
       </text>
       {/* linha de 62% */}
       <line x1={sx(POS_62)} y1={pad} x2={sx(POS_62)} y2={H - pad} stroke={color.status.pass} strokeWidth="1" strokeDasharray="3 3" opacity="0.7" />
@@ -534,7 +537,7 @@ function Curva({
       <circle cx={sx(posP)} cy={sy(rLive)} r="3.4" fill="#fff" stroke={color.accent} strokeWidth="1.5" />
       {med.length === 0 && (
         <text x={W / 2} y={H / 2} fontSize="9" fill={color.textFaint} textAnchor="middle" fontFamily="monospace">
-          mova a estaca P e registre os pontos
+          {t('curva.vazia')}
         </text>
       )}
     </svg>
@@ -546,20 +549,17 @@ function Curva({
 function PerfilPicker() {
   const perfil = useAter((s) => s.perfil)
   const setPerfil = useAter((s) => s.setPerfil)
-  const opts: { id: PerfilSolo; label: string }[] = [
-    { id: 'bom', label: 'Bom' },
-    { id: 'atencao', label: 'Atenção' },
-    { id: 'ruim', label: 'Ruim' },
-  ]
+  const { t } = useTranslation('aterramento')
+  const opts: PerfilSolo[] = ['bom', 'atencao', 'ruim']
   return (
     <div>
-      <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ color: color.textFaint }}>Condição do solo</div>
+      <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ color: color.textFaint }}>{t('solo.titulo')}</div>
       <div className="flex gap-1.5">
         {opts.map((o) => {
-          const ativo = perfil === o.id
+          const ativo = perfil === o
           return (
-            <button key={o.id} onClick={() => setPerfil(o.id)} className="flex-1 text-[12px] py-1.5 rounded-[8px]" style={{ background: ativo ? color.accent : '#0c1117', color: ativo ? '#0B0F14' : color.textMuted, border: `1px solid ${ativo ? color.accent : color.hairline}`, fontWeight: ativo ? 700 : 400 }}>
-              {o.label}
+            <button key={o} onClick={() => setPerfil(o)} className="flex-1 text-[12px] py-1.5 rounded-[8px]" style={{ background: ativo ? color.accent : '#0c1117', color: ativo ? '#0B0F14' : color.textMuted, border: `1px solid ${ativo ? color.accent : color.hairline}`, fontWeight: ativo ? 700 : 400 }}>
+              {t(`solo.${o}`)}
             </button>
           )
         })}

@@ -1,0 +1,269 @@
+{
+  "medicao": "Medição",
+  "guia": {
+    "cuidados": "Cuidados:",
+    "comoConcluir": "Como concluir:",
+    "pendCont": "meça os <b>{{n}} pontos</b> no miliohmímetro (à direita).",
+    "pendMalha": "crave as estacas, registre P a <b>52 %, 62 % e 72 %</b> e clique em <b>Calcular</b>.",
+    "pendTP": "meça os <b>{{n}} pontos</b> de toque e passo.",
+    "curva": "curva",
+    "loteDetalhe": "Compensa as pontas ou posiciona as estacas automaticamente; conserva solo, defeitos e distância C."
+  },
+  "planta": {
+    "titulo": "Usina FV de solo",
+    "subtitulo": "{{kw}} kW CA",
+    "arranjo": "Arranjo",
+    "mesas": "Mesas fixas",
+    "mesasValor": "{{n}} × 2P{{m}} · {{g}}° norte",
+    "skid": "Skid",
+    "skidValor": "{{n}} inversores × {{kw}} kW + QGBT",
+    "trafo": "Transformador",
+    "subestacao": "Subestação",
+    "subestacaoValor": "Cabine de medição e proteção",
+    "malha": "Malha",
+    "malhaValor": "{{a}} m² · {{l}} m enterrados",
+    "rg": "Rg calculada",
+    "solo": "Solo (instrutor)",
+    "abrirLaudo": "Abrir laudo",
+    "vista": {
+      "geral": "Visão geral",
+      "planta": "Vista de cima",
+      "skid": "skid",
+      "trafo": "trafo",
+      "estacas": "estacas"
+    }
+  },
+  "toggle": {
+    "nomes": "Mostrar nomes e valores na cena",
+    "malha": "Mostrar malha enterrada (anel, transversais e hastes)"
+  },
+  "cont": {
+    "titulo": "Inbrat INMD1 PRO · continuidade",
+    "medidos": "{{n}}/{{total}} medidos",
+    "verInbrat": "Ver Inbrat",
+    "garraFixa": "Garra fixa no <b>BEP do skid</b>",
+    "pontasZeradas": "✓ pontas zeradas",
+    "pontasNao": "⚠ +{{r}} Ω pontas",
+    "zerar": "Zerar pontas (curto entre as garras + REL)",
+    "percurso": "BEP do skid → {{ate}}",
+    "conexoes": "{{n}} conexões",
+    "rTeorica": "R teórica {{r}} Ω",
+    "remedir": "↻ Remedir",
+    "medir": "▶ Medir",
+    "descartar": "Descartar",
+    "compense": "Compense as pontas antes de medir — sem isso os cabos entram na leitura.",
+    "criterio": "Critério adotado: ≤ {{a}} Ω conforme · ≤ {{b}} Ω atenção",
+    "veredito": {
+      "aberto": "Descontinuidade — circuito aberto",
+      "pass": "Contínuo — conforme",
+      "marginal": "Atenção — conexão com resistência elevada",
+      "fail": "Não conforme — equipotencialização comprometida"
+    }
+  },
+  "grupo": {
+    "Mesas": "Mesas",
+    "Equipamentos": "Equipamentos",
+    "Cerca": "Cerca"
+  },
+  "terr": {
+    "titulo": "Terrômetro · queda de potencial",
+    "distanciaC": "Distância da estaca C",
+    "multiplo": "≈ {{k}}× a diagonal da malha ({{d}} m). Mudar a distância recrava as estacas e apaga a curva.",
+    "zona": "Zona de influência da malha pela estrada: ~{{z}} m de E (potencial acima de 10 % do GPR, faixa âmbar no 3D).",
+    "zonaFora": " P a 52 % já fica fora dela.",
+    "zonaDentro": " P a 52 % ainda cai dentro dela — a curva não vai achatar.",
+    "cravar": "Cravar estacas C e P · conectar E",
+    "estacaP": "Estaca P",
+    "posP": "{{p}} % · {{m}} m de E",
+    "pA": "P a {{p}} %",
+    "registrar": "+ Registrar ({{n}})",
+    "calcular": "Calcular",
+    "apagarCurva": "Apagar curva",
+    "patamarRegistrado": "Patamar registrado — calcule, ou registre mais pontos para ver a curva inteira.",
+    "registreMin": "Registre ao menos P a 52 %, 62 % e 72 % para verificar o patamar.",
+    "leitura62": "Leitura a 62 %",
+    "variacao": "Variação 52–72 %",
+    "variacaoValor": "{{v}} % (≤ {{l}} %)",
+    "patamarOk": "Patamar estável: a leitura representa a malha. Critério adotado ≤ {{l}} Ω.",
+    "semPatamar": "Sem patamar: a estaca C está dentro da zona de influência da malha. Afaste-a e repita.",
+    "graficoVazio": "mova a estaca P e registre os pontos",
+    "veredito": {
+      "inconclusivo": "Inconclusivo — sem patamar",
+      "pass": "Adequada",
+      "marginal": "Atenção — acima do recomendado",
+      "fail": "Inadequada"
+    }
+  },
+  "tp": {
+    "titulo": "Toque e passo · injeção de corrente",
+    "intro": "Injeção de <b>{{it}} A</b> na malha; leitura extrapolada para <b>{{im}} A</b> de falta (t = {{t}} s). Solo {{rho}} Ω·m · brita {{rb}} Ω·m, {{h}} cm.",
+    "tipo": {
+      "toque": "toque",
+      "passo": "passo"
+    },
+    "superficie": {
+      "brita": "brita",
+      "grama": "grama"
+    },
+    "lido": "Lido com {{i}} A",
+    "extrapolado": "Extrapolado ({{i}} A)",
+    "limite": "Limite suportável",
+    "aviso": "Limites pelas expressões da NBR 15751 / IEEE 80 (corpo de 50 kg). Valores de falta são do cenário didático.",
+    "veredito": {
+      "toque": {
+        "fail": "Tensão de toque acima do suportável",
+        "pass": "Tensão de toque dentro do limite"
+      },
+      "passo": {
+        "fail": "Tensão de passo acima do suportável",
+        "pass": "Tensão de passo dentro do limite"
+      },
+      "marginal": "Dentro do limite, com pouca folga"
+    }
+  },
+  "mapa": {
+    "titulo": "Mapa no solo durante a falta",
+    "potencial": "Potencial",
+    "relevo": "Relevo 3D",
+    "seguranca": "Seguras",
+    "desligado": "Ocultar",
+    "gpr": "GPR {{v}} V",
+    "textoRelevo": "A altura do relevo é o potencial do solo: o “platô” é a malha no GPR; a encosta fora da cerca é onde o passo e o toque crescem.",
+    "textoPotencial": "Potencial da superfície na falta. Toque = GPR − potencial sob os pés: onde o solo fica “frio” (azul) perto de uma massa aterrada, o toque é alto.",
+    "segOk": "■ toque e passo dentro do limite",
+    "segToque": "■ toque acima do limite (se houver massa ao alcance)",
+    "segPasso": "■ passo acima do limite",
+    "segNota": "Limites com brita no skid/trafo e grama no restante."
+  },
+  "laudo": {
+    "titulo": "Laudo de ensaio",
+    "subtitulo": "Aterramento da usina FV · {{kw}} kW",
+    "continuidade": "Continuidade",
+    "malha62": "Malha (62 %)",
+    "toquePasso": "Toque e passo",
+    "resumoMalha": "Estaca C a {{d}} m · variação do patamar {{v}} % ({{estado}}).",
+    "estavel": "estável",
+    "semPatamar": "sem patamar",
+    "rgRef": "Rg calculada da malha (método dos momentos, solo de {{rho}} Ω·m): {{rg}} Ω.",
+    "conforme": "Aterramento conforme aos critérios adotados",
+    "naoConforme": "Aterramento não conforme",
+    "incompleto": "Laudo incompleto",
+    "parecerIncompleto": "Inspeção INCOMPLETA: conclua os três ensaios (continuidade, resistência da malha e toque/passo) antes de emitir o laudo.",
+    "parecerConforme": "O sistema de aterramento da usina ATENDE aos critérios adotados: equipotencialização contínua em todos os {{n}} pontos, malha com {{r}} Ω e patamar estável, e tensões de toque e passo abaixo dos limites suportáveis.",
+    "parecerNaoConforme": "Foram identificados {{n}} achado(s). O sistema de aterramento NÃO ATENDE aos critérios adotados até que os itens apontados sejam corrigidos e os ensaios, repetidos.",
+    "achados": "Achados e ações",
+    "acao": "Ação:",
+    "rodape": {
+      "continuidade": "Continuidade: NBR 16274 · NBR 16690",
+      "malha": "Malha: NBR 15749 (queda de potencial)",
+      "toquePasso": "Toque/passo: NBR 15749 · NBR 15751",
+      "didatico": "Resultado de simulação didática — não é laudo de instalação real"
+    }
+  },
+  "achado": {
+    "ensaio": {
+      "cont": "Continuidade",
+      "malha": "Resistência da malha",
+      "tp": "Toque e passo"
+    },
+    "itemEstacaC": "Estaca C a {{d}} m",
+    "itemMalha": "Malha da usina",
+    "leituraVariacao": "variação {{v}} %",
+    "acao": {
+      "cont-aberto": "Localizar a interrupção (cordoalha/derivação ausente ou rompida), refazer e remedir.",
+      "cont-refazer-conexao": "Refazer a conexão com arruela serrilhada/grampo que perfure a anodização e remedir.",
+      "cont-reapertar": "Limpar, tratar e reapertar o conector; remedir.",
+      "malha-sem-patamar": "Sem patamar: afastar a estaca de corrente (≥ 5× a diagonal da malha) e repetir a curva.",
+      "malha-alta": "Ampliar a malha, acrescentar hastes ou tratar o solo; reavaliar toque e passo.",
+      "tp-portao": "Refazer o anel de equalização em frente ao portão (a 1 m da cerca) e reavaliar; em solo muito resistivo, acrescentar brita do lado de fora.",
+      "tp-reforcar": "Reforçar a malha no local, aplicar brita (≥ 10 cm) e reavaliar."
+    }
+  },
+  "instrutor": {
+    "condicao": "Condição da instalação",
+    "integra": "Íntegra",
+    "comDefeitos": "Com defeitos",
+    "notaCondicao": "Trocar a condição apaga todas as medições.",
+    "solo": "Solo",
+    "notaSolo": "O solo muda a malha: apaga a curva e o toque/passo (a continuidade permanece)."
+  },
+  "solo": {
+    "umido": "Argiloso úmido",
+    "arenoso": "Arenoso",
+    "rochoso": "Rochoso / seco"
+  },
+  "calibracao": {
+    "titulo": "Calibração do ambiente 3D",
+    "desligar": "Desligar identificação",
+    "identificar": "Identificar ponto",
+    "capturar": "Capturar posição da câmera"
+  },
+  "pontos": {
+    "mesa": {
+      "nome": "Mesa {{m}} — estrutura",
+      "ate": "Terminal de aterramento da Mesa {{m}}",
+      "dica": "Derivação da mesa à malha, jumpers entre perfis e grampos com arruela serrilhada."
+    },
+    "m4": {
+      "dica": "Grampo de aterramento sobre perfil anodizado: sem arruela serrilhada, a anodização isola."
+    },
+    "m6": {
+      "dica": "Conector da derivação exposto à umidade — procure oxidação e aperto."
+    },
+    "inversores": {
+      "nome": "Carcaça dos inversores (skid)",
+      "ate": "Terminal PE dos inversores",
+      "dica": "Condutor PE de cada inversor ao barramento de terra do skid."
+    },
+    "trafo": {
+      "nome": "Carcaça e neutro do transformador",
+      "ate": "Terminal de terra do tanque do trafo",
+      "dica": "Tanque e neutro BT ligados à malha em pontos distintos; sem cordoalha rompida."
+    },
+    "se": {
+      "nome": "Barramento de terra da subestação",
+      "ate": "Barra de terra da cabine de medição e proteção",
+      "dica": "Malha da SE interligada à malha da usina — sem malhas separadas no mesmo sítio."
+    },
+    "portao": {
+      "nome": "Portão da cerca",
+      "ate": "Folha do portão (via cordoalha flexível)",
+      "dica": "A folha móvel precisa de cordoalha flexível até o mourão aterrado — a dobradiça não conduz."
+    },
+    "cerca-no": {
+      "nome": "Cerca — mourão do canto noroeste",
+      "ate": "Mourão aterrado do canto NO",
+      "dica": "Cerca metálica aterrada a intervalos e nos cantos, ligada ao anel de equalização."
+    },
+    "t-trafo": {
+      "nome": "Toque — tanque do transformador",
+      "local": "Mão no tanque, pés a 1 m sobre a brita",
+      "dica": "Ponto crítico: falta na MT do trafo eleva o potencial da malha inteira."
+    },
+    "t-skid": {
+      "nome": "Toque — porta do QGBT no skid",
+      "local": "Mão na porta metálica, pés sobre a brita",
+      "dica": "Portas e painéis metálicos no mesmo potencial da malha."
+    },
+    "t-mesa": {
+      "nome": "Toque — estrutura da mesa M1",
+      "local": "Mão no pilar da mesa, pés sobre a grama",
+      "dica": "Transversal da malha sob a fileira reduz a diferença entre estrutura e solo."
+    },
+    "t-portao": {
+      "nome": "Toque — portão, lado externo",
+      "local": "Mão no portão, pés fora da cerca, sobre a grama",
+      "dica": "Fora da cerca não há brita nem malha sob os pés: é o anel de equalização a 1 m que segura o potencial do solo. Com o trecho em frente ao portão interrompido, o toque sobe."
+    },
+    "p-trafo": {
+      "nome": "Passo — junto à base do transformador",
+      "local": "Pés afastados 1 m, sobre a brita",
+      "dica": "A camada de brita aumenta a resistência de contato dos pés."
+    },
+    "p-cerca": {
+      "nome": "Passo — perímetro externo da cerca",
+      "local": "Pés afastados 1 m, fora da cerca, sobre a grama",
+      "dica": "O gradiente de potencial é maior na borda da malha."
+    }
+  }
+}

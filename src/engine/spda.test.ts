@@ -69,6 +69,13 @@ describe('avaliarContinuidade', () => {
     expect(v.aprovado).toBe(false)
     expect(v.veredito).toMatch(/aberto/i)
   })
+
+  it('devolve um código por faixa para a UI traduzir', () => {
+    expect(avaliarContinuidade(LIMITE_CONFORME).codigo).toBe('conforme')
+    expect(avaliarContinuidade(LIMITE_ATENCAO).codigo).toBe('atencao')
+    expect(avaliarContinuidade(LIMITE_ATENCAO + 0.01).codigo).toBe('nao-conforme')
+    expect(avaliarContinuidade(Infinity).codigo).toBe('aberto')
+  })
 })
 
 describe('formatarLeitura', () => {
@@ -136,6 +143,7 @@ describe('emitirLaudo', () => {
     expect(laudo.conforme).toBe(true)
     expect(laudo.aprovados).toBe(SPDA_PONTOS.length)
     expect(laudo.naoConformidades).toHaveLength(0)
+    expect(laudo.situacao).toBe('conforme')
   })
 
   it('reprova e lista as não conformidades no cenário com defeitos', () => {
@@ -145,7 +153,9 @@ describe('emitirLaudo', () => {
     laudo.naoConformidades.forEach((nc) => {
       expect(nc.acao).not.toBe('')
       expect(nc.causaProvavel).not.toBe('')
+      expect(['aberto', 'corrosao', 'aperto']).toContain(nc.codigo)
     })
+    expect(laudo.situacao).toBe('nao-conforme')
   })
 
   it('inspeção incompleta nunca sai conforme', () => {
@@ -155,6 +165,7 @@ describe('emitirLaudo', () => {
     expect(laudo.conforme).toBe(false)
     expect(laudo.medidos).toBe(SPDA_PONTOS.length - 1)
     expect(laudo.parecer).toMatch(/INCOMPLETA/)
+    expect(laudo.situacao).toBe('incompleto')
   })
 })
 

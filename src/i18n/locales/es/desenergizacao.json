@@ -1,0 +1,52 @@
+{
+  "detalhesEtapa": "Detalles de la etapa",
+  "sequencia": "Secuencia (NR-10)",
+  "abaEstado": "Estado",
+  "comemoracao": {
+    "desTitulo": "¡Desenergización concluida!",
+    "reenTitulo": "¡Reenergización concluida!",
+    "desTexto": "Procedimiento de desenergización finalizado con éxito, conforme a la NR-10. La instalación está segura para el mantenimiento.",
+    "reenTexto": "Subestación reenergizada con éxito y nuevamente en operación. Procedimiento completo.",
+    "prosseguir": "Continuar con la reenergización ›"
+  },
+  "dialogo": {
+    "cuidados": "⚠ Precauciones",
+    "erros": "✗ Errores comunes",
+    "entendi": "Entendido"
+  },
+  "banner": {
+    "des": "✅ Desenergización completa — instalación segura. <b>Puede iniciar el mantenimiento.</b>",
+    "reen": "Subestación reenergizada — en operación."
+  },
+  "passoN": "PASO {{n}}/{{total}}",
+  "cliqueDestacado": "Haga clic en el punto resaltado de la escena — o en el botón de abajo.",
+  "preparado": "<b>⚠ ¿Preparado?</b> Ahora es el momento de <m>{{manobra}}</m>.",
+  "manobra": {
+    "seccionar": "ABRIR el interruptor",
+    "religar": "CERRAR el interruptor",
+    "carregar-mola": "CARGAR EL RESORTE del interruptor",
+    "padrao": "ejecutar la maniobra"
+  },
+  "sim": "✓ Sí",
+  "etapaConcluida": "✓ Etapa concluida",
+  "fimProcedimento": "Fin del procedimiento",
+  "estado": {
+    "titulo": "Estado de seguridad",
+    "seccionado": "Seccionado",
+    "bloqueado": "Bloqueado (LOTO)",
+    "tensaoAusente": "Ausencia de tensión",
+    "aterrado": "Puesto a tierra",
+    "protegido": "Partes energizadas protegidas",
+    "sinalizado": "Señalizado",
+    "liberado": "Liberado para el trabajo",
+    "reenergizada": "Reenergizada — en operación"
+  },
+  "grade": "Reja",
+  "paredes": "Paredes",
+  "calibrar": {
+    "titulo": "Calibrar punto",
+    "ligado": "Haciendo clic (activado)",
+    "identificar": "Identificar punto",
+    "ajuda": "Haga clic en el interruptor, el bloqueo, la prueba, la puesta a tierra, la protección y la señalización; envíeme las coordenadas y las guardo."
+  }
+}

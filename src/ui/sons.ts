@@ -4,6 +4,11 @@
  * O AudioContext é criado/retomado sob gesto do usuário (cliques).
  */
 import { asset } from '../lib/asset'
+import { useSim } from '../sim/store'
+import type { Idioma } from '../i18n/idiomas'
+
+/** Idiomas com locução gravada em `public/sounds/voz/`. Gravou ES/EN? Acrescente aqui. */
+const LOCUCAO_GRAVADA: Idioma[] = ['pt']
 
 let ctx: AudioContext | null = null
 let master = 0.7 // volume mestre (0..1)
@@ -143,6 +148,9 @@ let vozAtiva = false // enquanto a voz toca, abaixa o ambiente (ducking)
 export function somVoz(id: string): HTMLAudioElement | null {
   pararVoz()
   if (mudo || typeof Audio === 'undefined') return null
+  // a locução só foi gravada em português: em ES/EN ela ficaria por cima de uma
+  // tela em outro idioma. Sem áudio no idioma, o instrutor fica só no texto.
+  if (!LOCUCAO_GRAVADA.includes(useSim.getState().idioma)) return null
   const a = new Audio(asset(`sounds/voz/${id}.mp3`))
   a.volume = 1
   vozAtual = a

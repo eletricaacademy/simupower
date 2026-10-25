@@ -17,6 +17,7 @@ import { useAudio } from './sim/audioStore'
 import { pararTudo } from './ui/sons'
 import { asset } from './lib/asset'
 import { color } from './design/tokens'
+import { useTranslation } from 'react-i18next'
 
 const IDLE_MS = 3 * 60 * 1000 // silencia o áudio após 3 min sem interação
 
@@ -119,6 +120,7 @@ export default function App() {
 
 /** Splash leve enquanto o chunk do 3D carrega. */
 function Splash() {
+  const { t } = useTranslation()
   return (
     <div
       className="absolute inset-0 grid place-items-center"
@@ -135,7 +137,7 @@ function Splash() {
           className="font-mono text-[11px] mt-1"
           style={{ color: color.textFaint }}
         >
-          inicializando palco 3D…
+          {t('splash')}
         </div>
       </div>
     </div>

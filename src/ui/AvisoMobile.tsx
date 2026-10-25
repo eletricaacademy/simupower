@@ -3,6 +3,7 @@ import { useIsPhone } from './useIsPhone'
 import { useSim } from '../sim/store'
 import { asset } from '../lib/asset'
 import { color } from '../design/tokens'
+import { Trans, useTranslation } from 'react-i18next'
 
 /**
  * AvisoMobile — ao abrir QUALQUER simulação no celular, recomenda o desktop para
@@ -14,6 +15,7 @@ export function AvisoMobile() {
   const phone = useIsPhone()
   const setView = useSim((s) => s.setView)
   const [aberto, setAberto] = useState(true)
+  const { t } = useTranslation()
   if (!phone || !aberto) return null
 
   return (
@@ -36,26 +38,24 @@ export function AvisoMobile() {
           <IconDesktop />
         </div>
         <h2 className="font-display font-bold text-[19px] mb-2" style={{ color: color.text }}>
-          Melhor no computador
+          {t('avisoMobile.titulo')}
         </h2>
         <p className="text-[13px] leading-relaxed mb-5" style={{ color: color.textMuted }}>
-          Esta simulação 3D foi pensada para o <b style={{ color: color.text }}>desktop</b> — há mais
-          espaço para o equipamento e os instrumentos, e o desempenho fica melhor. Você pode continuar
-          no celular mesmo assim.
+          <Trans i18nKey="avisoMobile.texto" components={{ b: <b style={{ color: color.text }} /> }} />
         </p>
         <button
           onClick={() => setAberto(false)}
           className="w-full py-3 rounded-[12px] font-display font-semibold text-[15px]"
           style={{ background: color.accent, color: '#0B0F14', boxShadow: `0 0 22px ${color.accent}44` }}
         >
-          Continuar no celular
+          {t('avisoMobile.continuar')}
         </button>
         <button
           onClick={() => setView('menu')}
           className="w-full mt-2 py-2.5 rounded-[12px] text-[13px] font-medium"
           style={{ background: 'transparent', color: color.textMuted, border: `1px solid ${color.hairline}` }}
         >
-          Voltar ao menu
+          {t('avisoMobile.voltar')}
         </button>
       </div>
     </div>

@@ -350,11 +350,29 @@ export function medirToquePasso(ponto: PontoToquePassoFv, malha: MalhaFv): Leitu
 
 // ─── Laudo consolidado ───────────────────────────────────────────────────────
 
+/**
+ * Código de cada achado, para a UI traduzir sem ler a frase em PT (a engine
+ * continua sem texto de tela por idioma). `item`/`leitura`/`acao` seguem em PT.
+ */
+export type CodigoAchadoFv =
+  | 'cont-aberto'
+  | 'cont-refazer-conexao'
+  | 'cont-reapertar'
+  | 'malha-sem-patamar'
+  | 'malha-alta'
+  | 'tp-portao'
+  | 'tp-reforcar'
+
 export interface AchadoFv {
   ensaio: 'Continuidade' | 'Resistência da malha' | 'Toque e passo'
   item: string
   leitura: string
   acao: string
+  codigo: CodigoAchadoFv
+  /** Ponto de continuidade ou de toque/passo do achado (quando houver). */
+  pontoId?: string
+  /** Números do achado como dado (a UI formata no idioma ativo). */
+  dados?: { distanciaCM?: number; variacaoPct?: number; r?: number; vFalta?: number; limite?: number }
 }
 
 export interface LaudoFv {
@@ -367,11 +385,16 @@ export interface LaudoFv {
   parecer: string
 }
 
-function acaoContinuidade(l: LeituraContinuidadeFv, defeito?: TipoDefeitoFv): string {
-  if (!Number.isFinite(l.r)) return 'Localizar a interrupção (cordoalha/derivação ausente ou rompida), refazer e remedir.'
-  if (defeito === 'anodizacao' || l.r > LIMITE_EQUIPOT_ATENCAO)
-    return 'Refazer a conexão com arruela serrilhada/grampo que perfure a anodização e remedir.'
-  return 'Limpar, tratar e reapertar o conector; remedir.'
+const ACAO_CONTINUIDADE: Record<'cont-aberto' | 'cont-refazer-conexao' | 'cont-reapertar', string> = {
+  'cont-aberto': 'Localizar a interrupção (cordoalha/derivação ausente ou rompida), refazer e remedir.',
+  'cont-refazer-conexao': 'Refazer a conexão com arruela serrilhada/grampo que perfure a anodização e remedir.',
+  'cont-reapertar': 'Limpar, tratar e reapertar o conector; remedir.',
+}
+
+function codigoContinuidade(l: LeituraContinuidadeFv, defeito?: TipoDefeitoFv): keyof typeof ACAO_CONTINUIDADE {
+  if (!Number.isFinite(l.r)) return 'cont-aberto'
+  if (defeito === 'anodizacao' || l.r > LIMITE_EQUIPOT_ATENCAO) return 'cont-refazer-conexao'
+  return 'cont-reapertar'
 }
 
 export function emitirLaudoFv(dados: {
@@ -387,7 +410,10 @@ export function emitirLaudoFv(dados: {
     const l = dados.continuidade[p.id]
     if (!l) continue
     if (l.aprovado) aprovCont++
-    else achados.push({ ensaio: 'Continuidade', item: p.nome, leitura: `${l.display} Ω`, acao: acaoContinuidade(l, p.defeito) })
+    else {
+      const codigo = codigoContinuidade(l, p.defeito)
+      achados.push({ ensaio: 'Continuidade', item: p.nome, leitura: `${l.display} Ω`, acao: ACAO_CONTINUIDADE[codigo], codigo, pontoId: p.id, dados: { r: l.r } })
+    }
   }
   const m = dados.malha
   if (m && !m.valida)
@@ -396,6 +422,8 @@ export function emitirLaudoFv(dados: {
       item: `Estaca C a ${m.distanciaCM} m`,
       leitura: `variação ${m.variacaoPct.toFixed(1)} %`,
       acao: 'Sem patamar: afastar a estaca de corrente (≥ 5× a diagonal da malha) e repetir a curva.',
+      codigo: 'malha-sem-patamar',
+      dados: { distanciaCM: m.distanciaCM, variacaoPct: m.variacaoPct },
     })
   else if (m && m.cor !== 'pass')
     achados.push({
@@ -403,6 +431,8 @@ export function emitirLaudoFv(dados: {
       item: 'Malha da usina',
       leitura: `${m.r62.toFixed(2)} Ω`,
       acao: 'Ampliar a malha, acrescentar hastes ou tratar o solo; reavaliar toque e passo.',
+      codigo: 'malha-alta',
+      dados: { r: m.r62 },
     })
   let aprovTP = 0
   for (const p of dados.pontosToquePasso) {
@@ -418,6 +448,9 @@ export function emitirLaudoFv(dados: {
           p.id === 't-portao'
             ? 'Refazer o anel de equalização em frente ao portão (a 1 m da cerca) e reavaliar; em solo muito resistivo, acrescentar brita do lado de fora.'
             : 'Reforçar a malha no local, aplicar brita (≥ 10 cm) e reavaliar.',
+        codigo: p.id === 't-portao' ? 'tp-portao' : 'tp-reforcar',
+        pontoId: p.id,
+        dados: { vFalta: l.vFalta, limite: l.limite },
       })
   }
   const completo =

@@ -1,0 +1,111 @@
+{
+  "abaResultado": "Resultado",
+  "passo": "PASSO {{n}}/{{total}}",
+  "controle": {
+    "icc": "Icc (curto presumido)",
+    "classe": "Classe do equipamento",
+    "distancia": "Distância de trabalho",
+    "aterramento": "Aterramento",
+    "aterrado": "Aterrado",
+    "isolado": "Isolado"
+  },
+  "classe": {
+    "painel-bt": "Painel",
+    "mcc-bt": "CCM",
+    "painel-mt": "Painel",
+    "aberto": "Ar"
+  },
+  "resultado": {
+    "titulo": "Energia Incidente",
+    "epi": "EPI",
+    "fronteira": "Fronteira",
+    "iArco": "I arco",
+    "epiMin": "EPI mín.",
+    "verEtiqueta": "🏷 Ver etiqueta de arco",
+    "vazio": "Defina os parâmetros e calcule para ver a energia incidente, a fronteira de arco e a categoria de EPI."
+  },
+  "categoria": {
+    "minimo": "Risco mínimo",
+    "nivel": "Categoria {{n}}",
+    "extremo": "Perigo extremo — não energizar"
+  },
+  "intro": {
+    "titulo": "Simulação de situação real",
+    "texto": "Vamos fazer uma simulação de uma situação real. Com a <b>nova NR-10 (2026)</b>, passou a ser necessária uma <b>análise mais criteriosa</b> do risco de arco elétrico.",
+    "pergunta": "Deseja prosseguir?",
+    "sim": "Sim, prosseguir ›",
+    "investigacao": "Investigação de acidente",
+    "investigar": "Vamos investigar para evitar este tipo de acidente",
+    "continuar": "Continuar ›",
+    "vestimentaTitulo": "Dimensionar a vestimenta de proteção",
+    "vestimentaTexto": "O acidente mostra o risco de trabalhar sem a vestimenta adequada. Agora vamos <b>dimensionar corretamente a vestimenta de proteção (EPI) contra arco</b> para este cenário, calculando a energia incidente e a categoria de risco.",
+    "comecar": "Começar a análise"
+  },
+  "etiqueta": {
+    "perigo": "PERIGO",
+    "atencao": "ATENÇÃO",
+    "aviso": "AVISO",
+    "titulo1": "Risco de Choque e Arc Flash",
+    "titulo2": "Necessário EPI Adequado",
+    "risco": "Risco",
+    "riscoMinimo": "Risco mínimo",
+    "riscoCategoria": "Categoria {{n}}",
+    "riscoPerigo": "PERIGO",
+    "protArco": "Proteção contra Arc Flash",
+    "afb": "Região de Risco de Arco (AFB)",
+    "energiaEm": "Energia incidente em {{d}} mm",
+    "faixa": "Faixa de risco de arco",
+    "protChoque": "Proteção contra Choque",
+    "riscoChoque": "Risco de Choque",
+    "limitada": "Região de Aproximação Limitada",
+    "restrita": "Região de Aproximação Restrita",
+    "epiNecessario": "EPI Necessário",
+    "equipamento": "Equipamento:",
+    "data": "Data:",
+    "rodape": "Atenção: mudanças no equipamento ou na configuração do sistema invalidam os cálculos e os EPIs necessários · IEEE 1584 / NBR 17227",
+    "epi": {
+      "n0": [
+        "Vestimenta de algodão não inflamável (mangas longas)",
+        "Óculos de segurança",
+        "Calçado de segurança"
+      ],
+      "n1": [
+        "Vestimenta FR ≥ 4 cal/cm² (camisa + calça ou macacão)",
+        "Óculos de segurança",
+        "Protetor facial FR ou balaclava",
+        "Capacete classe E",
+        "Luvas de couro",
+        "Calçado de segurança"
+      ],
+      "n2": [
+        "Vestimenta FR ≥ 8 cal/cm² (camisa + calça ou macacão)",
+        "Balaclava FR",
+        "Protetor facial com viseira classe E",
+        "Capacete classe II",
+        "Luvas isolantes c/ cobertura",
+        "Calçado dielétrico",
+        "Protetores auriculares"
+      ],
+      "n3": [
+        "Conjunto FR ≥ 25 cal/cm² + capuz de arco",
+        "Capacete + protetor facial/capuz",
+        "Luvas isolantes c/ cobertura",
+        "Calçado dielétrico",
+        "Protetores auriculares"
+      ],
+      "n4": [
+        "Conjunto FR ≥ 40 cal/cm² + capuz de arco",
+        "Capacete + capuz de arco completo",
+        "Luvas isolantes c/ cobertura",
+        "Calçado dielétrico",
+        "Protetores auriculares"
+      ],
+      "n5": [
+        "NÃO TRABALHAR ENERGIZADO",
+        "Redesenhar proteção para reduzir IE < 40 cal/cm²",
+        "Aplicar técnicas de mitigação (relé de arco, ZSI)",
+        "Considerar manobra remota / desenergização"
+      ]
+    }
+  }
+}

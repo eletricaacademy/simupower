@@ -2,7 +2,7 @@ import { PainelRecolhivel } from './PainelRecolhivel'
 import { useState, useEffect, useRef } from 'react'
 import { useSim, passoHabilitado } from '../sim/store'
 import { useArc } from '../sim/arcStore'
-import { CLASSES } from '../engine/arcflash'
+import { CLASSES, type CategoriaEPI } from '../engine/arcflash'
 import { Checklist } from './Checklist'
 import { QualityPicker } from './QualityPicker'
 import { ArcLabel } from './ArcLabel'
@@ -14,13 +14,22 @@ import { useDraggable } from './useDraggable'
 import { ArcIntro } from './ArcIntro'
 import { ambiente, somVoz, pararVoz } from './sons'
 import { color } from '../design/tokens'
+import { useTranslation } from 'react-i18next'
+import { fmtNum } from '../i18n/numero'
 
 const COR: Record<'pass' | 'marginal' | 'fail', string> = {
   pass: color.status.pass,
   marginal: color.status.marginal,
   fail: color.status.fail,
 }
-const num = (v: number, c = 2) => v.toFixed(c).replace('.', ',')
+const num = (v: number, c = 2) => fmtNum(v, c)
+
+/** Chave do rótulo da categoria de EPI a partir do `nivel` da engine (a engine não fala idioma). */
+function chaveCategoria(cat: CategoriaEPI): string {
+  if (cat.nivel === 0) return 'categoria.minimo'
+  if (cat.nivel === 5) return 'categoria.extremo'
+  return 'categoria.nivel'
+}
 
 /**
  * ArcFlashHud — HUD do estudo de arco elétrico. Mesmo padrão do megômetro:
@@ -39,6 +48,7 @@ export function ArcFlashHud() {
   const ensaio = useSim((s) => s.ensaio)
   const cfgDrag = useDraggable()
   const prevRes = useRef(false)
+  const { t } = useTranslation(['arco', 'common'])
 
   // zera parâmetros/resultado ao abrir o módulo de arco
   useEffect(() => resetArc(), [resetArc])
@@ -73,7 +83,7 @@ export function ArcFlashHud() {
               style={{ color: color.text, ...cfgDrag.handleStyle }}
               {...cfgDrag.handlers}
             >
-              ⠿ Configurações
+              ⠿ {t('common:hud.configuracoes')}
             </div>
             <QualityPicker />
           </div>
@@ -81,17 +91,17 @@ export function ArcFlashHud() {
       )}
 
       {/* DESKTOP */}
-      <PainelRecolhivel titulo="procedimento" className="hidden md:flex absolute left-4 bottom-4 flex-col gap-3 pointer-events-auto">
+      <PainelRecolhivel titulo={t('common:hud.procedimentoMin')} className="hidden md:flex absolute left-4 bottom-4 flex-col gap-3 pointer-events-auto">
         <ArcGuidedPanel />
         <div className="hud-glass rounded-[14px] p-3 w-[360px]">
           <div className="text-[10px] uppercase tracking-wider mb-2" style={{ color: color.textFaint }}>
-            Procedimento
+            {t('common:hud.procedimento')}
           </div>
           <Checklist />
         </div>
       </PainelRecolhivel>
 
-      <PainelRecolhivel titulo="painel de ensaio" className="hidden md:block absolute right-4 bottom-4 pointer-events-auto">
+      <PainelRecolhivel titulo={t('common:hud.painelEnsaio')} className="hidden md:block absolute right-4 bottom-4 pointer-events-auto">
         <ArcResult onVerEtiqueta={() => setLabelAberto(true)} />
       </PainelRecolhivel>
 
@@ -104,10 +114,10 @@ export function ArcFlashHud() {
         tabs={
           <>
             <Tab ativo={aba === 'procedimento'} onClick={() => setAba('procedimento')}>
-              Procedimento
+              {t('common:hud.procedimento')}
             </Tab>
             <Tab ativo={aba === 'resultado'} onClick={() => setAba('resultado')}>
-              Resultado
+              {t('abaResultado')}
             </Tab>
           </>
         }
@@ -150,6 +160,7 @@ function ArcGuidedPanel() {
     return p ? !!s.cumpridos[p.id] : false
   })
   const calcular = useArc((s) => s.calcular)
+  const { t } = useTranslation(['arco', 'common'])
 
   const passo = ensaio.steps[passoIndex]
   if (!passo) return null
@@ -167,7 +178,7 @@ function ArcGuidedPanel() {
           className="font-mono text-[11px] px-2 py-0.5 rounded-full"
           style={{ background: '#0c1117', color: color.accent, border: `1px solid ${color.hairline}` }}
         >
-          PASSO {passoIndex + 1}/{ensaio.steps.length}
+          {t('passo', { n: passoIndex + 1, total: ensaio.steps.length })}
         </span>
         {passo.norma && (
           <span className="text-[10px]" style={{ color: color.textFaint }}>
@@ -197,7 +208,7 @@ function ArcGuidedPanel() {
           boxShadow: habilitado && !jaCumprido ? `0 0 20px ${color.accent}44` : 'none',
         }}
       >
-        {jaCumprido ? '✓ Concluído' : passo.acao}
+        {jaCumprido ? t('common:hud.concluido') : passo.acao}
       </button>
     </div>
   )
@@ -205,11 +216,12 @@ function ArcGuidedPanel() {
 
 function Controle({ control }: { control?: string }) {
   const arc = useArc()
+  const { t } = useTranslation('arco')
   if (control === 'af-tensao') {
     const opcoes = [
-      { v: 0.48, label: '0,48 kV' },
-      { v: 4.16, label: '4,16 kV' },
-      { v: 13.8, label: '13,8 kV' },
+      { v: 0.48, label: `${num(0.48, 2)} kV` },
+      { v: 4.16, label: `${num(4.16, 2)} kV` },
+      { v: 13.8, label: `${num(13.8, 1)} kV` },
     ]
     return (
       <Grupo>
@@ -224,7 +236,7 @@ function Controle({ control }: { control?: string }) {
   if (control === 'af-corrente') {
     return (
       <div className="mb-3">
-        <Range rotulo="Icc (curto presumido)" valor={`${num(arc.ibf, 0)} kA`} min={1} max={63} step={1} value={arc.ibf} onChange={arc.setIbf} />
+        <Range rotulo={t('controle.icc')} valor={`${num(arc.ibf, 0)} kA`} min={1} max={63} step={1} value={arc.ibf} onChange={arc.setIbf} />
       </div>
     )
   }
@@ -244,24 +256,24 @@ function Controle({ control }: { control?: string }) {
     return (
       <div className="mb-3 space-y-2.5">
         <div>
-          <Rotulo>Classe do equipamento</Rotulo>
+          <Rotulo>{t('controle.classe')}</Rotulo>
           <Grupo>
             {Object.values(CLASSES).map((c) => (
               <Pill key={c.id} ativo={arc.classeId === c.id} onClick={() => arc.setClasse(c.id)} pequeno>
-                {c.nome.split(' ')[0]}
+                {t(`classe.${c.id}`)}
               </Pill>
             ))}
           </Grupo>
         </div>
-        <Range rotulo="Distância de trabalho" valor={`${num(arc.distancia, 0)} mm`} min={150} max={1200} step={5} value={arc.distancia} onChange={arc.setDistancia} />
+        <Range rotulo={t('controle.distancia')} valor={`${num(arc.distancia, 0)} mm`} min={150} max={1200} step={5} value={arc.distancia} onChange={arc.setDistancia} />
         <div>
-          <Rotulo>Aterramento</Rotulo>
+          <Rotulo>{t('controle.aterramento')}</Rotulo>
           <Grupo>
             <Pill ativo={arc.aterramento === 'aterrado'} onClick={() => arc.setAterramento('aterrado')}>
-              Aterrado
+              {t('controle.aterrado')}
             </Pill>
             <Pill ativo={arc.aterramento === 'isolado'} onClick={() => arc.setAterramento('isolado')}>
-              Isolado
+              {t('controle.isolado')}
             </Pill>
           </Grupo>
         </div>
@@ -323,12 +335,13 @@ function Range({ rotulo, valor, min, max, step, value, onChange }: { rotulo: str
 function ArcResult({ onVerEtiqueta }: { onVerEtiqueta: () => void }) {
   const r = useArc((s) => s.resultado)
   const cor = r ? COR[r.cor] : color.textFaint
+  const { t } = useTranslation('arco')
 
   return (
     <div className="instrument-panel rounded-[14px] p-4 w-[360px] max-w-[88vw]">
       <div className="flex items-baseline justify-between mb-2">
         <span className="text-[11px] uppercase tracking-[0.18em]" style={{ color: color.textFaint }}>
-          Energia Incidente
+          {t('resultado.titulo')}
         </span>
         <span className="font-mono text-[11px]" style={{ color: color.textFaint }}>
           IEEE 1584
@@ -354,28 +367,28 @@ function ArcResult({ onVerEtiqueta }: { onVerEtiqueta: () => void }) {
             style={{ background: cor + '1a', border: `1px solid ${cor}66` }}
           >
             <span className="text-[11px] uppercase tracking-[0.16em]" style={{ color: color.textMuted }}>
-              EPI
+              {t('resultado.epi')}
             </span>
             <span className="font-display font-semibold text-[15px]" style={{ color: cor }}>
-              {r.categoria.rotulo}
+              {t(chaveCategoria(r.categoria), { n: r.categoria.nivel })}
             </span>
           </div>
           <div className="grid grid-cols-3 gap-2 mb-3">
-            <Metric rotulo="Fronteira" valor={`${num(r.afb / 1000)} m`} />
-            <Metric rotulo="I arco" valor={`${num(r.ia, 1)} kA`} />
-            <Metric rotulo="EPI mín." valor={r.categoria.epiCal ? `${r.categoria.epiCal} cal` : '—'} />
+            <Metric rotulo={t('resultado.fronteira')} valor={`${num(r.afb / 1000)} m`} />
+            <Metric rotulo={t('resultado.iArco')} valor={`${num(r.ia, 1)} kA`} />
+            <Metric rotulo={t('resultado.epiMin')} valor={r.categoria.epiCal ? `${r.categoria.epiCal} cal` : '—'} />
           </div>
           <button
             onClick={onVerEtiqueta}
             className="w-full py-2.5 rounded-[10px] font-display font-semibold text-[13px]"
             style={{ background: '#0c1117', color: color.accent, border: `1px solid ${color.accent}66` }}
           >
-            🏷 Ver etiqueta de arco
+            {t('resultado.verEtiqueta')}
           </button>
         </>
       ) : (
         <p className="text-[12px]" style={{ color: color.textFaint }}>
-          Defina os parâmetros e calcule para ver a energia incidente, a fronteira de arco e a categoria de EPI.
+          {t('resultado.vazio')}
         </p>
       )}
     </div>
@@ -426,6 +439,7 @@ function LabelModal({ onClose }: { onClose: () => void }) {
   const distancia = useArc((s) => s.distancia)
   const nome = useSim((s) => s.equipamento.nome)
   const escala = useEscalaEtiqueta()
+  const { t } = useTranslation('common')
   if (!r) return null
 
   return (
@@ -437,7 +451,7 @@ function LabelModal({ onClose }: { onClose: () => void }) {
       <div onClick={(e) => e.stopPropagation()} className="relative" style={{ zoom: escala }}>
         <button
           onClick={onClose}
-          aria-label="Fechar"
+          aria-label={t('hud.fechar')}
           className="absolute -top-3 -right-3 z-10 w-8 h-8 rounded-full font-bold"
           style={{ background: color.surface, color: color.text, border: `1px solid ${color.hairline}` }}
         >

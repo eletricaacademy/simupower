@@ -7,6 +7,7 @@ import {
   avaliar,
   corDoVeredito,
   executarEnsaio,
+  codigoDoVeredito,
   PERFIS,
 } from './insulation'
 
@@ -123,5 +124,20 @@ describe('executarEnsaio — as 3 condições a 500 V / 40 °C', () => {
     const quente = executarEnsaio('atencao', 500, 55)
     const frio = executarEnsaio('atencao', 500, 40)
     expect(quente.r40).toBeGreaterThan(frio.r40)
+  })
+})
+
+describe('codigoDoVeredito — chave da tradução na UI', () => {
+  it('um código estável para cada veredito', () => {
+    expect(codigoDoVeredito('Excelente')).toBe('excelente')
+    expect(codigoDoVeredito('Aprovado')).toBe('aprovado')
+    expect(codigoDoVeredito('Questionável')).toBe('questionavel')
+    expect(codigoDoVeredito('Reprovado')).toBe('reprovado')
+  })
+
+  it('executarEnsaio devolve o código junto com a frase', () => {
+    const r = executarEnsaio('ruim', 500, 40)
+    expect(r.codigo).toBe('reprovado')
+    expect(r.codigo).toBe(codigoDoVeredito(r.veredito))
   })
 })

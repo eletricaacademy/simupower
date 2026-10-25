@@ -12,6 +12,9 @@ export type VeredictoInspecao =
   | 'Aprovado com pendências'
   | 'Reprovado'
 
+/** Código estável do veredito: a UI traduz a partir dele (`inspecao:veredito.<codigo>`). */
+export type CodigoInspecao = 'andamento' | 'aprovado' | 'aprovado-pendencias' | 'reprovado'
+
 export interface ResultadoInspecao {
   conformes: number
   naoConformes: number
@@ -20,6 +23,7 @@ export interface ResultadoInspecao {
   /** percentual de conformidade entre os itens já avaliados (0–100) */
   percentual: number
   veredito: VeredictoInspecao
+  codigo: CodigoInspecao
   cor: 'pass' | 'marginal' | 'fail'
 }
 
@@ -32,20 +36,25 @@ export function avaliarInspecao(itens: StatusItem[]): ResultadoInspecao {
   const percentual = avaliados === 0 ? 0 : Math.round((conformes / avaliados) * 100)
 
   let veredito: VeredictoInspecao
+  let codigo: CodigoInspecao
   let cor: ResultadoInspecao['cor']
   if (pendentes > 0) {
     veredito = 'Em andamento'
+    codigo = 'andamento'
     cor = 'marginal'
   } else if (naoConformes === 0) {
     veredito = 'Aprovado'
+    codigo = 'aprovado'
     cor = 'pass'
   } else if (naoConformes / total <= 0.25) {
     veredito = 'Aprovado com pendências'
+    codigo = 'aprovado-pendencias'
     cor = 'marginal'
   } else {
     veredito = 'Reprovado'
+    codigo = 'reprovado'
     cor = 'fail'
   }
 
-  return { conformes, naoConformes, pendentes, total, percentual, veredito, cor }
+  return { conformes, naoConformes, pendentes, total, percentual, veredito, codigo, cor }
 }

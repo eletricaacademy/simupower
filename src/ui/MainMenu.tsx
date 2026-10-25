@@ -13,6 +13,9 @@ import {
 } from '../catalog'
 import { asset } from '../lib/asset'
 import { color } from '../design/tokens'
+import { Trans, useTranslation } from 'react-i18next'
+import { LanguageSelector } from './LanguageSelector'
+import { fmtData } from '../i18n/numero'
 import {
   groundProDisponivel,
   entrarNoGroundPro,
@@ -28,13 +31,9 @@ import {
   type MotivoPowerDim,
 } from '../lib/contaPowerDim'
 
+/** Textos do card (título, equipamento…) vêm de `menu.json` → `modulos.<id>`. */
 interface Modulo {
   id: string
-  titulo: string
-  equipamento: string
-  instrumento: string
-  norma: string
-  descricao: string
   disponivel: boolean
   /** quando true, o módulo não aparece no menu (mantido no catálogo). */
   oculto?: boolean
@@ -54,26 +53,17 @@ const LS_TRIAL = 'calibra:trial'
 type OrigemConta = 'powerdim' | 'groundpro'
 type Acesso = { liberado: boolean; promo: boolean; conta?: OrigemConta }
 
-/** Texto de erro do login pela conta PowerDim, por motivo. */
+/**
+ * Erro do login por conta, guardado como CHAVE de tradução (não como texto):
+ * se o usuário trocar o idioma com a mensagem na tela, ela acompanha.
+ */
+const MOTIVOS_PD = ['sem-conta', 'sem-simupower', 'encerrado', 'sem-sessao'] as const
+const MOTIVOS_GP = ['sem-conta', 'encerrado', 'desativado', 'sem-sessao'] as const
 function msgPowerDim(motivo: MotivoPowerDim): string {
-  switch (motivo) {
-    case 'sem-conta': return 'Conta não encontrada no PowerDim. Confira o e-mail.'
-    case 'sem-simupower': return 'Sua conta do PowerDim não inclui o SimuPower. Fale com o suporte para liberar.'
-    case 'encerrado': return 'Seu acesso ao PowerDim terminou. Renove para continuar.'
-    case 'sem-sessao': return 'E-mail ou senha incorretos.'
-    default: return 'Não foi possível verificar sua conta agora. Tente novamente.'
-  }
+  return `erroPowerDim.${(MOTIVOS_PD as readonly string[]).includes(motivo) ? motivo : 'outro'}`
 }
-
-/** Texto de erro do login pela conta GroundPRO, por motivo. */
 function msgGroundPro(motivo: MotivoGroundPro): string {
-  switch (motivo) {
-    case 'sem-conta': return 'Conta não encontrada no GroundPRO. Confira o e-mail ou crie sua conta pelo link da turma.'
-    case 'encerrado': return 'Seu acesso ao GroundPRO terminou. Adquira o acesso completo para continuar.'
-    case 'desativado': return 'Login pela conta GroundPRO não está disponível nesta versão.'
-    case 'sem-sessao': return 'E-mail ou senha incorretos.'
-    default: return 'Não foi possível verificar sua conta agora. Tente novamente.'
-  }
+  return `erroGroundPro.${(MOTIVOS_GP as readonly string[]).includes(motivo) ? motivo : 'outro'}`
 }
 
 /** Estado de acesso inicial: total permanente, promocional dentro do prazo, ou bloqueado. */
@@ -101,111 +91,58 @@ function fmtRestante(ms: number): string {
 /** Catálogo de módulos exibidos no menu (orientado a dados). */
 const MODULOS: Modulo[] = [
   {
-    id: 'spda-estrutural', titulo: 'SPDA natural / estrutural', equipamento: 'Galpão industrial',
-    instrumento: 'Inbrat · conexões nas ferragens e Aterrinsert', norma: 'ABNT NBR 5419-3:2026',
-    descricao: 'Ensaie as armaduras do galpão pelos Aterrinsert: primeira verificação cruzada e comprobatória entre captação e BEP, com corrente visível.',
+    id: 'spda-estrutural',
     disponivel: true, par: PAR_ESTRUTURAL,
   },
   {
     id: 'aterramento-usina-fv',
-    titulo: 'Aterramento em Usina Fotovoltaica',
-    equipamento: 'Usina FV de solo · 300 kW (skid, trafo e SE)',
-    instrumento: 'Inbrat INMD1 PRO · terrômetro · toque e passo',
-    norma: 'NBR 16690 · NBR 16274 · NBR 15749 · NBR 15751',
-    descricao:
-      'Equipotencialização das mesas, resistência da malha por queda de potencial e tensões de toque e passo numa usina de solo, com mapa de potenciais, relevo 3D e laudo consolidado.',
     disponivel: true,
     par: PAR_USINA_FV,
   },
   {
     id: 'iso-motor',
-    titulo: 'Teste de Isolamento em Motor',
-    equipamento: 'Motor de Indução Trifásico',
-    instrumento: 'Megômetro 5 kV · Minipa MI-2705',
-    norma: 'IEEE 43 · NBR/IEC 60034-27',
-    descricao:
-      'Resistência de isolamento no tempo, DAR, PI e correção a 40 °C — com leitura ao vivo e veredito por norma.',
     disponivel: true,
     par: PAR_PADRAO,
   },
   {
     id: 'arco-eletrico',
-    titulo: 'Análise de Arco Elétrico',
-    equipamento: 'Painel de Média Tensão',
-    instrumento: 'Estudo IEEE 1584',
-    norma: 'IEEE 1584 · NFPA 70E · NR-10',
-    descricao:
-      'Cálculo da energia incidente, fronteira de arco e categoria de EPI num painel MT, dentro de subestação.',
     disponivel: true,
     par: PAR_ARCO,
   },
   {
     id: 'inspecao-subestacao',
-    titulo: 'Inspeção de Subestação',
-    equipamento: 'Subestação abrigada (walk-in)',
-    instrumento: 'Checklist NR-10',
-    norma: 'NR-10 · NBR 14039',
-    descricao:
-      'Entre na subestação e faça a inspeção guiada (transformador, cubículos, aterramento, cabos) com veredito de conformidade.',
     disponivel: true,
     par: PAR_INSPECAO,
   },
   {
     id: 'desenergizacao',
-    titulo: 'Procedimento de Desenergização',
-    equipamento: 'Subestação abrigada (walk-in)',
-    instrumento: 'Sequência LOTO',
-    norma: 'NR-10 · 10.5 / 10.6',
-    descricao:
-      'Execute a sequência segura de desenergização (seccionar, bloquear, testar, aterrar, proteger, sinalizar) e a reenergização.',
     disponivel: true,
     par: PAR_DESENERG,
   },
   {
     id: 'aterramento',
-    titulo: 'Resistência de Aterramento',
-    equipamento: 'Malha / Eletrodo',
-    instrumento: 'Terrômetro',
-    norma: 'NBR 15749 · IEEE 81',
-    descricao: 'Medição de resistência de aterramento por queda de potencial (método dos 62%).',
     disponivel: true,
     par: PAR_ATERRAMENTO,
   },
   {
     id: 'continuidade-spda',
-    titulo: 'Continuidade do SPDA',
-    equipamento: 'Prédio com para-raios',
-    instrumento: 'Miliohmímetro (continuidade)',
-    norma: 'NBR 5419-3',
-    descricao:
-      'Inspeção do SPDA: mede a continuidade da captação, das descidas e da equipotencialização, com laudo de conformidade.',
     disponivel: true,
     par: PAR_SPDA,
   },
   {
     id: 'verificacao-5410',
-    titulo: 'Verificação de Instalações (NBR 5410)',
-    equipamento: 'Instalação Hospitalar (walk-in)',
-    instrumento: 'Inspeção visual + ensaios — Seção 7',
-    norma: 'NBR 5410 · Seção 7',
-    descricao:
-      'Verificação final de instalação elétrica de baixa tensão em ambiente hospitalar — inspeção visual e ensaios da Seção 7.',
     disponivel: true,
     par: PAR_VERIFICACAO,
   },
   {
     id: 'disjuntor',
-    titulo: 'Ensaios em Disjuntor',
-    equipamento: 'Disjuntor de Potência',
-    instrumento: 'Analisador de disjuntores',
-    norma: 'IEC 62271',
-    descricao: 'Tempos de operação e resistência de contatos.',
     disponivel: false,
     oculto: true,
   },
 ]
 
 export function MainMenu() {
+  const { t } = useTranslation('menu')
   const [categoria, setCategoria] = useState('todos')
   const carregarPar = useSim((s) => s.carregarPar)
   const setView = useSim((s) => s.setView)
@@ -230,7 +167,7 @@ export function MainMenu() {
   const liberado = acesso.liberado
   const [senha, setSenha] = useState('')
   const [erroSenha, setErroSenha] = useState(false)
-  const [msgErro, setMsgErro] = useState('Senha incorreta. Tente novamente.')
+  const [msgErro, setMsgErro] = useState('gate.senhaIncorreta')
 
   // ── login por conta externa: PowerDim (14/09/2026) ou GroundPRO (12/09/2026) ──
   // Um formulário só (e-mail + senha). Tenta o PowerDim primeiro; se não entrar
@@ -372,12 +309,12 @@ export function MainMenu() {
         setAcesso({ liberado: true, promo: true })
         setErroSenha(false)
       } else {
-        setMsgErro('O acesso promocional de 48h expirou.')
+        setMsgErro('gate.promoExpirou')
         setErroSenha(true)
       }
       return
     }
-    setMsgErro('Senha incorreta. Tente novamente.')
+    setMsgErro('gate.senhaIncorreta')
     setErroSenha(true)
   }
 
@@ -410,6 +347,12 @@ export function MainMenu() {
         background: `radial-gradient(1200px 600px at 70% -10%, #14203022 0%, transparent 60%), radial-gradient(900px 500px at 10% 110%, #1a160622 0%, transparent 55%), ${color.viewport}`,
       }}
     >
+      {/* idioma — no canto, acima até do gate de senha: quem não lê português
+          precisa conseguir trocar antes de entrar */}
+      <div className="fixed z-[90]" style={{ top: 'max(14px, env(safe-area-inset-top))', right: 'max(14px, env(safe-area-inset-right))' }}>
+        <LanguageSelector />
+      </div>
+
       {/* gate de senha — bloqueia as ferramentas até a senha correta */}
       {!liberado && (
         <div
@@ -425,10 +368,10 @@ export function MainMenu() {
               className="font-mono text-[11px] tracking-[0.2em] uppercase mb-2"
               style={{ color: color.accent }}
             >
-              Acesso restrito
+              {t('gate.acessoRestrito')}
             </div>
             <h2 className="font-display font-bold text-[20px] mb-3" style={{ color: color.text }}>
-              Digite a senha para liberar as ferramentas
+              {t('gate.titulo')}
             </h2>
             <input
               type="password"
@@ -439,8 +382,8 @@ export function MainMenu() {
                 setSenha(e.target.value)
                 if (erroSenha) setErroSenha(false)
               }}
-              placeholder="Senha de acesso"
-              aria-label="Senha de acesso"
+              placeholder={t('gate.senha')}
+              aria-label={t('gate.senha')}
               className="w-full text-center font-mono text-[16px] tracking-[0.3em] rounded-[10px] px-4 py-3 mb-3 outline-none"
               style={{
                 background: '#0c1117',
@@ -450,7 +393,7 @@ export function MainMenu() {
             />
             {erroSenha && (
               <div className="text-[12px] mb-3" style={{ color: color.status.fail }}>
-                {msgErro}
+                {t(msgErro)}
               </div>
             )}
             <button
@@ -458,7 +401,7 @@ export function MainMenu() {
               className="w-full font-display font-semibold text-[14px] px-5 py-2.5 rounded-[10px] transition-all"
               style={{ background: color.accent, color: '#0B0F14' }}
             >
-              Liberar acesso
+              {t('gate.liberar')}
             </button>
 
             {/* ── ou: entrar com a conta PowerDim (14/09/2026) ou GroundPRO (12/09/2026) ── */}
@@ -468,7 +411,7 @@ export function MainMenu() {
                   className="font-mono text-[11px] tracking-[0.2em] uppercase mb-2 text-center"
                   style={{ color: color.textMuted }}
                 >
-                  ou entre com a conta PowerDim{groundProDisponivel() ? ' ou GroundPRO' : ''}
+                  {t(groundProDisponivel() ? 'gate.ouContaGp' : 'gate.ouConta')}
                 </div>
                 <input
                   type="email"
@@ -478,8 +421,8 @@ export function MainMenu() {
                     setGpEmail(e.target.value)
                     if (gpErro) setGpErro(null)
                   }}
-                  placeholder="E-mail da sua conta"
-                  aria-label="E-mail da sua conta"
+                  placeholder={t('gate.email')}
+                  aria-label={t('gate.email')}
                   className="w-full font-mono text-[14px] rounded-[10px] px-4 py-2.5 mb-2 outline-none"
                   style={{ background: '#0c1117', color: color.text, border: `1px solid ${gpErro ? color.status.fail : color.hairline}` }}
                 />
@@ -491,8 +434,8 @@ export function MainMenu() {
                     setGpSenha(e.target.value)
                     if (gpErro) setGpErro(null)
                   }}
-                  placeholder="Senha da sua conta"
-                  aria-label="Senha da sua conta"
+                  placeholder={t('gate.senhaConta')}
+                  aria-label={t('gate.senhaConta')}
                   onKeyDown={(e) => {
                     // Enter aqui entra pela conta, não pela senha numérica do formulário de cima.
                     if (e.key === 'Enter') entrarComConta(e)
@@ -502,10 +445,10 @@ export function MainMenu() {
                 />
                 {gpErro && (
                   <div className="text-[12px] mb-3 text-center" style={{ color: color.status.fail }}>
-                    {gpErro}{' '}
-                    {gpErro.startsWith('Seu acesso ao GroundPRO terminou') && (
+                    {t(gpErro)}{' '}
+                    {gpErro === 'erroGroundPro.encerrado' && (
                       <a href={URL_COMPRA_GROUNDPRO} target="_blank" rel="noopener" className="underline" style={{ color: color.accent }}>
-                        Falar no WhatsApp
+                        {t('gate.whatsapp')}
                       </a>
                     )}
                   </div>
@@ -517,7 +460,7 @@ export function MainMenu() {
                   className="w-full font-display font-semibold text-[14px] px-5 py-2.5 rounded-[10px] transition-all disabled:opacity-50"
                   style={{ background: 'transparent', color: color.accent, border: `1px solid ${color.accent}` }}
                 >
-                  {gpOcupado ? 'Verificando…' : 'Entrar com a minha conta'}
+                  {gpOcupado ? t('gate.verificando') : t('gate.entrar')}
                 </button>
               </div>
             )}
@@ -533,11 +476,11 @@ export function MainMenu() {
         >
           <span aria-hidden className="text-[18px]">🔊</span>
           <span className="text-[13px] leading-snug" style={{ color: color.text }}>
-            Para aproveitar melhor a experiência, <b>aumente o som</b> do seu dispositivo.
+            <Trans t={t} i18nKey="dicaSom" components={{ b: <b /> }} />
           </span>
           <button
             onClick={fecharDica}
-            aria-label="Fechar aviso"
+            aria-label={t('fecharAviso')}
             className="ml-1 text-[16px] leading-none"
             style={{ color: color.textMuted }}
           >
@@ -554,7 +497,7 @@ export function MainMenu() {
         >
           <span aria-hidden className="text-[16px]">⏳</span>
           <span className="text-[13px] leading-snug" style={{ color: color.text }}>
-            Simulador liberado por <b>48h</b> — expira em{' '}
+            <Trans t={t} i18nKey="promo" components={{ b: <b /> }} />{' '}
             <b className="font-mono" style={{ color: color.accent }}>{fmtRestante(TRIAL_EXPIRA - agora)}</b>
           </span>
         </div>
@@ -568,9 +511,9 @@ export function MainMenu() {
         >
           <span aria-hidden className="text-[16px]">👤</span>
           <span className="text-[13px] leading-snug" style={{ color: color.text }}>
-            Conta {gpConta?.origem === 'powerdim' ? 'PowerDim' : 'GroundPRO'}{gpConta?.email ? <> · <b>{gpConta.email}</b></> : null}
+            {t('conta.conta', { origem: gpConta?.origem === 'powerdim' ? 'PowerDim' : 'GroundPRO' })}{gpConta?.email ? <> · <b>{gpConta.email}</b></> : null}
             {gpConta?.status === 'trial' && gpConta.fim ? (
-              <> · trial até <b className="font-mono" style={{ color: color.accent }}>{new Date(gpConta.fim).toLocaleDateString('pt-BR')}</b></>
+              <> · {t('conta.trialAte')} <b className="font-mono" style={{ color: color.accent }}>{fmtData(gpConta.fim)}</b></>
             ) : null}
           </span>
           <button
@@ -578,7 +521,7 @@ export function MainMenu() {
             className="ml-1 text-[12px] underline"
             style={{ color: color.textMuted }}
           >
-            Sair
+            {t('conta.sair')}
           </button>
         </div>
       )}
@@ -595,13 +538,13 @@ export function MainMenu() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="font-mono text-[11px] tracking-[0.2em] uppercase mb-1" style={{ color: color.accent }}>
-              Resistência de Aterramento
+              {t('modulos.aterramento.titulo')}
             </div>
             <h2 className="font-display font-bold text-[20px] mb-1" style={{ color: color.text }}>
-              Escolha o método de medição
+              {t('subAter.titulo')}
             </h2>
             <p className="text-[13px] mb-5" style={{ color: color.textMuted }}>
-              Medição por queda de potencial com terrômetro de haste (estaca).
+              {t('subAter.texto')}
             </p>
 
             {/* opção 1: terrômetro de haste (disponível) */}
@@ -615,14 +558,14 @@ export function MainMenu() {
             >
               <div className="flex items-center justify-between">
                 <span className="font-display font-semibold text-[15px]" style={{ color: color.text }}>
-                  Terrômetro de haste (estaca)
+                  {t('subAter.opcao')}
                 </span>
                 <span className="font-mono text-[10px] px-2 py-0.5 rounded-full" style={{ color: color.status.pass, border: `1px solid ${color.status.pass}55` }}>
-                  Disponível
+                  {t('card.disponivel')}
                 </span>
               </div>
               <div className="text-[12px] mt-1" style={{ color: color.textMuted }}>
-                Método da queda de potencial (62%) — estacas C e P cravadas no solo.
+                {t('subAter.opcaoTexto')}
               </div>
             </button>
 
@@ -631,7 +574,7 @@ export function MainMenu() {
               className="text-[12px]"
               style={{ color: color.textMuted }}
             >
-              ‹ Voltar
+              {t('subAter.voltar')}
             </button>
           </div>
         </div>
@@ -663,15 +606,9 @@ export function MainMenu() {
               className="font-display font-bold flex items-center h-12 px-4 rounded-[10px] whitespace-nowrap text-[20px] tracking-tight"
               style={{ color: color.accentCool, border: `1px solid ${color.hairline}`, background: '#0c1117' }}
             >
-              Módulo NR-10
+              {t('marca')}
             </span>
           </div>
-          <span
-            className="hidden sm:inline-block font-mono text-[10px] px-2.5 py-1 rounded-full"
-            style={{ color: color.accentCool, border: `1px solid ${color.hairline}`, background: '#0c1117' }}
-          >
-            3D · PT-BR
-          </span>
         </header>
 
         {/* hero */}
@@ -680,18 +617,16 @@ export function MainMenu() {
             className="font-mono text-[11px] tracking-[0.2em] uppercase mb-3"
             style={{ color: color.accent }}
           >
-            Ambiente de treinamento imersivo
+            {t('hero.eyebrow')}
           </div>
           <h1
             className="font-display font-bold leading-[1.05] mb-4"
             style={{ color: color.text, fontSize: 'clamp(28px, 5vw, 46px)' }}
           >
-            Execute ensaios de campo em equipamentos elétricos{' '}
-            <span style={{ color: color.accent }}>renderizados em 3D</span>.
+            <Trans t={t} i18nKey="hero.titulo" components={{ a: <span style={{ color: color.accent }} /> }} />
           </h1>
           <p className="text-[15px] leading-relaxed" style={{ color: color.textMuted }}>
-            Pegue o instrumento, conecte as ponteiras e siga o procedimento guiado passo a passo —
-            com leituras ao vivo em instrumentos calibrados e veredito segundo norma.
+            {t('hero.texto')}
           </p>
         </section>
 
@@ -699,19 +634,19 @@ export function MainMenu() {
         <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-display font-semibold text-[15px]" style={{ color: color.text }}>
-              Ensaios
+              {t('ensaios')}
             </h2>
             <span className="font-mono text-[11px]" style={{ color: color.textFaint }}>
-              {visiveis.filter((m) => m.disponivel).length} disponível · {visiveis.length} no catálogo
+              {t('contagem', { disp: visiveis.filter((m) => m.disponivel).length, total: visiveis.length })}
             </span>
           </div>
 
-          <nav aria-label="Categorias de ensaios" className="flex flex-wrap gap-2 mb-4">
-            {([['todos', 'Todos os ensaios'], ['aterramento', 'Aterramento e usina FV'], ['spda', 'SPDA']] as const).map(([id, nome]) => (
+          <nav aria-label={t('categorias.rotulo')} className="flex flex-wrap gap-2 mb-4">
+            {(['todos', 'aterramento', 'spda'] as const).map((id) => (
               <button key={id} type="button" aria-pressed={categoria === id} onClick={() => setCategoria(id)}
                 className="rounded-[10px] px-4 py-2.5 text-[13px] font-medium"
                 style={{ background: categoria === id ? color.accent : color.surface, color: categoria === id ? color.viewport : color.text, border: `1px solid ${color.hairline}` }}>
-                {nome}
+                {t(`categorias.${id}`)}
               </button>
             ))}
           </nav>
@@ -727,9 +662,9 @@ export function MainMenu() {
           style={{ borderTop: `1px solid ${color.hairline}`, color: color.textFaint }}
         >
           <span style={{ color: color.textMuted }}>
-            Desenvolvido por Elétrica Tools · Eng. Pablo Guimarães
+            {t('rodape.autor')}
           </span>
-          <span>Engine pura e testada · catálogo orientado a dados</span>
+          <span>{t('rodape.engine')}</span>
           <span className="font-mono">v0.1.0</span>
         </footer>
       </div>
@@ -738,6 +673,8 @@ export function MainMenu() {
 }
 
 function Card({ m, onOpen }: { m: Modulo; onOpen: () => void }) {
+  const { t } = useTranslation('menu')
+  const tx = (campo: string) => t(`modulos.${m.id}.${campo}`)
   const ativo = m.disponivel
   return (
     <button
@@ -773,21 +710,21 @@ function Card({ m, onOpen }: { m: Modulo; onOpen: () => void }) {
             background: '#0c1117',
           }}
         >
-          {ativo ? 'Disponível' : 'Em breve'}
+          {ativo ? t('card.disponivel') : t('card.emBreve')}
         </span>
       </div>
 
       <h3 className="font-display font-semibold text-[16px] mb-1" style={{ color: color.text }}>
-        {m.titulo}
+        {tx('titulo')}
       </h3>
       <p className="text-[13px] leading-snug mb-3" style={{ color: color.textMuted }}>
-        {m.descricao}
+        {tx('descricao')}
       </p>
 
       <dl className="space-y-1 mb-4">
-        <Linha rotulo="Equipamento" valor={m.equipamento} />
-        <Linha rotulo="Instrumento" valor={m.instrumento} />
-        <Linha rotulo="Norma" valor={m.norma} mono />
+        <Linha rotulo={t('card.equipamento')} valor={tx('equipamento')} />
+        <Linha rotulo={t('card.instrumento')} valor={tx('instrumento')} />
+        <Linha rotulo={t('card.norma')} valor={tx('norma')} mono />
       </dl>
 
       {ativo ? (
@@ -795,11 +732,11 @@ function Card({ m, onOpen }: { m: Modulo; onOpen: () => void }) {
           className="inline-flex items-center gap-1.5 font-display font-semibold text-[13px] px-3 py-1.5 rounded-[10px] transition-all group-hover:gap-2.5"
           style={{ background: color.accent, color: '#0B0F14' }}
         >
-          Iniciar ensaio <span aria-hidden>→</span>
+          {t('card.iniciar')} <span aria-hidden>→</span>
         </div>
       ) : (
         <div className="font-mono text-[11px]" style={{ color: color.textFaint }}>
-          em desenvolvimento
+          {t('card.emDesenvolvimento')}
         </div>
       )}
     </button>

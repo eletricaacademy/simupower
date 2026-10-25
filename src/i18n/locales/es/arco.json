@@ -1,0 +1,111 @@
+{
+  "abaResultado": "Resultado",
+  "passo": "PASO {{n}}/{{total}}",
+  "controle": {
+    "icc": "Icc (cortocircuito presunto)",
+    "classe": "Clase de equipo",
+    "distancia": "Distancia de trabajo",
+    "aterramento": "Puesta a tierra",
+    "aterrado": "Puesto a tierra",
+    "isolado": "Aislado"
+  },
+  "classe": {
+    "painel-bt": "Tablero BT",
+    "mcc-bt": "CCM BT",
+    "painel-mt": "Tablero MT",
+    "aberto": "Aire libre"
+  },
+  "resultado": {
+    "titulo": "Energía incidente",
+    "epi": "EPP",
+    "fronteira": "Frontera",
+    "iArco": "I arco",
+    "epiMin": "EPP mín.",
+    "verEtiqueta": "🏷 Ver etiqueta de arco",
+    "vazio": "Defina los parámetros y calcule para ver la energía incidente, la frontera de protección contra arco y la categoría de EPP."
+  },
+  "categoria": {
+    "minimo": "Riesgo mínimo",
+    "nivel": "Categoría {{n}}",
+    "extremo": "Peligro extremo — no energizar"
+  },
+  "intro": {
+    "titulo": "Simulación de una situación real",
+    "texto": "Vamos a simular una situación real. Con la <b>nueva NR-10 (2026)</b>, la norma brasileña de seguridad eléctrica, pasó a ser necesario un <b>análisis más riguroso</b> del riesgo de arco eléctrico.",
+    "pergunta": "¿Desea continuar?",
+    "sim": "Sí, continuar ›",
+    "investigacao": "Investigación de accidente",
+    "investigar": "Investiguemos para evitar este tipo de accidente",
+    "continuar": "Continuar ›",
+    "vestimentaTitulo": "Dimensionar la vestimenta de protección",
+    "vestimentaTexto": "El accidente muestra el riesgo de trabajar sin la vestimenta adecuada. Ahora vamos a <b>dimensionar correctamente la vestimenta de protección (EPP) contra arco</b> para este escenario, calculando la energía incidente y la categoría de riesgo.",
+    "comecar": "Comenzar el análisis"
+  },
+  "etiqueta": {
+    "perigo": "PELIGRO",
+    "atencao": "ADVERTENCIA",
+    "aviso": "AVISO",
+    "titulo1": "Riesgo de Choque y Arco Eléctrico",
+    "titulo2": "Se Requiere EPP Adecuado",
+    "risco": "Riesgo",
+    "riscoMinimo": "Riesgo mínimo",
+    "riscoCategoria": "Categoría {{n}}",
+    "riscoPerigo": "PELIGRO",
+    "protArco": "Protección contra Arco Eléctrico",
+    "afb": "Frontera de protección contra arco (AFB)",
+    "energiaEm": "Energía incidente a {{d}} mm",
+    "faixa": "Rango de riesgo de arco",
+    "protChoque": "Protección contra Choque",
+    "riscoChoque": "Riesgo de choque",
+    "limitada": "Frontera de aproximación limitada",
+    "restrita": "Frontera de aproximación restringida",
+    "epiNecessario": "EPP Requerido",
+    "equipamento": "Equipo:",
+    "data": "Fecha:",
+    "rodape": "Atención: los cambios en el equipo o en la configuración del sistema invalidan los cálculos y los EPP requeridos · IEEE 1584 / NBR 17227",
+    "epi": {
+      "n0": [
+        "Vestimenta de algodón no inflamable (manga larga)",
+        "Gafas de seguridad",
+        "Calzado de seguridad"
+      ],
+      "n1": [
+        "Vestimenta FR ≥ 4 cal/cm² (camisa + pantalón u overol)",
+        "Gafas de seguridad",
+        "Protector facial FR o balaclava",
+        "Casco clase E",
+        "Guantes de cuero",
+        "Calzado de seguridad"
+      ],
+      "n2": [
+        "Vestimenta FR ≥ 8 cal/cm² (camisa + pantalón u overol)",
+        "Balaclava FR",
+        "Protector facial con visor clase E",
+        "Casco clase II",
+        "Guantes aislantes con sobreguantes de cuero",
+        "Calzado dieléctrico",
+        "Protectores auditivos"
+      ],
+      "n3": [
+        "Conjunto FR ≥ 25 cal/cm² + capucha contra arco",
+        "Casco + protector facial/capucha",
+        "Guantes aislantes con sobreguantes de cuero",
+        "Calzado dieléctrico",
+        "Protectores auditivos"
+      ],
+      "n4": [
+        "Conjunto FR ≥ 40 cal/cm² + capucha contra arco",
+        "Casco + capucha contra arco completa",
+        "Guantes aislantes con sobreguantes de cuero",
+        "Calzado dieléctrico",
+        "Protectores auditivos"
+      ],
+      "n5": [
+        "NO TRABAJAR ENERGIZADO",
+        "Rediseñar la protección para reducir la EI < 40 cal/cm²",
+        "Aplicar técnicas de mitigación (relé de arco, ZSI)",
+        "Considerar maniobra remota / desenergización"
+      ]
+    }
+  }
+}

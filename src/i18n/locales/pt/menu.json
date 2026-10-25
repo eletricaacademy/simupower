@@ -1,0 +1,145 @@
+{
+  "gate": {
+    "acessoRestrito": "Acesso restrito",
+    "titulo": "Digite a senha para liberar as ferramentas",
+    "senha": "Senha de acesso",
+    "senhaIncorreta": "Senha incorreta. Tente novamente.",
+    "promoExpirou": "O acesso promocional de 48h expirou.",
+    "liberar": "Liberar acesso",
+    "ouConta": "ou entre com a conta PowerDim",
+    "ouContaGp": "ou entre com a conta PowerDim ou GroundPRO",
+    "email": "E-mail da sua conta",
+    "senhaConta": "Senha da sua conta",
+    "whatsapp": "Falar no WhatsApp",
+    "verificando": "Verificando…",
+    "entrar": "Entrar com a minha conta"
+  },
+  "erroPowerDim": {
+    "sem-conta": "Conta não encontrada no PowerDim. Confira o e-mail.",
+    "sem-simupower": "Sua conta do PowerDim não inclui o SimuPower. Fale com o suporte para liberar.",
+    "encerrado": "Seu acesso ao PowerDim terminou. Renove para continuar.",
+    "sem-sessao": "E-mail ou senha incorretos.",
+    "outro": "Não foi possível verificar sua conta agora. Tente novamente."
+  },
+  "erroGroundPro": {
+    "sem-conta": "Conta não encontrada no GroundPRO. Confira o e-mail ou crie sua conta pelo link da turma.",
+    "encerrado": "Seu acesso ao GroundPRO terminou. Adquira o acesso completo para continuar.",
+    "desativado": "Login pela conta GroundPRO não está disponível nesta versão.",
+    "sem-sessao": "E-mail ou senha incorretos.",
+    "outro": "Não foi possível verificar sua conta agora. Tente novamente."
+  },
+  "dicaSom": "Para aproveitar melhor a experiência, <b>aumente o som</b> do seu dispositivo.",
+  "fecharAviso": "Fechar aviso",
+  "promo": "Simulador liberado por <b>48h</b> — expira em",
+  "conta": {
+    "conta": "Conta {{origem}}",
+    "trialAte": "trial até",
+    "sair": "Sair"
+  },
+  "subAter": {
+    "titulo": "Escolha o método de medição",
+    "texto": "Medição por queda de potencial com terrômetro de haste (estaca).",
+    "opcao": "Terrômetro de haste (estaca)",
+    "opcaoTexto": "Método da queda de potencial (62%) — estacas C e P cravadas no solo.",
+    "voltar": "‹ Voltar"
+  },
+  "marca": "Módulo NR-10",
+  "hero": {
+    "eyebrow": "Ambiente de treinamento imersivo",
+    "titulo": "Execute ensaios de campo em equipamentos elétricos <a>renderizados em 3D</a>.",
+    "texto": "Pegue o instrumento, conecte as ponteiras e siga o procedimento guiado passo a passo — com leituras ao vivo em instrumentos calibrados e veredito segundo norma."
+  },
+  "ensaios": "Ensaios",
+  "contagem": "{{disp}} disponível · {{total}} no catálogo",
+  "categorias": {
+    "rotulo": "Categorias de ensaios",
+    "todos": "Todos os ensaios",
+    "aterramento": "Aterramento e usina FV",
+    "spda": "SPDA"
+  },
+  "card": {
+    "disponivel": "Disponível",
+    "emBreve": "Em breve",
+    "equipamento": "Equipamento",
+    "instrumento": "Instrumento",
+    "norma": "Norma",
+    "iniciar": "Iniciar ensaio",
+    "emDesenvolvimento": "em desenvolvimento"
+  },
+  "rodape": {
+    "autor": "Desenvolvido por Elétrica Tools · Eng. Pablo Guimarães",
+    "engine": "Engine pura e testada · catálogo orientado a dados"
+  },
+  "modulos": {
+    "spda-estrutural": {
+      "titulo": "SPDA natural / estrutural",
+      "equipamento": "Galpão industrial",
+      "instrumento": "Inbrat · conexões nas ferragens e Aterrinsert",
+      "norma": "ABNT NBR 5419-3:2026",
+      "descricao": "Ensaie as armaduras do galpão pelos Aterrinsert: primeira verificação cruzada e comprobatória entre captação e BEP, com corrente visível."
+    },
+    "aterramento-usina-fv": {
+      "titulo": "Aterramento em Usina Fotovoltaica",
+      "equipamento": "Usina FV de solo · 300 kW (skid, trafo e SE)",
+      "instrumento": "Inbrat INMD1 PRO · terrômetro · toque e passo",
+      "norma": "NBR 16690 · NBR 16274 · NBR 15749 · NBR 15751",
+      "descricao": "Equipotencialização das mesas, resistência da malha por queda de potencial e tensões de toque e passo numa usina de solo, com mapa de potenciais, relevo 3D e laudo consolidado."
+    },
+    "iso-motor": {
+      "titulo": "Teste de Isolamento em Motor",
+      "equipamento": "Motor de Indução Trifásico",
+      "instrumento": "Megômetro 5 kV · Minipa MI-2705",
+      "norma": "IEEE 43 · NBR/IEC 60034-27",
+      "descricao": "Resistência de isolamento no tempo, DAR, PI e correção a 40 °C — com leitura ao vivo e veredito por norma."
+    },
+    "arco-eletrico": {
+      "titulo": "Análise de Arco Elétrico",
+      "equipamento": "Painel de Média Tensão",
+      "instrumento": "Estudo IEEE 1584",
+      "norma": "IEEE 1584 · NFPA 70E · NR-10",
+      "descricao": "Cálculo da energia incidente, fronteira de arco e categoria de EPI num painel MT, dentro de subestação."
+    },
+    "inspecao-subestacao": {
+      "titulo": "Inspeção de Subestação",
+      "equipamento": "Subestação abrigada (walk-in)",
+      "instrumento": "Checklist NR-10",
+      "norma": "NR-10 · NBR 14039",
+      "descricao": "Entre na subestação e faça a inspeção guiada (transformador, cubículos, aterramento, cabos) com veredito de conformidade."
+    },
+    "desenergizacao": {
+      "titulo": "Procedimento de Desenergização",
+      "equipamento": "Subestação abrigada (walk-in)",
+      "instrumento": "Sequência LOTO",
+      "norma": "NR-10 · 10.5 / 10.6",
+      "descricao": "Execute a sequência segura de desenergização (seccionar, bloquear, testar, aterrar, proteger, sinalizar) e a reenergização."
+    },
+    "aterramento": {
+      "titulo": "Resistência de Aterramento",
+      "equipamento": "Malha / Eletrodo",
+      "instrumento": "Terrômetro",
+      "norma": "NBR 15749 · IEEE 81",
+      "descricao": "Medição de resistência de aterramento por queda de potencial (método dos 62%)."
+    },
+    "continuidade-spda": {
+      "titulo": "Continuidade do SPDA",
+      "equipamento": "Prédio com para-raios",
+      "instrumento": "Miliohmímetro (continuidade)",
+      "norma": "NBR 5419-3",
+      "descricao": "Inspeção do SPDA: mede a continuidade da captação, das descidas e da equipotencialização, com laudo de conformidade."
+    },
+    "verificacao-5410": {
+      "titulo": "Verificação de Instalações (NBR 5410)",
+      "equipamento": "Instalação Hospitalar (walk-in)",
+      "instrumento": "Inspeção visual + ensaios — Seção 7",
+      "norma": "NBR 5410 · Seção 7",
+      "descricao": "Verificação final de instalação elétrica de baixa tensão em ambiente hospitalar — inspeção visual e ensaios da Seção 7."
+    },
+    "disjuntor": {
+      "titulo": "Ensaios em Disjuntor",
+      "equipamento": "Disjuntor de Potência",
+      "instrumento": "Analisador de disjuntores",
+      "norma": "IEC 62271",
+      "descricao": "Tempos de operação e resistência de contatos."
+    }
+  }
+}

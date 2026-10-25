@@ -14,6 +14,7 @@ import { Detalhes } from './Detalhes'
 import { som, somArquivo, somVoz, pararVoz, ambiente, type SomTipo } from './sons'
 import type { AcaoDes } from '../catalog/types'
 import { color } from '../design/tokens'
+import { Trans, useTranslation } from 'react-i18next'
 
 const SOM_POR_ACAO: Record<AcaoDes, SomTipo> = {
   confirmar: 'passo',
@@ -33,10 +34,11 @@ const SOM_POR_ACAO: Record<AcaoDes, SomTipo> = {
 
 /** ações que pedem confirmação "Preparado? Sim/Não" (manobras do disjuntor). */
 const PEDE_CONFIRMACAO: AcaoDes[] = ['seccionar', 'religar', 'carregar-mola']
+/** chave `manobra.*` do texto da confirmação (namespace `desenergizacao`). */
 const TEXTO_MANOBRA: Partial<Record<AcaoDes, string>> = {
-  seccionar: 'ABRIR o disjuntor',
-  religar: 'FECHAR o disjuntor',
-  'carregar-mola': 'CARREGAR A MOLA do disjuntor',
+  seccionar: 'manobra.seccionar',
+  religar: 'manobra.religar',
+  'carregar-mola': 'manobra.carregar-mola',
 }
 
 /**
@@ -59,6 +61,7 @@ export function DesenergizacaoHud() {
   const cumpridos = useSim((s) => s.cumpridos)
   const ensaio = useSim((s) => s.ensaio)
   const cfgDrag = useDraggable()
+  const { t } = useTranslation(['desenergizacao', 'common'])
   const prevCump = useRef<Record<string, boolean>>({})
 
   // começa sem paredes/grade e com a câmera conduzida (zoom em cada ponto)
@@ -122,7 +125,7 @@ export function DesenergizacaoHud() {
           <>
             <button
               onClick={() => setDialogo(true)}
-              aria-label="Detalhes da etapa"
+              aria-label={t('detalhesEtapa')}
               className="hud-glass rounded-[10px] px-3 py-2 text-[14px]"
               style={{ color: color.accentCool }}
             >
@@ -145,7 +148,7 @@ export function DesenergizacaoHud() {
         <div className="absolute right-3 pointer-events-auto" style={{ top: 72 }}>
           <div className="hud-glass rounded-[14px] p-4 w-[280px] max-h-[80vh] overflow-y-auto hud-scroll" style={cfgDrag.style}>
             <div className="font-display font-semibold text-[14px] mb-3 select-none" style={{ color: color.text, ...cfgDrag.handleStyle }} {...cfgDrag.handlers}>
-              ⠿ Configurações
+              ⠿ {t('common:hud.configuracoes')}
             </div>
             <QualityPicker />
             <div className="my-3 h-px" style={{ background: color.hairline }} />
@@ -155,17 +158,17 @@ export function DesenergizacaoHud() {
       )}
 
       {/* DESKTOP */}
-      <PainelRecolhivel titulo="procedimento" className="hidden md:flex absolute left-4 bottom-4 flex-col gap-3 pointer-events-auto">
+      <PainelRecolhivel titulo={t('common:hud.procedimentoMin')} className="hidden md:flex absolute left-4 bottom-4 flex-col gap-3 pointer-events-auto">
         <DesGuidedPanel />
         <div className="hud-glass rounded-[14px] p-3 w-[360px]">
           <div className="text-[10px] uppercase tracking-wider mb-2" style={{ color: color.textFaint }}>
-            Sequência (NR-10)
+            {t('sequencia')}
           </div>
           <Checklist />
         </div>
       </PainelRecolhivel>
 
-      <PainelRecolhivel titulo="painel de ensaio" className="hidden md:block absolute right-4 bottom-4 pointer-events-auto">
+      <PainelRecolhivel titulo={t('common:hud.painelEnsaio')} className="hidden md:block absolute right-4 bottom-4 pointer-events-auto">
         <DesEstado />
       </PainelRecolhivel>
 
@@ -174,8 +177,8 @@ export function DesenergizacaoHud() {
         onReiniciar={() => useSim.getState().reset()}
         tabs={
           <>
-            <Tab ativo={aba === 'procedimento'} onClick={() => setAba('procedimento')}>Procedimento</Tab>
-            <Tab ativo={aba === 'estado'} onClick={() => setAba('estado')}>Estado</Tab>
+            <Tab ativo={aba === 'procedimento'} onClick={() => setAba('procedimento')}>{t('common:hud.procedimento')}</Tab>
+            <Tab ativo={aba === 'estado'} onClick={() => setAba('estado')}>{t('abaEstado')}</Tab>
           </>
         }
       >
@@ -218,6 +221,7 @@ function Comemoracao({
   onFechar: () => void
   onMenu: () => void
 }) {
+  const { t } = useTranslation(['desenergizacao', 'common'])
   return (
     <div
       className="absolute inset-0 z-50 flex items-center justify-center pointer-events-auto p-4"
@@ -228,12 +232,10 @@ function Comemoracao({
           🎉
         </div>
         <h2 className="font-display font-bold text-[20px] mb-2" style={{ color: color.status.pass }}>
-          {tipo === 'des' ? 'Desenergização concluída!' : 'Reenergização concluída!'}
+          {tipo === 'des' ? t('comemoracao.desTitulo') : t('comemoracao.reenTitulo')}
         </h2>
         <p className="text-[13.5px] leading-relaxed mb-5" style={{ color: color.textMuted }}>
-          {tipo === 'des'
-            ? 'Procedimento de desenergização finalizado com sucesso, conforme a NR-10. A instalação está segura para a manutenção.'
-            : 'Subestação reenergizada com sucesso e novamente em operação. Procedimento completo.'}
+          {tipo === 'des' ? t('comemoracao.desTexto') : t('comemoracao.reenTexto')}
         </p>
         {tipo === 'des' ? (
           <div className="flex gap-2">
@@ -242,14 +244,14 @@ function Comemoracao({
               className="px-4 py-2.5 rounded-[10px] text-[14px] font-medium"
               style={{ background: '#0c1117', color: color.textMuted, border: `1px solid ${color.hairline}` }}
             >
-              Fechar
+              {t('common:hud.fechar')}
             </button>
             <button
               onClick={onProsseguir}
               className="flex-1 py-2.5 rounded-[10px] font-display font-semibold text-[15px]"
               style={{ background: color.accent, color: '#0B0F14' }}
             >
-              Prosseguir para a reenergização ›
+              {t('comemoracao.prosseguir')}
             </button>
           </div>
         ) : (
@@ -259,14 +261,14 @@ function Comemoracao({
               className="px-4 py-2.5 rounded-[10px] text-[14px] font-medium"
               style={{ background: '#0c1117', color: color.textMuted, border: `1px solid ${color.hairline}` }}
             >
-              Fechar
+              {t('common:hud.fechar')}
             </button>
             <button
               onClick={onMenu}
               className="flex-1 py-2.5 rounded-[10px] font-display font-semibold text-[15px]"
               style={{ background: color.accent, color: '#0B0F14' }}
             >
-              Voltar ao menu
+              {t('common:hud.voltarMenu')}
             </button>
           </div>
         )}
@@ -280,6 +282,7 @@ function DetalheDialog({ onClose }: { onClose: () => void }) {
   const ensaio = useSim((s) => s.ensaio)
   const passoIndex = useSim((s) => s.passoIndex)
   const passo = ensaio.steps[passoIndex]
+  const { t } = useTranslation(['desenergizacao', 'common'])
   if (!passo) return null
   return (
     <div
@@ -295,7 +298,7 @@ function DetalheDialog({ onClose }: { onClose: () => void }) {
           <h2 className="font-display font-semibold text-[18px]" style={{ color: color.text }}>
             {passo.titulo}
           </h2>
-          <button onClick={onClose} aria-label="Fechar" className="text-[18px] leading-none" style={{ color: color.textMuted }}>
+          <button onClick={onClose} aria-label={t('common:hud.fechar')} className="text-[18px] leading-none" style={{ color: color.textMuted }}>
             ×
           </button>
         </div>
@@ -304,13 +307,13 @@ function DetalheDialog({ onClose }: { onClose: () => void }) {
         </p>
 
         {passo.detalhes && passo.detalhes.length > 0 && (
-          <Secao titulo="Procedimento" itens={passo.detalhes} cor={color.accentCool} marcador="›" />
+          <Secao titulo={t('common:hud.procedimento')} itens={passo.detalhes} cor={color.accentCool} marcador="›" />
         )}
         {passo.cuidados && passo.cuidados.length > 0 && (
-          <Secao titulo="⚠ Cuidados" itens={passo.cuidados} cor={color.status.marginal} marcador="•" />
+          <Secao titulo={t('dialogo.cuidados')} itens={passo.cuidados} cor={color.status.marginal} marcador="•" />
         )}
         {passo.erros && passo.erros.length > 0 && (
-          <Secao titulo="✗ Erros comuns" itens={passo.erros} cor={color.status.fail} marcador="•" />
+          <Secao titulo={t('dialogo.erros')} itens={passo.erros} cor={color.status.fail} marcador="•" />
         )}
 
         <button
@@ -318,7 +321,7 @@ function DetalheDialog({ onClose }: { onClose: () => void }) {
           className="w-full mt-2 py-2.5 rounded-[10px] font-display font-semibold text-[14px]"
           style={{ background: color.accent, color: '#0B0F14' }}
         >
-          Entendi
+          {t('dialogo.entendi')}
         </button>
       </div>
     </div>
@@ -349,16 +352,17 @@ function Banner() {
   const passoIndex = useSim((s) => s.passoIndex)
   const cumpridos = useSim((s) => s.cumpridos)
   const id = ensaio.steps[passoIndex]?.id
+  const { t } = useTranslation('desenergizacao')
 
   if (id === 'des-liberado' && cumpridos['des-sinalizar']) {
     return (
       <BannerBox cor={color.status.pass}>
-        ✅ Desenergização completa — instalação segura. <b>Pode iniciar a manutenção.</b>
+        <Trans t={t} i18nKey="banner.des" components={{ b: <b /> }} />
       </BannerBox>
     )
   }
   if (id === 'reen-energizada' && cumpridos['reen-religar']) {
-    return <BannerBox cor={color.status.fail}>Subestação reenergizada — em operação.</BannerBox>
+    return <BannerBox cor={color.status.fail}>{t('banner.reen')}</BannerBox>
   }
   return null
 }
@@ -414,6 +418,7 @@ function DesGuidedPanel() {
     const p = s.ensaio.steps[s.passoIndex]
     return p ? !!s.cumpridos[p.id] : false
   })
+  const { t } = useTranslation(['desenergizacao', 'common'])
 
   const passo = ensaio.steps[passoIndex]
   if (!passo) return null
@@ -427,7 +432,7 @@ function DesGuidedPanel() {
     <div className="hud-glass rounded-[14px] p-4 w-[360px] max-w-[88vw]">
       <div className="flex items-center justify-between mb-1.5">
         <span className="font-mono text-[11px] px-2 py-0.5 rounded-full" style={{ background: '#0c1117', color: color.accent, border: `1px solid ${color.hairline}` }}>
-          PASSO {passoIndex + 1}/{total}
+          {t('passoN', { n: passoIndex + 1, total })}
         </span>
         {passo.norma && <span className="text-[10px]" style={{ color: color.textFaint }}>{passo.norma}</span>}
       </div>
@@ -450,7 +455,7 @@ function DesGuidedPanel() {
 
       {interativo && !jaCumprido && habilitado && !aguardando && (
         <div className="text-[11px] mb-2 flex items-center gap-1.5" style={{ color: color.accent }}>
-          <span aria-hidden>🔆</span> Clique no ponto destacado na cena — ou no botão abaixo.
+          <span aria-hidden>🔆</span> {t('cliqueDestacado')}
         </div>
       )}
 
@@ -461,8 +466,12 @@ function DesGuidedPanel() {
           style={{ background: color.status.marginal + '14', border: `1px solid ${color.status.marginal}66` }}
         >
           <div className="text-[13px] leading-snug mb-2.5" style={{ color: color.text }}>
-            <b style={{ color: color.status.marginal }}>⚠ Preparado?</b> Agora é hora de{' '}
-            <b>{passo.acaoTipo ? TEXTO_MANOBRA[passo.acaoTipo] : 'executar a manobra'}</b>.
+            <Trans
+              t={t}
+              i18nKey="preparado"
+              values={{ manobra: t((passo.acaoTipo && TEXTO_MANOBRA[passo.acaoTipo]) || 'manobra.padrao') }}
+              components={{ b: <b style={{ color: color.status.marginal }} />, m: <b /> }}
+            />
           </div>
           <div className="flex gap-2">
             <button
@@ -473,14 +482,14 @@ function DesGuidedPanel() {
               className="flex-1 py-2 rounded-[10px] font-display font-semibold text-[14px]"
               style={{ background: color.status.pass, color: '#0B0F14' }}
             >
-              ✓ Sim
+              {t('sim')}
             </button>
             <button
               onClick={() => setConfirmando(null)}
               className="flex-1 py-2 rounded-[10px] font-display font-semibold text-[14px]"
               style={{ background: '#0c1117', color: color.textMuted, border: `1px solid ${color.hairline}` }}
             >
-              Não
+              {t('common:mobile.nao')}
             </button>
           </div>
         </div>
@@ -497,7 +506,7 @@ function DesGuidedPanel() {
             boxShadow: habilitado && !jaCumprido ? `0 0 20px ${color.accent}44` : 'none',
           }}
         >
-          {jaCumprido ? '✓ Etapa concluída' : passo.acao}
+          {jaCumprido ? t('etapaConcluida') : passo.acao}
         </button>
       )}
 
@@ -515,7 +524,7 @@ function DesGuidedPanel() {
             flex: '0 0 auto',
           }}
         >
-          ‹ Voltar
+          {t('common:hud.voltar')}
         </button>
         <button
           onClick={() => irParaPasso(passoIndex + 1)}
@@ -528,7 +537,7 @@ function DesGuidedPanel() {
             cursor: jaCumprido && !ultimo ? 'pointer' : 'default',
           }}
         >
-          {ultimo ? 'Fim do procedimento' : 'Próximo ›'}
+          {ultimo ? t('fimProcedimento') : t('common:hud.proximo')}
         </button>
       </div>
     </div>
@@ -537,19 +546,14 @@ function DesGuidedPanel() {
 
 function DesEstado() {
   const e = useEstado()
-  const itens: { k: keyof typeof e; rotulo: string }[] = [
-    { k: 'seccionado', rotulo: 'Seccionado' },
-    { k: 'bloqueado', rotulo: 'Bloqueado (LOTO)' },
-    { k: 'tensaoAusente', rotulo: 'Tensão ausente' },
-    { k: 'aterrado', rotulo: 'Aterrado' },
-    { k: 'protegido', rotulo: 'Partes vivas protegidas' },
-    { k: 'sinalizado', rotulo: 'Sinalizado' },
-    { k: 'liberado', rotulo: 'Liberado p/ trabalho' },
-  ]
+  const { t } = useTranslation('desenergizacao')
+  const itens: { k: keyof typeof e; rotulo: string }[] = (
+    ['seccionado', 'bloqueado', 'tensaoAusente', 'aterrado', 'protegido', 'sinalizado', 'liberado'] as const
+  ).map((k) => ({ k, rotulo: t(`estado.${k}`) }))
   return (
     <div className="instrument-panel rounded-[14px] p-4 w-[300px] max-w-[88vw]">
       <div className="text-[11px] uppercase tracking-[0.18em] mb-3" style={{ color: color.textFaint }}>
-        Estado de segurança
+        {t('estado.titulo')}
       </div>
       <ul className="space-y-1.5">
         {itens.map(({ k, rotulo }) => {
@@ -573,7 +577,7 @@ function DesEstado() {
       </ul>
       {e.reenergizada && (
         <div className="mt-3 rounded-[10px] px-3 py-2 text-center font-display font-semibold text-[13px]" style={{ background: color.status.fail + '1a', border: `1px solid ${color.status.fail}66`, color: color.status.fail }}>
-          Reenergizada — em operação
+          {t('estado.reenergizada')}
         </div>
       )}
     </div>
@@ -586,6 +590,7 @@ function ToggleBar() {
   const setGrade = useInsp((s) => s.setMostrarGrade)
   const paredes = useInsp((s) => s.mostrarParedes)
   const setParedes = useInsp((s) => s.setMostrarParedes)
+  const { t } = useTranslation('desenergizacao')
   const Btn = ({ ativo, onClick, label }: { ativo: boolean; onClick: () => void; label: string }) => (
     <button
       onClick={onClick}
@@ -598,8 +603,8 @@ function ToggleBar() {
   )
   return (
     <div className="hud-glass rounded-[12px] px-1.5 py-1 flex items-center gap-1.5">
-      <Btn ativo={grade} onClick={() => setGrade(!grade)} label="Grade" />
-      <Btn ativo={paredes} onClick={() => setParedes(!paredes)} label="Paredes" />
+      <Btn ativo={grade} onClick={() => setGrade(!grade)} label={t('grade')} />
+      <Btn ativo={paredes} onClick={() => setParedes(!paredes)} label={t('paredes')} />
     </div>
   )
 }
@@ -609,15 +614,16 @@ function Calibrar() {
   const pickMode = useSim((s) => s.pickMode)
   const setPickMode = useSim((s) => s.setPickMode)
   const peca = useSim((s) => s.peca)
+  const { t } = useTranslation('desenergizacao')
   return (
     <div>
-      <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ color: color.textFaint }}>Calibrar ponto</div>
+      <div className="text-[10px] uppercase tracking-wider mb-1.5" style={{ color: color.textFaint }}>{t('calibrar.titulo')}</div>
       <button
         onClick={() => setPickMode(!pickMode)}
         className="w-full text-[12px] py-1.5 rounded-[8px] mb-1.5"
         style={{ background: pickMode ? color.accent : '#0c1117', color: pickMode ? '#0B0F14' : color.text, border: `1px solid ${pickMode ? color.accent : color.hairline}`, fontWeight: pickMode ? 700 : 400 }}
       >
-        🔍 {pickMode ? 'Clicando (ligado)' : 'Identificar ponto'}
+        🔍 {pickMode ? t('calibrar.ligado') : t('calibrar.identificar')}
       </button>
       {peca && (
         <div className="rounded-[8px] px-2.5 py-1.5 font-mono text-[11px] break-all" style={{ background: '#0c1117', color: color.accentCool, border: `1px solid ${color.hairline}` }}>
@@ -625,8 +631,7 @@ function Calibrar() {
         </div>
       )}
       <p className="text-[10px] leading-snug mt-1" style={{ color: color.textFaint }}>
-        Clique no disjuntor, bloqueio, teste, aterramento, proteção e sinalização; me envie as coords
-        que eu gravo.
+        {t('calibrar.ajuda')}
       </p>
     </div>
   )

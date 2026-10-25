@@ -1,0 +1,159 @@
+{
+  "quadro": "Tablero",
+  "vistaQuadro": "Vista del tablero eléctrico",
+  "intro": {
+    "selo": "NBR 5410 · Sección 7 — Verificación",
+    "titulo": "Ensayos de verificación de la instalación",
+    "texto": "Vamos a ejecutar los <b>ensayos de la Sección 7</b> con el <b>Fluke 1662</b> — una etapa <b>esencial para la seguridad</b> de la instalación: garantiza la continuidad de la puesta a tierra, el aislamiento, la polaridad y la desconexión automática (ID) antes de la entrega.",
+    "dica": "Empezamos por los <b>tomacorrientes</b> (punto por punto). Una vez organizada esa etapa, seguimos con los ensayos en el <b>tablero eléctrico</b>.",
+    "comecar": "Empezar por los ensayos en los tomacorrientes →"
+  },
+  "ensaioN": "ENSAYO {{n}}/{{total}}",
+  "parametro": "Parámetro:",
+  "criterio": "Criterio:",
+  "pontoEnsaio": "Punto de ensayo",
+  "tomada": "Tomacorriente {{n}}",
+  "medindo": "Midiendo…",
+  "medirNovo": "↻ Medir de nuevo",
+  "medir": "▶ Medir",
+  "concluir": "📋 Concluir verificación",
+  "lcd": {
+    "medindo": "midiendo…",
+    "auto": "AUTO",
+    "pronto": "listo"
+  },
+  "conforme": "Conforme",
+  "naoConforme": "No conforme",
+  "aplicando": "Aplicando el ensayo y leyendo…",
+  "conecte": "Conecte y toque “Medir”.",
+  "condicao": {
+    "titulo": "Condición de la instalación (instructor)",
+    "ok": "Conforme",
+    "falha": "Con defecto"
+  },
+  "captura": {
+    "titulo": "Capturar escena (pose de la cámara)",
+    "botao": "🎥 Capturar posición de la cámara",
+    "ajuda": "Encuadre la escena en la cámara y capture — la pose (posición + objetivo) se copia; envíemela y la guardo como vista inicial."
+  },
+  "identificar": {
+    "titulo": "Identificar punto",
+    "ligado": "Haciendo clic (activado)",
+    "ativar": "Activar identificación",
+    "copiar": "📋 Copiar todo",
+    "limpar": "🗑 Borrar"
+  },
+  "alvo": {
+    "quadro": "Tablero de distribución",
+    "instalacao": "Instalación",
+    "condutorProtecao": "Conductor de protección (PE)",
+    "tomada": "Tomacorriente {{n}}"
+  },
+  "laudo": {
+    "titulo": "INFORME DE VERIFICACIÓN FINAL",
+    "norma": "NBR 5410 — Sección 7",
+    "subtitulo": "Verificación de instalación · Entorno hospitalario",
+    "fechar": "Cerrar informe",
+    "instrumento": "Instrumento:",
+    "metodo": "Método:",
+    "metodoValor": "Ensayos §7.3 (verificación final)",
+    "data": "Fecha:",
+    "aprovado": "INSTALACIÓN APROBADA",
+    "aprovadoSub": "Todos los ensayos cumplieron los criterios de la NBR 5410 — Sección 7.",
+    "reprovado": "NO CONFORME",
+    "reprovadoSub": "Hay ensayos fuera de criterio — corregir y volver a ensayar antes de la energización.",
+    "andamento": "VERIFICACIÓN EN CURSO",
+    "andamentoSub": "{{feitos}} de {{total}} ensayos concluidos. Concluya los demás para obtener el dictamen final.",
+    "conforme": "CONFORME",
+    "naoConforme": "NO CONFORME",
+    "naoEnsaiado": "No ensayado.",
+    "criterio": "Criterio:",
+    "rodape": "Documento de capacitación — SimuPower · no sustituye el informe de un profesional habilitado.",
+    "nova": "↺ Nueva verificación"
+  },
+  "veredito": {
+    "continuidade-aberto": "Circuito abierto — conductor de protección interrumpido.",
+    "continuidade-ok": "Continuo (R baja). Conductor PE íntegro.",
+    "isolamento-ok": "R_iso ≥ 1,0 MΩ — conforme (Tabla 61).",
+    "isolamento-baixo": "R_iso < 1,0 MΩ — aislamiento comprometido.",
+    "polaridade-invertida": "Fase y neutro invertidos en el tomacorriente.",
+    "polaridade-ok": "Polaridad correcta; PE presente.",
+    "zs-ok": "Zs baja — desconexión garantizada en el tiempo exigido (≤0,4 s).",
+    "zs-alta": "Zs alta — puede no desconectar en el tiempo exigido.",
+    "dr-nao-disparou": "El ID no disparó en el tiempo exigido — sustituir.",
+    "dr-tempo-ok": "t ≤ 300 ms — ID conforme.",
+    "dr-rampa-ok": "Disparo entre 50–100% de IΔn — conforme.",
+    "dr-rampa-fora": "Disparo fuera de 15–30 mA — ID no conforme.",
+    "re-ok": "RE compatible con la puesta a tierra y el ID.",
+    "re-alta": "RE alta — revisar la malla de puesta a tierra."
+  },
+  "extra": {
+    "ensaio-500v": "Ensayo 500 V CC",
+    "fn-invertidos": "F/N invertidos",
+    "fnpe-corretos": "F-N-PE correctos",
+    "pefc": "PEFC {{ipf}} A",
+    "x1-idn": "×1 IΔn",
+    "x1-idn-30": "×1 IΔn (30 mA)",
+    "idn-30": "IΔn 30 mA",
+    "metodo-loop": "Método de bucle"
+  },
+  "funcoes": {
+    "tensao": "Tensión / Polaridad",
+    "isolamento": "Resistencia de aislamiento",
+    "continuidade": "Continuidad (RLO)",
+    "loop": "Impedancia de bucle (Zs)",
+    "rcd-tempo": "Tiempo de disparo del ID",
+    "rcd-rampa": "Corriente de disparo del ID"
+  },
+  "ensaios": {
+    "continuidade": {
+      "nome": "Continuidad de los conductores de protección",
+      "norma": "NBR 5410 — 7.3.2 (continuidad)",
+      "descricao": "Verificar la continuidad del conductor de protección (PE) y de las conexiones equipotenciales entre el tablero y cada tomacorriente.",
+      "parametro": "Ensayo con 200 mA, puntas de prueba compensadas (en cero)",
+      "criterio": "Baja resistencia, conductor continuo (típicamente < 1–2 Ω según longitud/sección)."
+    },
+    "isolamento": {
+      "nome": "Resistencia de aislamiento",
+      "norma": "NBR 5410 — 7.3.2 (aislamiento) · Tabla 61",
+      "descricao": "Medir la resistencia de aislamiento entre conductores activos y entre conductores activos y tierra, con la instalación desenergizada.",
+      "parametro": "Tensión de ensayo 500 V CC (circuitos hasta 500 V)",
+      "criterio": "R_iso ≥ 1,0 MΩ (hasta 500 V). SELV/PELV: 250 V, ≥ 0,5 MΩ. Por encima de 500 V: 1000 V, ≥ 1,0 MΩ."
+    },
+    "polaridade": {
+      "nome": "Ensayo de polaridad",
+      "norma": "NBR 5410 — 7.3.2 (polaridad)",
+      "descricao": "Confirmar fase, neutro y tierra en los bornes correctos del tomacorriente (fase no invertida, PE presente).",
+      "parametro": "Verificación de tensión/polaridad",
+      "criterio": "Fase y neutro en los bornes correctos; PE presente; tensión dentro del rango nominal."
+    },
+    "loop-zs": {
+      "nome": "Impedancia de bucle (desconexión automática)",
+      "norma": "NBR 5410 — 7.3.2 (desconexión automática) · 5.1.2.2.4",
+      "descricao": "Medir la impedancia del bucle de falla fase-tierra (Zs) en el tomacorriente y calcular la corriente de falla prevista, para confirmar la desconexión en el tiempo exigido.",
+      "parametro": "Modo sin disparo (no dispara el ID)",
+      "criterio": "Zs × Ia ≤ U0: la corriente de falla debe hacer actuar la protección en el tiempo de la Tabla 24/25 (TN ≤ 0,4 s en circuitos terminales)."
+    },
+    "rcd-tempo": {
+      "nome": "Tiempo de disparo del ID",
+      "norma": "NBR 5410 — 7.3.2 (ensayo funcional del ID) · 6.3.4.2",
+      "descricao": "Aplicar la corriente diferencial nominal (IΔn) y sus múltiplos (×½, ×1, ×5) para medir el tiempo de actuación del ID que protege el tomacorriente.",
+      "parametro": "IΔn 30 mA, tipo A/AC, ×½ / ×1 / ×5, 0°/180°",
+      "criterio": "×½: no dispara. ×1: ≤ 300 ms (ID general). ×5: ≤ 40 ms."
+    },
+    "rcd-rampa": {
+      "nome": "Corriente de disparo del ID",
+      "norma": "NBR 5410 — 7.3.2 (ensayo funcional del ID)",
+      "descricao": "Elevar la corriente diferencial en rampa hasta que el ID actúe, midiendo la corriente real de disparo.",
+      "parametro": "Rampa hasta IΔn (30 mA)",
+      "criterio": "Disparo entre 50% y 100% de IΔn (15–30 mA para un ID de 30 mA)."
+    },
+    "aterramento": {
+      "nome": "Resistencia de puesta a tierra",
+      "norma": "NBR 5410 — 7.3.2 (resistencia de puesta a tierra)",
+      "descricao": "Medir la resistencia del electrodo de puesta a tierra por el método de bucle (sin estacas), desde un tomacorriente.",
+      "parametro": "Método de bucle (RE)",
+      "criterio": "Compatible con el esquema de puesta a tierra y el ID (ej.: TT: RA × IΔn ≤ 50 V)."
+    }
+  }
+}

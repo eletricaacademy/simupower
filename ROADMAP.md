@@ -1,5 +1,28 @@
 # SimuPower — Módulo NR-10 · Roadmap & Status
 
+### 24/10/2026 — Idiomas: os nove módulos em ES e EN (fase 2)
+
+HUDs, catálogo, laudos e CSV dos nove módulos em espanhol (América do Sul, decisão do
+Pablo) e inglês. Vereditos de isolamento, inspeção, SPDA, verificação e usina FV saem
+de código da engine (frases PT mantidas e conferidas por teste). Textos descobertos
+por arquivo (`src/i18n/recursos.ts`); catálogo por módulo em `src/catalog/i18n/{es,en}/`.
+Normas: pendência do Pablo (citações ABNT/NR mantidas). Sobram em PT os textos
+desenhados dentro do 3D (lista em `docs/i18n.md` §7). Build e 197 testes aprovados;
+varredura no navegador dos nove módulos em ES, EN e PT. Sem commit nem deploy.
+
+### 24/10/2026 — Idiomas: espanhol e inglês (fase 1)
+
+Base i18next no modelo do GroundPRO, seletor de idioma no canto (menu, inclusive
+sobre a tela de senha, e barra de todas as simulações), escolha salva no navegador.
+Menu, login, peças comuns e nomes de todos os ensaios em ES/EN; resistência de
+aterramento traduzida de ponta a ponta como piloto (catálogo, HUD, laudo). Catálogo
+traduzido por id em `src/catalog/i18n/`; o store re-traduz sem perder o andamento.
+Números no separador do idioma (`fmtNum`). Locução só em PT: desligada em ES/EN.
+Detecção pelo navegador desligada até os nove módulos estarem prontos. Análise
+técnica, glossário, contexto por cenário e decisões pendentes: `docs/i18n.md`.
+Conferido no navegador: menu PT/ES, ensaio completo em ES até o laudo, troca para
+EN no meio do ensaio e volta a PT sem perda. Branch `feat/acesso-groundpro`. Sem deploy.
+
 ### 11/09/2026 — Publicação da usina FV e melhorias
 
 Deploy autorizado por Pablo: fonte `eb66214`, Pages `9c7f904`, sem force push.

@@ -1,5 +1,6 @@
 import { useIsPhone } from './useIsPhone'
 import { color } from '../design/tokens'
+import { useTranslation } from 'react-i18next'
 
 /**
  * Detalhes — lista de bullets de um passo. No desktop aparece aberta como antes;
@@ -8,7 +9,7 @@ import { color } from '../design/tokens'
  */
 export function Detalhes({
   itens,
-  resumo = 'Ver detalhes',
+  resumo,
   cor = color.accentCool,
   marcador = '›',
   className = 'mb-3',
@@ -20,6 +21,7 @@ export function Detalhes({
   className?: string
 }) {
   const phone = useIsPhone()
+  const { t } = useTranslation()
   if (!itens || itens.length === 0) return null
 
   const lista = (
@@ -46,7 +48,7 @@ export function Detalhes({
         <span aria-hidden className="hud-details-caret">
           ▸
         </span>
-        {resumo} ({itens.length})
+        {resumo ?? t('detalhes.ver')} ({itens.length})
       </summary>
       <div className="mt-1.5">{lista}</div>
     </details>

@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { somVoz, pararVoz } from './sons'
 import { color } from '../design/tokens'
+import { Trans, useTranslation } from 'react-i18next'
 
 /**
  * BemVindo — pop-up de boas-vindas ao entrar nos módulos de subestação.
@@ -8,6 +9,7 @@ import { color } from '../design/tokens'
  * contexto. Ao fechar, segue o fluxo normal.
  */
 export function BemVindo({ onClose }: { onClose: () => void }) {
+  const { t } = useTranslation()
   useEffect(() => {
     somVoz('bem-vindo')
     return () => pararVoz()
@@ -23,21 +25,19 @@ export function BemVindo({ onClose }: { onClose: () => void }) {
           🎧
         </div>
         <h2 className="font-display font-bold text-[20px] mb-3" style={{ color: color.text }}>
-          Bem-vindo à simulação
+          {t('bemVindo.titulo')}
         </h2>
         <p className="text-[13.5px] leading-relaxed mb-5" style={{ color: color.textMuted }}>
-          O som ambiente que você ouve é o <b>ruído real de uma subestação</b> em operação. Ao longo do
-          procedimento, alguns <b>efeitos sonoros</b> vão acontecer e um <b>instrutor</b> guiará você em
-          cada etapa, da forma mais didática possível.
+          <Trans i18nKey="bemVindo.texto" components={{ b: <b /> }} />
           <br />
-          <span style={{ color: color.textFaint }}>Aumente o som para uma melhor experiência.</span>
+          <span style={{ color: color.textFaint }}>{t('bemVindo.dica')}</span>
         </p>
         <button
           onClick={onClose}
           className="w-full py-2.5 rounded-[10px] font-display font-semibold text-[15px]"
           style={{ background: color.accent, color: '#0B0F14' }}
         >
-          Começar
+          {t('bemVindo.comecar')}
         </button>
       </div>
     </div>

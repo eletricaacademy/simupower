@@ -1,0 +1,145 @@
+{
+  "gate": {
+    "acessoRestrito": "Restricted access",
+    "titulo": "Enter the password to unlock the tools",
+    "senha": "Access password",
+    "senhaIncorreta": "Wrong password. Please try again.",
+    "promoExpirou": "The 48-hour promotional access has expired.",
+    "liberar": "Unlock access",
+    "ouConta": "or sign in with your PowerDim account",
+    "ouContaGp": "or sign in with your PowerDim or GroundPRO account",
+    "email": "Your account email",
+    "senhaConta": "Your account password",
+    "whatsapp": "Chat on WhatsApp",
+    "verificando": "Checking…",
+    "entrar": "Sign in with my account"
+  },
+  "erroPowerDim": {
+    "sem-conta": "Account not found on PowerDim. Please check the email.",
+    "sem-simupower": "Your PowerDim account does not include SimuPower. Contact support to enable it.",
+    "encerrado": "Your PowerDim access has ended. Renew to continue.",
+    "sem-sessao": "Wrong email or password.",
+    "outro": "We could not verify your account right now. Please try again."
+  },
+  "erroGroundPro": {
+    "sem-conta": "Account not found on GroundPRO. Check the email or create your account using your class link.",
+    "encerrado": "Your GroundPRO access has ended. Get full access to continue.",
+    "desativado": "GroundPRO sign-in is not available in this version.",
+    "sem-sessao": "Wrong email or password.",
+    "outro": "We could not verify your account right now. Please try again."
+  },
+  "dicaSom": "For the best experience, <b>turn up the volume</b> on your device.",
+  "fecharAviso": "Close notice",
+  "promo": "Simulator unlocked for <b>48 h</b> — expires in",
+  "conta": {
+    "conta": "{{origem}} account",
+    "trialAte": "trial until",
+    "sair": "Sign out"
+  },
+  "subAter": {
+    "titulo": "Choose the measurement method",
+    "texto": "Fall-of-potential measurement with a stake-type ground tester.",
+    "opcao": "Stake-type ground tester",
+    "opcaoTexto": "Fall-of-potential method (62%) — stakes C and P driven into the soil.",
+    "voltar": "‹ Back"
+  },
+  "marca": "NR-10 Module",
+  "hero": {
+    "eyebrow": "Immersive training environment",
+    "titulo": "Run field tests on electrical equipment <a>rendered in 3D</a>.",
+    "texto": "Pick up the instrument, connect the test leads and follow the guided procedure step by step — with live readings on calibrated instruments and a verdict based on the standard."
+  },
+  "ensaios": "Tests",
+  "contagem": "{{disp}} available · {{total}} in catalog",
+  "categorias": {
+    "rotulo": "Test categories",
+    "todos": "All tests",
+    "aterramento": "Grounding and PV plant",
+    "spda": "LPS"
+  },
+  "card": {
+    "disponivel": "Available",
+    "emBreve": "Coming soon",
+    "equipamento": "Equipment",
+    "instrumento": "Instrument",
+    "norma": "Standard",
+    "iniciar": "Start test",
+    "emDesenvolvimento": "in development"
+  },
+  "rodape": {
+    "autor": "Developed by Elétrica Tools · Eng. Pablo Guimarães",
+    "engine": "Pure, tested engine · data-driven catalog"
+  },
+  "modulos": {
+    "spda-estrutural": {
+      "titulo": "Natural / structural LPS",
+      "equipamento": "Industrial warehouse",
+      "instrumento": "Inbrat · connections to the rebar and Aterrinsert",
+      "norma": "ABNT NBR 5419-3:2026",
+      "descricao": "Test the warehouse rebar through the Aterrinsert points: initial cross verification and confirmation test between air termination and the bonding bar, with visible current."
+    },
+    "aterramento-usina-fv": {
+      "titulo": "Grounding of a photovoltaic plant",
+      "equipamento": "Ground-mounted PV plant · 300 kW (skid, transformer and substation)",
+      "instrumento": "Inbrat INMD1 PRO · ground tester · touch and step",
+      "norma": "NBR 16690 · NBR 16274 · NBR 15749 · NBR 15751",
+      "descricao": "Equipotential bonding of the racks, grid resistance by fall of potential, and touch and step voltages in a ground-mounted plant, with potential map, 3D relief and consolidated report."
+    },
+    "iso-motor": {
+      "titulo": "Motor insulation test",
+      "equipamento": "Three-phase induction motor",
+      "instrumento": "5 kV insulation tester · Minipa MI-2705",
+      "norma": "IEEE 43 · NBR/IEC 60034-27",
+      "descricao": "Insulation resistance over time, DAR, PI and correction to 40 °C — with live readings and a verdict based on the standard."
+    },
+    "arco-eletrico": {
+      "titulo": "Arc flash analysis",
+      "equipamento": "Medium-voltage switchgear",
+      "instrumento": "IEEE 1584 study",
+      "norma": "IEEE 1584 · NFPA 70E · NR-10",
+      "descricao": "Incident energy, arc flash boundary and PPE category for MV switchgear inside a substation."
+    },
+    "inspecao-subestacao": {
+      "titulo": "Substation inspection",
+      "equipamento": "Indoor substation (walk-in)",
+      "instrumento": "NR-10 checklist",
+      "norma": "NR-10 · NBR 14039",
+      "descricao": "Walk into the substation and carry out the guided inspection (transformer, cubicles, grounding, cables) with a compliance verdict."
+    },
+    "desenergizacao": {
+      "titulo": "De-energization procedure",
+      "equipamento": "Indoor substation (walk-in)",
+      "instrumento": "LOTO sequence",
+      "norma": "NR-10 · 10.5 / 10.6",
+      "descricao": "Perform the safe de-energization sequence (isolate, lock out, test for absence of voltage, ground, protect, tag) and re-energization."
+    },
+    "aterramento": {
+      "titulo": "Ground resistance",
+      "equipamento": "Grid / electrode",
+      "instrumento": "Ground tester",
+      "norma": "NBR 15749 · IEEE 81",
+      "descricao": "Ground resistance measurement by fall of potential (62% method)."
+    },
+    "continuidade-spda": {
+      "titulo": "LPS continuity",
+      "equipamento": "Building with lightning protection",
+      "instrumento": "Milliohmmeter (continuity)",
+      "norma": "NBR 5419-3",
+      "descricao": "LPS inspection: measures the continuity of the air termination, down conductors and bonding, with a compliance report."
+    },
+    "verificacao-5410": {
+      "titulo": "Installation verification (NBR 5410)",
+      "equipamento": "Hospital installation (walk-in)",
+      "instrumento": "Visual inspection + tests — Section 7",
+      "norma": "NBR 5410 · Section 7",
+      "descricao": "Final verification of a low-voltage electrical installation in a hospital — visual inspection and Section 7 tests."
+    },
+    "disjuntor": {
+      "titulo": "Circuit breaker tests",
+      "equipamento": "Power circuit breaker",
+      "instrumento": "Circuit breaker analyzer",
+      "norma": "IEC 62271",
+      "descricao": "Operating times and contact resistance."
+    }
+  }
+}

@@ -2,6 +2,7 @@ import { useSim } from '../sim/store'
 import { useOrchestrator } from '../sim/orchestrator'
 import { color } from '../design/tokens'
 import { formatarTempo } from './format'
+import { useTranslation } from 'react-i18next'
 
 /**
  * GuidedPanel — passo atual + ação. Âncora do procedimento guiado.
@@ -15,6 +16,7 @@ export function GuidedPanel() {
   const duracao = useSim((s) => s.ensaio.duracaoS)
   const setTensao = useSim((s) => s.setTensao)
   const { passo, habilitado, jaCumprido, rodando, isTeste, executarAcao } = useOrchestrator()
+  const { t } = useTranslation(['isolamento', 'common'])
 
   if (!passo) return null
   const total = ensaio.steps.length
@@ -27,7 +29,7 @@ export function GuidedPanel() {
           className="font-mono text-[11px] px-2 py-0.5 rounded-full"
           style={{ background: '#0c1117', color: color.accent, border: `1px solid ${color.hairline}` }}
         >
-          PASSO {passoIndex + 1}/{total}
+          {t('passo', { n: passoIndex + 1, total })}
         </span>
         {passo.norma && (
           <span className="text-[10px]" style={{ color: color.textFaint }}>
@@ -45,7 +47,7 @@ export function GuidedPanel() {
 
       {/* controle de tensão, quando o passo pede */}
       {passo.control === 'voltage' && (
-        <div className="flex gap-1.5 mb-3" role="radiogroup" aria-label="Tensão de ensaio">
+        <div className="flex gap-1.5 mb-3" role="radiogroup" aria-label={t('tensaoEnsaio')}>
           {ensaio.tensoes.map((v) => {
             const ativo = v === tensao
             return (
@@ -73,7 +75,7 @@ export function GuidedPanel() {
       {isTeste && (rodando || progressoTeste > 0) && (
         <div className="mb-3">
           <div className="flex justify-between text-[10px] mb-1" style={{ color: color.textFaint }}>
-            <span>Energizado</span>
+            <span>{t('energizado')}</span>
             <span className="font-mono">
               {formatarTempo(tempo)} / {formatarTempo(duracao)}
             </span>
@@ -105,12 +107,12 @@ export function GuidedPanel() {
           boxShadow: habilitado && !jaCumprido ? `0 0 20px ${color.accent}44` : 'none',
         }}
       >
-        {jaCumprido ? '✓ Concluído' : rodando ? 'Em ensaio…' : passo.acao}
+        {jaCumprido ? t('common:hud.concluido') : rodando ? t('emEnsaio') : passo.acao}
       </button>
 
       {!habilitado && !jaCumprido && (
         <p className="text-[11px] mt-2 text-center" style={{ color: color.textFaint }}>
-          Cumpra os passos anteriores para liberar.
+          {t('cumpraAnteriores')}
         </p>
       )}
     </div>

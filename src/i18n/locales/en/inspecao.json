@@ -1,0 +1,38 @@
+{
+  "roteiro": "Inspection checklist",
+  "abaRoteiro": "Checklist",
+  "conformidade": "Compliance",
+  "intro": {
+    "selo": "GUIDED TOUR",
+    "texto": "Explore the substation freely (drag, rotate and use the views). When you are ready, start the guided tour — each stage takes you to an inspection point to assess.",
+    "iniciar": "▶ Start guided tour"
+  },
+  "item": "ITEM {{n}}/{{total}}",
+  "explorarLivre": "↺ free explore",
+  "conforme": "✓ Compliant",
+  "naoConforme": "✗ Non-compliant",
+  "resultado": {
+    "veredito": "Verdict",
+    "conformes": "Compliant",
+    "naoConformes": "Non-comp.",
+    "pendentes": "Pending"
+  },
+  "veredito": {
+    "andamento": "In progress",
+    "aprovado": "Approved",
+    "aprovado-pendencias": "Approved with open items",
+    "reprovado": "Not approved"
+  },
+  "identificar": {
+    "titulo": "Identify part",
+    "clicando": "Clicking (on)",
+    "ativar": "Enable identification",
+    "ajuda": "Turn it on and click the part you want to remove; the coordinate is copied — send it to me and I will delete the right part."
+  },
+  "toggle": {
+    "grade": "Fence",
+    "paredes": "Walls",
+    "ocultar": "Hide {{x}}",
+    "mostrar": "Show {{x}}"
+  }
+}

@@ -1,0 +1,159 @@
+{
+  "quadro": "Panel",
+  "vistaQuadro": "Panelboard view",
+  "intro": {
+    "selo": "NBR 5410 · Section 7 — Verification",
+    "titulo": "Installation verification tests",
+    "texto": "We will run the <b>Section 7 tests</b> with the <b>Fluke 1662</b> — a step that is <b>essential to the safety</b> of the installation: it confirms grounding continuity, insulation, polarity and automatic disconnection (RCD) before handover.",
+    "dica": "We start with the <b>receptacles</b> (point by point). Once that stage is organized, we move on to the tests at the <b>electrical panel</b>.",
+    "comecar": "Start with the receptacle tests →"
+  },
+  "ensaioN": "TEST {{n}}/{{total}}",
+  "parametro": "Parameter:",
+  "criterio": "Criterion:",
+  "pontoEnsaio": "Test point",
+  "tomada": "Receptacle {{n}}",
+  "medindo": "Measuring…",
+  "medirNovo": "↻ Measure again",
+  "medir": "▶ Measure",
+  "concluir": "📋 Complete verification",
+  "lcd": {
+    "medindo": "measuring…",
+    "auto": "AUTO",
+    "pronto": "ready"
+  },
+  "conforme": "Compliant",
+  "naoConforme": "Non-compliant",
+  "aplicando": "Applying test and reading…",
+  "conecte": "Connect and tap “Measure”.",
+  "condicao": {
+    "titulo": "Installation condition (instructor)",
+    "ok": "Compliant",
+    "falha": "Faulty"
+  },
+  "captura": {
+    "titulo": "Capture scene (camera pose)",
+    "botao": "🎥 Capture camera position",
+    "ajuda": "Frame the scene in the camera and capture — the pose (position + target) is copied; send it to me and I will save it as the initial view."
+  },
+  "identificar": {
+    "titulo": "Identify point",
+    "ligado": "Clicking (on)",
+    "ativar": "Enable identification",
+    "copiar": "📋 Copy all",
+    "limpar": "🗑 Clear"
+  },
+  "alvo": {
+    "quadro": "Panelboard",
+    "instalacao": "Installation",
+    "condutorProtecao": "Protective conductor (PE)",
+    "tomada": "Receptacle {{n}}"
+  },
+  "laudo": {
+    "titulo": "FINAL VERIFICATION REPORT",
+    "norma": "NBR 5410 — Section 7",
+    "subtitulo": "Installation verification · Healthcare facility",
+    "fechar": "Close report",
+    "instrumento": "Instrument:",
+    "metodo": "Method:",
+    "metodoValor": "§7.3 tests (final verification)",
+    "data": "Date:",
+    "aprovado": "INSTALLATION APPROVED",
+    "aprovadoSub": "All tests met the criteria of NBR 5410 — Section 7.",
+    "reprovado": "NON-COMPLIANT",
+    "reprovadoSub": "Some tests are outside the criteria — correct and retest before energizing.",
+    "andamento": "VERIFICATION IN PROGRESS",
+    "andamentoSub": "{{feitos}} of {{total}} tests completed. Complete the rest for the final assessment.",
+    "conforme": "COMPLIANT",
+    "naoConforme": "NON-COMPLIANT",
+    "naoEnsaiado": "Not tested.",
+    "criterio": "Criterion:",
+    "rodape": "Training document — SimuPower · does not replace a report by a qualified professional.",
+    "nova": "↺ New verification"
+  },
+  "veredito": {
+    "continuidade-aberto": "Open circuit — protective conductor interrupted.",
+    "continuidade-ok": "Continuous (low R). PE conductor intact.",
+    "isolamento-ok": "R_iso ≥ 1.0 MΩ — compliant (Table 61).",
+    "isolamento-baixo": "R_iso < 1.0 MΩ — insulation compromised.",
+    "polaridade-invertida": "Line and neutral reversed at the receptacle.",
+    "polaridade-ok": "Correct polarity; PE present.",
+    "zs-ok": "Low Zs — disconnection ensured within the required time (≤0.4 s).",
+    "zs-alta": "High Zs — may not disconnect within the required time.",
+    "dr-nao-disparou": "RCD did not trip in time — replace.",
+    "dr-tempo-ok": "t ≤ 300 ms — RCD compliant.",
+    "dr-rampa-ok": "Trip between 50–100% of IΔn — compliant.",
+    "dr-rampa-fora": "Trip outside 15–30 mA — RCD non-compliant.",
+    "re-ok": "RE compatible with the grounding system and RCD.",
+    "re-alta": "High RE — review the grounding grid."
+  },
+  "extra": {
+    "ensaio-500v": "500 V DC test",
+    "fn-invertidos": "L/N reversed",
+    "fnpe-corretos": "L-N-PE correct",
+    "pefc": "PEFC {{ipf}} A",
+    "x1-idn": "×1 IΔn",
+    "x1-idn-30": "×1 IΔn (30 mA)",
+    "idn-30": "IΔn 30 mA",
+    "metodo-loop": "Loop method"
+  },
+  "funcoes": {
+    "tensao": "Voltage / Polarity",
+    "isolamento": "Insulation resistance",
+    "continuidade": "Continuity (RLO)",
+    "loop": "Loop impedance (Zs)",
+    "rcd-tempo": "RCD trip time",
+    "rcd-rampa": "RCD trip current"
+  },
+  "ensaios": {
+    "continuidade": {
+      "nome": "Protective conductor continuity",
+      "norma": "NBR 5410 — 7.3.2 (continuity)",
+      "descricao": "Verify the continuity of the protective conductor (PE) and of the equipotential bonding connections between the panelboard and each receptacle.",
+      "parametro": "200 mA test, leads zeroed",
+      "criterio": "Low resistance, continuous conductor (typically < 1–2 Ω depending on length/cross-section)."
+    },
+    "isolamento": {
+      "nome": "Insulation resistance",
+      "norma": "NBR 5410 — 7.3.2 (insulation) · Table 61",
+      "descricao": "Measure the insulation resistance between live conductors and between live conductors and ground, with the installation de-energized.",
+      "parametro": "Test voltage 500 V DC (circuits up to 500 V)",
+      "criterio": "R_iso ≥ 1.0 MΩ (up to 500 V). SELV/PELV: 250 V, ≥ 0.5 MΩ. Above 500 V: 1000 V, ≥ 1.0 MΩ."
+    },
+    "polaridade": {
+      "nome": "Polarity test",
+      "norma": "NBR 5410 — 7.3.2 (polarity)",
+      "descricao": "Confirm line, neutral and ground on the correct receptacle terminals (line not reversed, PE present).",
+      "parametro": "Voltage/polarity check",
+      "criterio": "Line and neutral on the correct terminals; PE present; voltage within the nominal range."
+    },
+    "loop-zs": {
+      "nome": "Loop impedance (automatic disconnection)",
+      "norma": "NBR 5410 — 7.3.2 (automatic disconnection) · 5.1.2.2.4",
+      "descricao": "Measure the line-to-ground fault loop impedance (Zs) at the receptacle and calculate the prospective fault current, to confirm disconnection within the required time.",
+      "parametro": "No-trip mode (does not trip the RCD)",
+      "criterio": "Zs × Ia ≤ U0: the fault current must operate the protective device within the time of Table 24/25 (TN ≤ 0.4 s on final circuits)."
+    },
+    "rcd-tempo": {
+      "nome": "RCD trip time",
+      "norma": "NBR 5410 — 7.3.2 (RCD functional test) · 6.3.4.2",
+      "descricao": "Apply the rated residual current (IΔn) and its multiples (×½, ×1, ×5) to measure the operating time of the RCD protecting the receptacle.",
+      "parametro": "IΔn 30 mA, type A/AC, ×½ / ×1 / ×5, 0°/180°",
+      "criterio": "×½: no trip. ×1: ≤ 300 ms (general RCD). ×5: ≤ 40 ms."
+    },
+    "rcd-rampa": {
+      "nome": "RCD trip current",
+      "norma": "NBR 5410 — 7.3.2 (RCD functional test)",
+      "descricao": "Ramp up the residual current until the RCD operates, measuring the actual trip current.",
+      "parametro": "Ramp up to IΔn (30 mA)",
+      "criterio": "Trip between 50% and 100% of IΔn (15–30 mA for a 30 mA RCD)."
+    },
+    "aterramento": {
+      "nome": "Ground resistance",
+      "norma": "NBR 5410 — 7.3.2 (ground resistance)",
+      "descricao": "Measure the grounding electrode resistance by the loop method (no stakes), from a receptacle.",
+      "parametro": "Loop method (RE)",
+      "criterio": "Compatible with the grounding system and the RCD (e.g., TT: RA × IΔn ≤ 50 V)."
+    }
+  }
+}

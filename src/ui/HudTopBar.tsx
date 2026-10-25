@@ -3,6 +3,8 @@ import { useSim } from '../sim/store'
 import { ViewControls } from './ViewControls'
 import { asset } from '../lib/asset'
 import { color } from '../design/tokens'
+import { useTranslation } from 'react-i18next'
+import { LanguageSelector } from './LanguageSelector'
 
 /**
  * HudTopBar — barra superior padrão de TODAS as simulações: retorno ao menu +
@@ -26,6 +28,7 @@ export function HudTopBar({
   const setView = useSim((s) => s.setView)
   const equipamento = useSim((s) => s.equipamento)
   const ensaio = useSim((s) => s.ensaio)
+  const { t } = useTranslation()
   return (
     <div
       className="absolute top-0 inset-x-0 flex items-center gap-2 px-3 pointer-events-none"
@@ -34,11 +37,11 @@ export function HudTopBar({
       {/* esquerda: voltar ao menu + logo SimuPower */}
       <button
         onClick={() => setView('menu')}
-        aria-label="Voltar ao menu principal"
+        aria-label={t('topo.voltarMenu')}
         className="hud-glass rounded-[10px] px-3 py-2 text-[12.5px] pointer-events-auto flex items-center gap-1.5 shrink-0"
         style={{ color: color.text }}
       >
-        <span aria-hidden style={{ color: color.accent }}>‹</span> Menu
+        <span aria-hidden style={{ color: color.accent }}>‹</span> {t('topo.menu')}
       </button>
       <img
         src={asset('brand/logo-horizontal.png')}
@@ -64,10 +67,11 @@ export function HudTopBar({
       <div className="flex items-center gap-1.5 pointer-events-auto shrink-0">
         {views && <ViewControls compact />}
         {right}
+        <LanguageSelector />
         {onConfig && (
           <button
             onClick={onConfig}
-            aria-label="Configurações"
+            aria-label={t('topo.configuracoes')}
             className="hud-glass rounded-[10px] px-3 py-2 text-[14px]"
             style={{ color: configAberto ? color.accent : color.textMuted }}
           >

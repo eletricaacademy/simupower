@@ -1,0 +1,38 @@
+{
+  "roteiro": "Lista de inspección",
+  "abaRoteiro": "Lista",
+  "conformidade": "Conformidad",
+  "intro": {
+    "selo": "VISITA GUIADA",
+    "texto": "Explore la subestación libremente (arrastre, gire y use las vistas). Cuando esté listo, inicie la visita guiada: cada etapa lo lleva a un punto de inspección para evaluar.",
+    "iniciar": "▶ Iniciar visita guiada"
+  },
+  "item": "ÍTEM {{n}}/{{total}}",
+  "explorarLivre": "↺ explorar libremente",
+  "conforme": "✓ Conforme",
+  "naoConforme": "✗ No conforme",
+  "resultado": {
+    "veredito": "Veredicto",
+    "conformes": "Conformes",
+    "naoConformes": "No conf.",
+    "pendentes": "Pendientes"
+  },
+  "veredito": {
+    "andamento": "En curso",
+    "aprovado": "Aprobado",
+    "aprovado-pendencias": "Aprobado con pendientes",
+    "reprovado": "Reprobado"
+  },
+  "identificar": {
+    "titulo": "Identificar pieza",
+    "clicando": "Clic activo (encendido)",
+    "ativar": "Activar identificación",
+    "ajuda": "Actívelo y haga clic en la pieza que desea quitar; la coordenada se copia: envíemela y borro la pieza correcta."
+  },
+  "toggle": {
+    "grade": "Reja",
+    "paredes": "Paredes",
+    "ocultar": "Ocultar {{x}}",
+    "mostrar": "Mostrar {{x}}"
+  }
+}

@@ -10,6 +10,8 @@ import { getEngine } from '../engine/registry'
 import type { Perfil, TensaoEnsaio, ResultadoEnsaio } from '../engine/insulation'
 import { getEquipamento, getEnsaio, PAR_PADRAO } from '../catalog'
 import type { Equipment, TestProcedure } from '../catalog/types'
+import { localizarEnsaio, localizarEquipamento } from '../catalog/i18n/localizar'
+import { IDIOMA_PADRAO, type Idioma } from '../i18n/idiomas'
 import { carregarPref, salvarPref, type QualidadePref } from '../scene/quality'
 
 export interface Amostra {
@@ -20,9 +22,11 @@ export interface Amostra {
 export type FaseTeste = 'idle' | 'rodando' | 'concluido'
 
 interface SimState {
-  // par ativo
+  // par ativo — JÁ traduzido para `idioma` (ids, vistas e travas são os do catálogo)
   equipamento: Equipment
   ensaio: TestProcedure
+  /** idioma da interface; quem muda é o i18n (`i18n/config.ts`), não o HUD */
+  idioma: Idioma
 
   // progresso
   passoIndex: number
@@ -73,6 +77,8 @@ interface SimState {
 
   // ações
   carregarPar: (equipamentoId: string, ensaioId: string) => void
+  /** troca o idioma e re-traduz o par ativo SEM perder o andamento do ensaio */
+  setIdioma: (idioma: Idioma) => void
   cumprirPasso: (id: string) => void
   /** marca o passo como cumprido SEM avançar (navegação manual via Próximo) */
   marcarPasso: (id: string) => void
@@ -112,6 +118,7 @@ const SAMPLE_EVERY_S = 0.2
 export const useSim = create<SimState>((set, get) => ({
   equipamento: equipamentoInicial,
   ensaio: ensaioInicial,
+  idioma: IDIOMA_PADRAO,
 
   passoIndex: 0,
   cumpridos: {},
@@ -147,8 +154,9 @@ export const useSim = create<SimState>((set, get) => ({
   qualidadePref: carregarPref(),
 
   carregarPar: (equipamentoId, ensaioId) => {
-    const equipamento = getEquipamento(equipamentoId)
-    const ensaio = getEnsaio(ensaioId)
+    const { idioma } = get()
+    const equipamento = localizarEquipamento(getEquipamento(equipamentoId), idioma)
+    const ensaio = localizarEnsaio(getEnsaio(ensaioId), idioma)
     set({
       equipamento,
       ensaio,
@@ -169,6 +177,15 @@ export const useSim = create<SimState>((set, get) => ({
       peca: '',
       pickLog: [],
       confirmando: null,
+    })
+  },
+
+  setIdioma: (idioma) => {
+    const { equipamento, ensaio } = get()
+    set({
+      idioma,
+      equipamento: localizarEquipamento(getEquipamento(equipamento.id), idioma),
+      ensaio: localizarEnsaio(getEnsaio(ensaio.id), idioma),
     })
   },
 

@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import ptFv from '../i18n/locales/pt/usinaFv.json'
 import {
   montarMalha,
   resistenciaAparenteFv,
@@ -18,6 +19,7 @@ import {
   medirToquePasso,
   emitirLaudoFv,
   RESISTIVIDADE_SOLO,
+  ROTULO_SOLO,
   type PontoCurvaFv,
   type PerfilSoloFv,
 } from './usinaFv'
@@ -219,6 +221,28 @@ describe('usina FV — laudo', () => {
     expect(itens).toContain('Toque — portão, lado externo')
   })
 
+  it('achados trazem código e ponto para a UI traduzir', () => {
+    const l = completo('arenoso', 'com-defeitos')
+    const porPonto = Object.fromEntries(l.achados.filter((a) => a.pontoId).map((a) => [a.pontoId, a.codigo]))
+    expect(porPonto['m4']).toBe('cont-refazer-conexao')
+    expect(porPonto['portao']).toBe('cont-aberto')
+    expect(porPonto['t-portao']).toBe('tp-portao')
+    const semPatamar = completo('umido', 'conforme', PERTO).achados.find((a) => a.codigo === 'malha-sem-patamar')
+    expect(semPatamar?.dados?.distanciaCM).toBe(PERTO)
+  })
+
+  it('ação de cada código de achado = frase PT do JSON da tela', () => {
+    const acoes = (ptFv as unknown as { achado: { acao: Record<string, string> } }).achado.acao
+    const casos = [completo('arenoso', 'com-defeitos'), completo('rochoso', 'com-defeitos'), completo('umido', 'conforme', PERTO)]
+    const vistos = new Set<string>()
+    for (const l of casos)
+      for (const a of l.achados) {
+        expect(acoes[a.codigo], a.codigo).toBe(a.acao)
+        vistos.add(a.codigo)
+      }
+    expect(vistos.size).toBeGreaterThanOrEqual(4)
+  })
+
   it('curva sem patamar vira achado, não aprovação', () => {
     const l = completo('umido', 'conforme', PERTO)
     expect(l.conforme).toBe(false)
@@ -235,5 +259,40 @@ describe('usina FV — laudo', () => {
     })
     expect(l.completo).toBe(false)
     expect(l.conforme).toBe(false)
+  })
+})
+
+/**
+ * A tela traduz por id/código (`ui/UsinaFvHud.tsx`); o português do JSON tem que
+ * continuar idêntico às frases da engine e aos textos do catálogo de pontos.
+ * (As mesmas chaves em es/en são cobradas por `src/i18n/i18n.test.ts`.)
+ */
+describe('usina FV · textos de tela por id batem com a fonte em PT', () => {
+  const pt = ptFv as unknown as Record<string, any>
+  const molde = (s: string, m: string) => s.replace('{{m}}', m)
+
+  it('pontos de continuidade e de toque/passo', () => {
+    for (const p of PONTOS_CONTINUIDADE_FV) {
+      const mesa = /^m\d+$/.test(p.id)
+      const m = p.id.toUpperCase()
+      expect(mesa ? molde(pt.pontos.mesa.nome, m) : pt.pontos[p.id].nome).toBe(p.nome)
+      expect(mesa ? molde(pt.pontos.mesa.ate, m) : pt.pontos[p.id].ate).toBe(p.ate)
+      expect(pt.pontos[p.id]?.dica ?? pt.pontos.mesa.dica).toBe(p.dica)
+      expect(pt.grupo[p.grupo]).toBe(p.grupo)
+    }
+    for (const p of PONTOS_TOQUE_PASSO_FV) {
+      expect([pt.pontos[p.id].nome, pt.pontos[p.id].local, pt.pontos[p.id].dica]).toEqual([p.nome, p.local, p.dica])
+    }
+  })
+
+  it('solos, vereditos e ações dos achados', () => {
+    for (const id of Object.keys(ROTULO_SOLO) as PerfilSoloFv[]) expect(pt.solo[id]).toBe(ROTULO_SOLO[id])
+    expect(pt.cont.veredito.aberto).toBe(avaliarEquipotencializacao(Infinity).veredito)
+    expect(pt.cont.veredito.pass).toBe(avaliarEquipotencializacao(0.1).veredito)
+    expect(pt.cont.veredito.marginal).toBe(avaliarEquipotencializacao(0.8).veredito)
+    expect(pt.cont.veredito.fail).toBe(avaliarEquipotencializacao(2).veredito)
+    expect(pt.terr.veredito.pass).toBe(avaliarMalha(1).veredito)
+    expect(pt.terr.veredito.marginal).toBe(avaliarMalha(20).veredito)
+    expect(pt.terr.veredito.fail).toBe(avaliarMalha(50).veredito)
   })
 })

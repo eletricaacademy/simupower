@@ -1,0 +1,67 @@
+{
+  "abaInstrumento": "Instrument",
+  "passo": "STEP {{n}}/{{total}}",
+  "tensaoEnsaio": "Test voltage",
+  "energizado": "Energized",
+  "emEnsaio": "Testing…",
+  "cumpraAnteriores": "Complete the previous steps to unlock.",
+  "info": {
+    "titulo": "Understanding the insulation test",
+    "porque": "Why do it",
+    "porque1": "Checks the integrity of the insulation between the winding and the frame.",
+    "porque2": "Detects moisture, contamination and aging before they turn into a failure.",
+    "resultados": "Typical results (LV motor)",
+    "resultados1": "IEEE 43: minimum ≈ (kV + 1) MΩ corrected to 40 °C.",
+    "resultados2": "Motors in good condition: hundreds of MΩ to GΩ.",
+    "resultados3": "PI (R10min/R1min) > 2 good · 1–2 questionable · < 1 poor.",
+    "resultados4": "DAR (R60s/R30s) > 1.4 good (≥ 1.25 acceptable).",
+    "observar": "What to watch for",
+    "observar1": "Rising curve = dielectric absorption → dry/good insulation.",
+    "observar2": "Flat curve or low value = moisture or contamination.",
+    "observar3": "Temperature strongly affects the reading — always correct to 40 °C.",
+    "entendi": "Got it"
+  },
+  "instrutor": {
+    "titulo": "⠿ Instructor mode",
+    "fechar": "Close instructor mode",
+    "condicao": "Insulation condition",
+    "perfil": {
+      "bom": "Good",
+      "atencao": "Caution",
+      "ruim": "Poor / wet"
+    },
+    "temperatura": "Temperature",
+    "temperaturaRotulo": "Winding temperature",
+    "velocidade": "Test speed",
+    "notaQualidade": "Lower levels turn off bloom/shadows and render on demand — ideal for phones and low-end PCs.",
+    "calibrar": "Calibrate connection (clips)",
+    "clicando": "Clicking (on)",
+    "identificar": "Identify point",
+    "ajudaCalibrar": "Turn it on and click the point on the motor (terminal box for LINE, frame for EARTH); the coordinate is copied — send it to me and I will save the anchors.",
+    "reiniciar": "↺ Restart test"
+  },
+  "instrumento": {
+    "titulo": "Instrument · Megohmmeter",
+    "curva": "Resistance vs. time curve",
+    "dar": "DAR",
+    "pi": "PI",
+    "r40": "R@40°C",
+    "veredito": "Verdict"
+  },
+  "veredito": {
+    "excelente": "Excellent",
+    "aprovado": "Pass",
+    "questionavel": "Questionable",
+    "reprovado": "Fail"
+  },
+  "seguranca": {
+    "energizado": "ENERGIZED",
+    "bloqueado": "LOCKED OUT (LOTO)",
+    "verificar": "CHECK SAFETY",
+    "tensao": "Voltage"
+  },
+  "ancoras": {
+    "carcaca-terra": "Frame (grounding)",
+    "borne-u": "Terminal U (winding)"
+  }
+}

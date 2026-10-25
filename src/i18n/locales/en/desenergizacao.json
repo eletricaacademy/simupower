@@ -1,0 +1,52 @@
+{
+  "detalhesEtapa": "Step details",
+  "sequencia": "Sequence (NR-10)",
+  "abaEstado": "Status",
+  "comemoracao": {
+    "desTitulo": "De-energization complete!",
+    "reenTitulo": "Re-energization complete!",
+    "desTexto": "De-energization procedure completed successfully, per NR-10. The installation is safe for maintenance.",
+    "reenTexto": "Substation successfully re-energized and back in operation. Procedure complete.",
+    "prosseguir": "Proceed to re-energization ›"
+  },
+  "dialogo": {
+    "cuidados": "⚠ Precautions",
+    "erros": "✗ Common mistakes",
+    "entendi": "Got it"
+  },
+  "banner": {
+    "des": "✅ De-energization complete — installation safe. <b>Maintenance may begin.</b>",
+    "reen": "Substation re-energized — in operation."
+  },
+  "passoN": "STEP {{n}}/{{total}}",
+  "cliqueDestacado": "Click the highlighted point in the scene — or the button below.",
+  "preparado": "<b>⚠ Ready?</b> Now it is time to <m>{{manobra}}</m>.",
+  "manobra": {
+    "seccionar": "OPEN the circuit breaker",
+    "religar": "CLOSE the circuit breaker",
+    "carregar-mola": "CHARGE THE SPRING of the circuit breaker",
+    "padrao": "perform the switching operation"
+  },
+  "sim": "✓ Yes",
+  "etapaConcluida": "✓ Step completed",
+  "fimProcedimento": "End of procedure",
+  "estado": {
+    "titulo": "Safety status",
+    "seccionado": "Isolated",
+    "bloqueado": "Locked out (LOTO)",
+    "tensaoAusente": "Absence of voltage",
+    "aterrado": "Grounded",
+    "protegido": "Live parts protected",
+    "sinalizado": "Signage posted",
+    "liberado": "Released for work",
+    "reenergizada": "Re-energized — in operation"
+  },
+  "grade": "Fence",
+  "paredes": "Walls",
+  "calibrar": {
+    "titulo": "Calibrate point",
+    "ligado": "Clicking (on)",
+    "identificar": "Identify point",
+    "ajuda": "Click the breaker, lockout, test, grounding, protection and signage points; send me the coordinates and I will save them."
+  }
+}

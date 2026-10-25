@@ -1,0 +1,98 @@
+{
+  "idioma": {
+    "selecionar": "Language",
+    "rotulo": "Interface language",
+    "parcial": "Translation in progress: some text still appears in Portuguese."
+  },
+  "topo": {
+    "menu": "Menu",
+    "voltarMenu": "Back to main menu",
+    "configuracoes": "Settings"
+  },
+  "vistas": {
+    "reset": "Center",
+    "frontal": "Front",
+    "lateral": "Side",
+    "topo": "Top"
+  },
+  "som": {
+    "volume": "Volume",
+    "somEVolume": "Sound and volume",
+    "ativar": "Unmute",
+    "silenciar": "Mute"
+  },
+  "qualidade": {
+    "titulo": "Graphics quality",
+    "auto": "Auto",
+    "alto": "High",
+    "medio": "Medium",
+    "baixo": "Low",
+    "integrada": "(integrated)"
+  },
+  "splash": "loading 3D stage…",
+  "avisoMobile": {
+    "titulo": "Best on a computer",
+    "texto": "This 3D simulation was designed for <b>desktop</b> — there is more room for the equipment and instruments, and performance is better. You can still continue on your phone.",
+    "continuar": "Continue on phone",
+    "voltar": "Back to menu"
+  },
+  "bemVindo": {
+    "titulo": "Welcome to the simulation",
+    "texto": "The ambient sound you hear is the <b>real noise of a substation</b> in operation. Throughout the procedure, some <b>sound effects</b> will play and an <b>instructor</b> will guide you through each step as clearly as possible.",
+    "dica": "Turn up the volume for a better experience.",
+    "comecar": "Start"
+  },
+  "creditos": "Developed by <m>Elétrica Tools</m> · Eng. Pablo Guimarães",
+  "painel": {
+    "mostrar": "Show {{titulo}}",
+    "minimizar": "Minimize",
+    "minimizarRotulo": "Minimize {{titulo}}"
+  },
+  "lote": {
+    "executar": "Run all tests in this step",
+    "opcional": "Optional, for classroom use."
+  },
+  "detalhes": {
+    "ver": "See details"
+  },
+  "apresentador": {
+    "instrutor": "Instructor",
+    "narrando": "speaking…",
+    "locucao": "narration",
+    "repetir": "Replay narration"
+  },
+  "hud": {
+    "configuracoes": "Settings",
+    "simulacao": "Simulation",
+    "novoEnsaio": "↺ New test",
+    "encerrar": "✕ Exit",
+    "fechar": "Close",
+    "voltar": "‹ Back",
+    "proximo": "Next ›",
+    "fim": "End",
+    "concluido": "✓ Done",
+    "voltarMenu": "Back to menu",
+    "passo": "Step {{n}}",
+    "procedimento": "Procedure",
+    "painelEnsaio": "test panel",
+    "procedimentoMin": "procedure",
+    "parecer": "Assessment"
+  },
+  "mobile": {
+    "confirmarSair": "Leave the simulation? Current progress will be lost.",
+    "confirmarReiniciar": "Restart from the beginning? Current progress will be lost.",
+    "confirmar": "Confirm",
+    "nao": "No",
+    "reiniciar": "↺ Restart",
+    "sair": "✕ Leave simulation",
+    "mostrarPainel": "Show panel",
+    "opcoes": "Simulation options",
+    "minimizarPainel": "Minimize panel"
+  },
+  "inbrat": {
+    "titulo": "Kelvin connections and current direction",
+    "vias": "C1 and C2: red current leads. P1 and P2: black leads that measure voltage.",
+    "garras": "Each clamp takes two leads: P1/C1 or P2/C2. The clamp handle color identifies the cable in the scene; it does not indicate polarity.",
+    "sentido": "In the animations we use C1 → installation → C2. The manual does not explicitly identify the positive pole; this direction is a teaching convention."
+  }
+}

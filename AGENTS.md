@@ -1,6 +1,38 @@
 # SimuPower — contexto para agentes (Claude Code · Codex)
 
-### Continuação mais recente — 11/09/2026, fechamento FV e publicação
+### Continuação mais recente — 24/10/2026, idiomas ES/EN (Claude)
+
+- **Branch de trabalho: `feat/acesso-groundpro`** (é a que está em produção). Ela
+  saiu de `feat/aterramento-usina-fv` e traz o login por conta PowerDim/GroundPRO
+  (commits `129293b`, `fc948b8`, deploys de 12/09 e 14/09 por Lucas, Pages
+  `444f51b`). O item "Acesso atual" da seção de 11/09 abaixo está **desatualizado**:
+  além das senhas, há login por conta externa. Build local só fica igual ao de
+  produção com `.env.local` (`VITE_GROUNDPRO_ANON_KEY`, fora do git; não gravar aqui).
+- Pedido do Pablo: SimuPower em **espanhol (prioridade) e inglês**, seletor de
+  idioma no canto, no modelo do GroundPRO. **Feito nos nove módulos**: menu, login,
+  HUDs, catálogo, vereditos, laudos e CSV. PT na tela idêntico ao anterior, exceto
+  o separador decimal (vírgula onde antes saía ponto).
+- **Decisões do Pablo**: espanhol da **América do Sul** (*usted*, vírgula decimal);
+  "traduza primeiro, depois vemos as normas" — **normas PENDENTES**: citações
+  ABNT/NR mantidas sem equivalentes IEC, nenhum número/critério mudou. Também
+  pendentes (opção provisória em uso): SPCR + *captación*, locução desligada em
+  ES/EN (mp3 só em PT), selo "Módulo NR-10" mantido, "≤ 10 Ω da distribuidora".
+- **Para o Codex**: textos desenhados dentro do 3D (`src/scene/**`) continuam em PT
+  (painel INSIGHTS do hospital, placas da usina FV, "ferragem", displays do Inbrat
+  e do Fluke, placa PROIBIDO OPERAR…). Lista com arquivo:linha e chaves prontas em
+  `docs/i18n.md` §7. Claude não tocou em `src/scene/**`.
+- Detecção automática pelo idioma do navegador **desligada** até o 3D ficar pronto
+  (`DETECTAR_NAVEGADOR` em `src/i18n/config.ts`).
+- Validação: build e 197/197 testes; varredura no navegador dos nove módulos em ES,
+  EN e de volta a PT (sem texto de HUD fora do idioma). Passos internos cobertos
+  por teste, não clicados um a um; **celular não conferido**.
+- Achado anterior à tradução, não corrigido: âncoras duplicadas `aterramento` em
+  `src/catalog/equipment/subestacao.ts` (linhas 22 e 29) → aviso de chave no React.
+- **Sem commit e sem deploy** nesta rodada (53 arquivos alterados na árvore).
+  Contrato completo, glossário, contexto por cenário e termos a revisar:
+  `docs/i18n.md`.
+
+### Continuação — 11/09/2026, fechamento FV e publicação
 
 - Pablo autorizou registrar tudo na memória e fazer deploy. Fonte funcional
   `eb66214`, branch `feat/aterramento-usina-fv`; build e 146/146 testes aprovados.
@@ -92,6 +124,10 @@ engine pura e testada  →  catálogo orientado a dados  →  cena/HUD renderiza
   como prova dos critérios de 2026. Não apenas trocar o ano de regras antigas.
 
 - **Tudo em PT-BR**: nomes, comentários, textos de UI. Comentários explicam *por quê*.
+- **Idiomas (24/10/2026)**: a interface tem PT, ES e EN. Texto novo de tela vai para
+  `src/i18n/locales/{pt,es,en}/*.json` (nunca solto no TSX); passos/nomes do catálogo
+  traduzem-se por id em `src/catalog/i18n/{es,en}.ts`; números via `fmtNum`. Engine
+  devolve código de veredito, não frase. Contrato e pendências: `docs/i18n.md`.
 - **Nenhum hex solto**: cores vêm de `src/design/tokens.ts` (`color.accent`,
   `color.status.pass|marginal|fail`…).
 - **Norma citada** em cada passo/veredito; quando o número não estiver 100% fechado na
