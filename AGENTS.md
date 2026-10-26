@@ -28,7 +28,12 @@
   por teste, não clicados um a um; **celular não conferido**.
 - Achado anterior à tradução, não corrigido: âncoras duplicadas `aterramento` em
   `src/catalog/equipment/subestacao.ts` (linhas 22 e 29) → aviso de chave no React.
-- **Sem commit e sem deploy** nesta rodada (53 arquivos alterados na árvore).
+- **Commit `273263a` enviado** para `origin/feat/acesso-groundpro` (sem force push).
+  **Deploy NÃO feito:** falta `.env.local` com `VITE_GROUNDPRO_ANON_KEY` neste PC;
+  publicar sem ele desliga o login GroundPRO em produção (o PowerDim tem fallback).
+  Próximo passo: Pablo/Lucas criam o `.env.local` (modelo `.env.example`) → build →
+  clone limpo de `origin/gh-pages` → copiar `dist`, preservar CNAME/.nojekyll →
+  push sem force → conferir hash do HTML de produção. Merge para `main` aguarda Pablo.
   Contrato completo, glossário, contexto por cenário e termos a revisar:
   `docs/i18n.md`.
 
