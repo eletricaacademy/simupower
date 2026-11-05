@@ -462,6 +462,28 @@ export function MainMenu() {
                 >
                   {gpOcupado ? t('gate.verificando') : t('gate.entrar')}
                 </button>
+                {/* Primeiro acesso / esqueci a senha (05/11/2026): a conta é a do PowerDim, então a senha é criada lá. */}
+                <div className="mt-3 flex flex-wrap justify-between gap-2 text-[12.5px]">
+                  <a
+                    href="https://powerdim.eletricaacademy.com.br/validar"
+                    target="_blank"
+                    rel="noopener"
+                    className="underline-offset-2 hover:underline"
+                    style={{ color: color.accent }}
+                  >
+                    Primeiro acesso? Criar minha senha
+                  </a>
+                  <a
+                    href="https://powerdim.eletricaacademy.com.br/"
+                    target="_blank"
+                    rel="noopener"
+                    className="underline-offset-2 hover:underline"
+                    style={{ color: color.textMuted }}
+                    title="Abra o PowerDim e clique em “Esqueci a senha”. A nova senha vale aqui também."
+                  >
+                    Esqueci a senha
+                  </a>
+                </div>
               </div>
             )}
           </form>
